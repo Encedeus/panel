@@ -1,13 +1,13 @@
 package main
 
 import (
-	"Panel/routes"
+	"Panel/server"
 	"github.com/labstack/echo/v4"
 )
 
 var e = echo.New()
 
 func main() {
-	routes.RouteInit(e)
+	server.RouteInit(e)
 	e.Logger.Fatal(e.Start(":42069"))
 }

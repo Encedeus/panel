@@ -2,61 +2,46 @@ package config
 
 import (
 	"fmt"
-	"github.com/joho/godotenv"
+	"github.com/hashicorp/hcl/v2/hclsimple"
 	_ "github.com/joho/godotenv"
 	"log"
 	"os"
-	"strconv"
 )
 
+const DefaultLocation = "/etc/encedeus"
+
 type Configuration struct {
-	Server ServerConfiguration
-	Db     DatabaseConfiguration
+	Server ServerConfiguration   `hcl:"server"`
+	DB     DatabaseConfiguration `hcl:"database"`
 }
 
 type ServerConfiguration struct {
-	Host string
-	Port int
-	URI  string
+	Host string `hcl:"host"`
+	Port int    `hcl:"port"`
 }
+
+func (s *ServerConfiguration) URI() string {
+	return fmt.Sprintf("%s:%d", s.Host, s.Port)
+}
+
 type DatabaseConfiguration struct {
-	Host     string
-	Port     int
-	User     string
-	DbName   string
-	Password string
+	Host     string `hcl:"host"`
+	Port     int    `hcl:"port"`
+	User     string `hcl:"user"`
+	DBName   string `hcl:"dbname"`
+	Password string `hcl:"password"`
 }
 
 var Config Configuration
 
 func InitConfig() {
-	err := godotenv.Load()
+	_, err := os.Create(fmt.Sprintf("%s/config.hcl", DefaultLocation))
+	if err != nil && !os.IsExist(err) {
+		log.Fatalf("Failed creating configuration file: %v", err)
+	}
+
+	err = hclsimple.DecodeFile(fmt.Sprintf("%s/config.hcl", DefaultLocation), nil, &Config)
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		log.Fatalf("Failed to load configuration file: %v", err)
 	}
-
-	Config = Configuration{
-		ServerConfiguration{
-			os.Getenv("HOST"),
-			getIntEnv("PORT"),
-			fmt.Sprintf("%s:%d", os.Getenv("HOST"), getIntEnv("PORT")),
-		},
-		DatabaseConfiguration{
-			os.Getenv("DB_HOST"),
-			getIntEnv("DB_PORT"),
-			os.Getenv("DB_USER"),
-			os.Getenv("DB_NAME"),
-			os.Getenv("DB_PASS"),
-		},
-	}
-}
-
-func getIntEnv(key string) int {
-	value, err := strconv.Atoi(os.Getenv(key))
-
-	if err != nil {
-		log.Fatal("Failed to convert a environment variable to integer")
-	}
-
-	return value
 }

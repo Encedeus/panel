@@ -4,15 +4,10 @@ import (
 	"Panel/config"
 	"Panel/server"
 	"Panel/service"
-	"github.com/labstack/echo/v4"
 )
-
-var e = echo.New()
 
 func main() {
 	config.InitConfig()
-	server.RouteInit(e)
+	server.ServerInit()
 	service.DBInit()
-
-	e.Logger.Fatal(e.Start(config.Config.Server.URI))
 }

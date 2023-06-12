@@ -3,11 +3,11 @@
 package ent
 
 import (
-	"Panel/ent/role"
-	"Panel/ent/user"
 	"context"
 	"errors"
 	"fmt"
+	"panel/ent/role"
+	"panel/ent/user"
 	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"

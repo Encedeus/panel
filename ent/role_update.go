@@ -3,11 +3,11 @@
 package ent
 
 import (
-	"Panel/ent/predicate"
-	"Panel/ent/role"
 	"context"
 	"errors"
 	"fmt"
+	"panel/ent/predicate"
+	"panel/ent/role"
 	"time"
 
 	"entgo.io/ent/dialect/sql"

@@ -1,12 +1,12 @@
 package service
 
 import (
-	"Panel/config"
-	"Panel/ent"
 	"context"
 	"fmt"
 	_ "github.com/lib/pq"
 	"log"
+	"panel/config"
+	"panel/ent"
 )
 
 func DBInit() {

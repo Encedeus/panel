@@ -1,13 +1,13 @@
 package main
 
 import (
-	"Panel/config"
-	"Panel/server"
-	"Panel/service"
+	"panel/config"
+	"panel/server"
+	"panel/service"
 )
 
 func main() {
 	config.InitConfig()
-	server.ServerInit()
 	service.DBInit()
+	server.ServerInit()
 }

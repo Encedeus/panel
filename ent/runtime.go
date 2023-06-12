@@ -3,9 +3,9 @@
 package ent
 
 import (
-	"Panel/ent/role"
-	"Panel/ent/schema"
-	"Panel/ent/user"
+	"panel/ent/role"
+	"panel/ent/schema"
+	"panel/ent/user"
 	"time"
 
 	"github.com/google/uuid"

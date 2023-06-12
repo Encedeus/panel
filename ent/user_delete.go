@@ -3,9 +3,9 @@
 package ent
 
 import (
-	"Panel/ent/predicate"
-	"Panel/ent/user"
 	"context"
+	"panel/ent/predicate"
+	"panel/ent/user"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"

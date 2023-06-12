@@ -3,8 +3,8 @@
 package ent
 
 import (
-	"Panel/ent/user"
 	"fmt"
+	"panel/ent/user"
 	"strings"
 	"time"
 

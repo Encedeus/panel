@@ -8,10 +8,10 @@ import (
 	"fmt"
 	"log"
 
-	"Panel/ent/migrate"
+	"panel/ent/migrate"
 
-	"Panel/ent/role"
-	"Panel/ent/user"
+	"panel/ent/role"
+	"panel/ent/user"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"

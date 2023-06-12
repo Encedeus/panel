@@ -11,7 +11,7 @@ import (
 
 func DBInit() {
 	fmt.Printf(
-		"host=%s port=%d user=%s dbname=%s password=%s",
+		"host=%s port=%d user=%s dbname=%s password=%s\n ",
 		config.Config.Db.Host,
 		config.Config.Db.Port,
 		config.Config.Db.User,
@@ -23,7 +23,7 @@ func DBInit() {
 	client, err := ent.Open(
 		"postgres",
 		fmt.Sprintf(
-			"host=%s port=%d user=%s dbname=%s password=%s",
+			"host=%s port=%d user=%s dbname=%s password=%s sslmode=disable",
 			config.Config.Db.Host,
 			config.Config.Db.Port,
 			config.Config.Db.User,
@@ -31,7 +31,7 @@ func DBInit() {
 			config.Config.Db.Password,
 		),
 	)
-	//client, err := ent.Open("postgres", "host=panel_db port=5432 user=Panel dbname=PanelDB password=testPassword")
+
 	if err != nil {
 		log.Fatalf("failed opening connection to postgres: %v", err)
 	}

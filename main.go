@@ -14,5 +14,5 @@ func main() {
 	server.RouteInit(e)
 	service.DBInit()
 
-	e.Logger.Fatal(config.Config.Server.URI)
+	e.Logger.Fatal(e.Start(config.Config.Server.URI))
 }

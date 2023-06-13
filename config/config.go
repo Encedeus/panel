@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"github.com/hashicorp/hcl/v2/hclsimple"
 	_ "github.com/joho/godotenv"
@@ -8,11 +9,12 @@ import (
 	"os"
 )
 
-const DefaultLocation = "/etc/encedeus"
+// const DefaultLocation = "/etc/encedeus"
+const DefaultLocation = "./"
 
 type Configuration struct {
-	Server ServerConfiguration   `hcl:"server"`
-	DB     DatabaseConfiguration `hcl:"database"`
+	Server ServerConfiguration   `hcl:"server,block"`
+	DB     DatabaseConfiguration `hcl:"database,block"`
 }
 
 type ServerConfiguration struct {
@@ -20,27 +22,26 @@ type ServerConfiguration struct {
 	Port int    `hcl:"port"`
 }
 
-func (s *ServerConfiguration) URI() string {
-	return fmt.Sprintf("%s:%d", s.Host, s.Port)
-}
-
 type DatabaseConfiguration struct {
 	Host     string `hcl:"host"`
 	Port     int    `hcl:"port"`
 	User     string `hcl:"user"`
-	DBName   string `hcl:"dbname"`
+	DBName   string `hcl:"name"`
 	Password string `hcl:"password"`
+}
+
+func (s *ServerConfiguration) URI() string {
+	return fmt.Sprintf("%s:%d", s.Host, s.Port)
 }
 
 var Config Configuration
 
 func InitConfig() {
-	_, err := os.Create(fmt.Sprintf("%s/config.hcl", DefaultLocation))
-	if err != nil && !os.IsExist(err) {
-		log.Fatalf("Failed creating configuration file: %v", err)
+	if _, err := os.Stat("/path/to/whatever"); errors.Is(err, os.ErrNotExist) {
+		log.Fatal("Config file does not exist")
 	}
 
-	err = hclsimple.DecodeFile(fmt.Sprintf("%s/config.hcl", DefaultLocation), nil, &Config)
+	err := hclsimple.DecodeFile(fmt.Sprintf("%s/config.hcl", DefaultLocation), nil, &Config)
 	if err != nil {
 		log.Fatalf("Failed to load configuration file: %v", err)
 	}

@@ -37,7 +37,7 @@ func (s *ServerConfiguration) URI() string {
 var Config Configuration
 
 func InitConfig() {
-	if _, err := os.Stat("/path/to/whatever"); errors.Is(err, os.ErrNotExist) {
+	if _, err := os.Stat(fmt.Sprintf("%s/config.hcl", DefaultLocation)); errors.Is(err, os.ErrNotExist) {
 		log.Fatal("Config file does not exist")
 	}
 

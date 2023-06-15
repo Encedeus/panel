@@ -11,7 +11,6 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 )
 
 // RoleCreate is the builder for creating a Role entity.
@@ -19,12 +18,6 @@ type RoleCreate struct {
 	config
 	mutation *RoleMutation
 	hooks    []Hook
-}
-
-// SetUUID sets the "uuid" field.
-func (rc *RoleCreate) SetUUID(u uuid.UUID) *RoleCreate {
-	rc.mutation.SetUUID(u)
-	return rc
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -114,9 +107,6 @@ func (rc *RoleCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (rc *RoleCreate) check() error {
-	if _, ok := rc.mutation.UUID(); !ok {
-		return &ValidationError{Name: "uuid", err: errors.New(`ent: missing required field "Role.uuid"`)}
-	}
 	if _, ok := rc.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Role.created_at"`)}
 	}
@@ -157,10 +147,6 @@ func (rc *RoleCreate) createSpec() (*Role, *sqlgraph.CreateSpec) {
 		_node = &Role{config: rc.config}
 		_spec = sqlgraph.NewCreateSpec(role.Table, sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt))
 	)
-	if value, ok := rc.mutation.UUID(); ok {
-		_spec.SetField(role.FieldUUID, field.TypeUUID, value)
-		_node.UUID = value
-	}
 	if value, ok := rc.mutation.CreatedAt(); ok {
 		_spec.SetField(role.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value

@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
-	"github.com/google/uuid"
 )
 
 // ID filters vertices based on their ID field.
@@ -55,11 +54,6 @@ func IDLTE(id int) predicate.Role {
 	return predicate.Role(sql.FieldLTE(FieldID, id))
 }
 
-// UUID applies equality check predicate on the "uuid" field. It's identical to UUIDEQ.
-func UUID(v uuid.UUID) predicate.Role {
-	return predicate.Role(sql.FieldEQ(FieldUUID, v))
-}
-
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.Role {
 	return predicate.Role(sql.FieldEQ(FieldCreatedAt, v))
@@ -73,46 +67,6 @@ func UpdatedAt(v time.Time) predicate.Role {
 // Name applies equality check predicate on the "name" field. It's identical to NameEQ.
 func Name(v string) predicate.Role {
 	return predicate.Role(sql.FieldEQ(FieldName, v))
-}
-
-// UUIDEQ applies the EQ predicate on the "uuid" field.
-func UUIDEQ(v uuid.UUID) predicate.Role {
-	return predicate.Role(sql.FieldEQ(FieldUUID, v))
-}
-
-// UUIDNEQ applies the NEQ predicate on the "uuid" field.
-func UUIDNEQ(v uuid.UUID) predicate.Role {
-	return predicate.Role(sql.FieldNEQ(FieldUUID, v))
-}
-
-// UUIDIn applies the In predicate on the "uuid" field.
-func UUIDIn(vs ...uuid.UUID) predicate.Role {
-	return predicate.Role(sql.FieldIn(FieldUUID, vs...))
-}
-
-// UUIDNotIn applies the NotIn predicate on the "uuid" field.
-func UUIDNotIn(vs ...uuid.UUID) predicate.Role {
-	return predicate.Role(sql.FieldNotIn(FieldUUID, vs...))
-}
-
-// UUIDGT applies the GT predicate on the "uuid" field.
-func UUIDGT(v uuid.UUID) predicate.Role {
-	return predicate.Role(sql.FieldGT(FieldUUID, v))
-}
-
-// UUIDGTE applies the GTE predicate on the "uuid" field.
-func UUIDGTE(v uuid.UUID) predicate.Role {
-	return predicate.Role(sql.FieldGTE(FieldUUID, v))
-}
-
-// UUIDLT applies the LT predicate on the "uuid" field.
-func UUIDLT(v uuid.UUID) predicate.Role {
-	return predicate.Role(sql.FieldLT(FieldUUID, v))
-}
-
-// UUIDLTE applies the LTE predicate on the "uuid" field.
-func UUIDLTE(v uuid.UUID) predicate.Role {
-	return predicate.Role(sql.FieldLTE(FieldUUID, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.

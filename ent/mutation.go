@@ -36,7 +36,6 @@ type RoleMutation struct {
 	op                Op
 	typ               string
 	id                *int
-	uuid              *uuid.UUID
 	created_at        *time.Time
 	updated_at        *time.Time
 	name              *string
@@ -144,42 +143,6 @@ func (m *RoleMutation) IDs(ctx context.Context) ([]int, error) {
 	default:
 		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
 	}
-}
-
-// SetUUID sets the "uuid" field.
-func (m *RoleMutation) SetUUID(u uuid.UUID) {
-	m.uuid = &u
-}
-
-// UUID returns the value of the "uuid" field in the mutation.
-func (m *RoleMutation) UUID() (r uuid.UUID, exists bool) {
-	v := m.uuid
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUUID returns the old "uuid" field's value of the Role entity.
-// If the Role object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *RoleMutation) OldUUID(ctx context.Context) (v uuid.UUID, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUUID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUUID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUUID: %w", err)
-	}
-	return oldValue.UUID, nil
-}
-
-// ResetUUID resets all changes to the "uuid" field.
-func (m *RoleMutation) ResetUUID() {
-	m.uuid = nil
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -389,10 +352,7 @@ func (m *RoleMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *RoleMutation) Fields() []string {
-	fields := make([]string, 0, 5)
-	if m.uuid != nil {
-		fields = append(fields, role.FieldUUID)
-	}
+	fields := make([]string, 0, 4)
 	if m.created_at != nil {
 		fields = append(fields, role.FieldCreatedAt)
 	}
@@ -413,8 +373,6 @@ func (m *RoleMutation) Fields() []string {
 // schema.
 func (m *RoleMutation) Field(name string) (ent.Value, bool) {
 	switch name {
-	case role.FieldUUID:
-		return m.UUID()
 	case role.FieldCreatedAt:
 		return m.CreatedAt()
 	case role.FieldUpdatedAt:
@@ -432,8 +390,6 @@ func (m *RoleMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *RoleMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case role.FieldUUID:
-		return m.OldUUID(ctx)
 	case role.FieldCreatedAt:
 		return m.OldCreatedAt(ctx)
 	case role.FieldUpdatedAt:
@@ -451,13 +407,6 @@ func (m *RoleMutation) OldField(ctx context.Context, name string) (ent.Value, er
 // type.
 func (m *RoleMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case role.FieldUUID:
-		v, ok := value.(uuid.UUID)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUUID(v)
-		return nil
 	case role.FieldCreatedAt:
 		v, ok := value.(time.Time)
 		if !ok {
@@ -544,9 +493,6 @@ func (m *RoleMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *RoleMutation) ResetField(name string) error {
 	switch name {
-	case role.FieldUUID:
-		m.ResetUUID()
-		return nil
 	case role.FieldCreatedAt:
 		m.ResetCreatedAt()
 		return nil

@@ -11,7 +11,6 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/google/uuid"
 )
 
 // Role is the model entity for the Role schema.
@@ -19,8 +18,6 @@ type Role struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
-	// UUID holds the value of the "uuid" field.
-	UUID uuid.UUID `json:"uuid,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -46,8 +43,6 @@ func (*Role) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case role.FieldCreatedAt, role.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case role.FieldUUID:
-			values[i] = new(uuid.UUID)
 		case role.ForeignKeys[0]: // user_role
 			values[i] = new(sql.NullInt64)
 		default:
@@ -71,12 +66,6 @@ func (r *Role) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			r.ID = int(value.Int64)
-		case role.FieldUUID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
-				return fmt.Errorf("unexpected type %T for field uuid", values[i])
-			} else if value != nil {
-				r.UUID = *value
-			}
 		case role.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
@@ -146,9 +135,6 @@ func (r *Role) String() string {
 	var builder strings.Builder
 	builder.WriteString("Role(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", r.ID))
-	builder.WriteString("uuid=")
-	builder.WriteString(fmt.Sprintf("%v", r.UUID))
-	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(r.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")

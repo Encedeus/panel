@@ -13,8 +13,6 @@ const (
 	Label = "role"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
-	// FieldUUID holds the string denoting the uuid field in the database.
-	FieldUUID = "uuid"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
@@ -30,7 +28,6 @@ const (
 // Columns holds all SQL columns for role fields.
 var Columns = []string{
 	FieldID,
-	FieldUUID,
 	FieldCreatedAt,
 	FieldUpdatedAt,
 	FieldName,
@@ -73,11 +70,6 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
-}
-
-// ByUUID orders the results by the uuid field.
-func ByUUID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldUUID, opts...).ToFunc()
 }
 
 // ByCreatedAt orders the results by the created_at field.

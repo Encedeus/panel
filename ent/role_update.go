@@ -14,7 +14,6 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 )
 
 // RoleUpdate is the builder for updating Role entities.
@@ -27,12 +26,6 @@ type RoleUpdate struct {
 // Where appends a list predicates to the RoleUpdate builder.
 func (ru *RoleUpdate) Where(ps ...predicate.Role) *RoleUpdate {
 	ru.mutation.Where(ps...)
-	return ru
-}
-
-// SetUUID sets the "uuid" field.
-func (ru *RoleUpdate) SetUUID(u uuid.UUID) *RoleUpdate {
-	ru.mutation.SetUUID(u)
 	return ru
 }
 
@@ -142,9 +135,6 @@ func (ru *RoleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
-	if value, ok := ru.mutation.UUID(); ok {
-		_spec.SetField(role.FieldUUID, field.TypeUUID, value)
-	}
 	if value, ok := ru.mutation.CreatedAt(); ok {
 		_spec.SetField(role.FieldCreatedAt, field.TypeTime, value)
 	}
@@ -183,12 +173,6 @@ type RoleUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *RoleMutation
-}
-
-// SetUUID sets the "uuid" field.
-func (ruo *RoleUpdateOne) SetUUID(u uuid.UUID) *RoleUpdateOne {
-	ruo.mutation.SetUUID(u)
-	return ruo
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -326,9 +310,6 @@ func (ruo *RoleUpdateOne) sqlSave(ctx context.Context) (_node *Role, err error) 
 				ps[i](selector)
 			}
 		}
-	}
-	if value, ok := ruo.mutation.UUID(); ok {
-		_spec.SetField(role.FieldUUID, field.TypeUUID, value)
 	}
 	if value, ok := ruo.mutation.CreatedAt(); ok {
 		_spec.SetField(role.FieldCreatedAt, field.TypeTime, value)

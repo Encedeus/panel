@@ -10,14 +10,6 @@ import (
 )
 
 func DBInit() {
-	fmt.Printf(
-		"host=%s port=%d user=%s dbname=%s password=%s\n ",
-		config.Config.DB.Host,
-		config.Config.DB.Port,
-		config.Config.DB.User,
-		config.Config.DB.DBName,
-		config.Config.DB.Password)
-
 	// Connect to database
 	client, err := ent.Open(
 		"postgres",

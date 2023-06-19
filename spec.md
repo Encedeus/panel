@@ -1,0 +1,42 @@
+# Encedeus specification
+
+## Basic architecture
+ - ### Skyhook
+   - written in rust
+   - uses an actix web server
+   - gRPC connection to Backend
+   - runs in a non volatile docker container
+   - SFTP server
+     ####  Role
+       - controls the node machine
+       - starts the servers inside docker containers
+       - enables file read/write/transfer with a SFTP server
+       - receives data for starting and managing servers
+ - ### Backend
+   - written in go
+   - uses a echo web server
+   - REST api to frontend
+   - gRPC connection to Skyhook nodes
+   - gRPC connection to node plugin environments
+   - Postgres database
+   - config in hcl
+   - ent orm
+   - v1 / v2
+     #### Role 
+       - interprets plugins
+       - sends instructions to Skyhook
+       - Provides a REST API service for the frontend
+ - ### Frontend
+   - written in ts with svelte
+   - displays data provided by the REST API
+   - tailwind css
+   - post css
+     #### Role
+       - visual representation of server data
+       - visual representation of resource usage
+       - interface for interaction with servers
+       - UI
+ - ### Plugins
+   - written in js
+   - node
+## Communication

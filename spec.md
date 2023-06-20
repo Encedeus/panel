@@ -39,4 +39,14 @@
  - ### Plugins
    - written in js
    - node
-## Communication
+## Functionality
+ - ### Skyhook
+   - gRPC server (running subprocesses)
+   - WebSocket server (resource usage data)
+   - bash commands
+   - container spin up
+   - container spin down
+   - container restart
+   - console input / output
+   - usage data reporting
+   - server spec reporting 

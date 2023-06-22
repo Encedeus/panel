@@ -8,6 +8,6 @@ import (
 
 func main() {
 	config.InitConfig()
-	service.DBInit()
+	service.InitDB()
 	server.ServerInit()
 }

@@ -15,6 +15,7 @@ const DefaultLocation = "./"
 type Configuration struct {
 	Server ServerConfiguration   `hcl:"server,block"`
 	DB     DatabaseConfiguration `hcl:"database,block"`
+	Auth   AuthConfiguration     `hcl:"auth,block"`
 }
 
 type ServerConfiguration struct {
@@ -28,6 +29,11 @@ type DatabaseConfiguration struct {
 	User     string `hcl:"user"`
 	DBName   string `hcl:"name"`
 	Password string `hcl:"password"`
+}
+
+type AuthConfiguration struct {
+	JWTSecretAccess  string `hcl:"jwt_secret_access"`
+	JWTSecretRefresh string `hcl:"jwt_secret_refresh"`
 }
 
 func (s *ServerConfiguration) URI() string {

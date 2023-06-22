@@ -4,6 +4,7 @@ go 1.20
 
 require (
 	entgo.io/ent v0.12.3
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/uuid v1.3.0
 	github.com/hashicorp/hcl/v2 v2.17.0
 	github.com/joho/godotenv v1.5.1

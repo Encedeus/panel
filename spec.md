@@ -50,3 +50,36 @@
    - console input / output
    - usage data reporting
    - server spec reporting 
+
+## Endpoints documentation
+ - ### Auth 
+   - `/auth/login`
+     - logging in using the email or username and the password 
+       - request body
+         ```
+         {
+            "email": <email, not required if username is provided>,
+            "username": <username, not required if email is provided>,
+            "password": <password>
+         }
+         ```
+       - response body
+         ```
+            {
+                "accessToken": <access token>,
+                "refreshToken": <refresh token>
+            }
+         ```
+   - `/auth/refresh`
+     - refreshing the access token using the refresh token
+       - **note: request has no body**
+       - request header
+         ```
+            Authorization: Bearer <refresh token>
+         ```
+       - response body
+         ```
+            {
+                "accessToken": <access token>
+            }
+         ```

@@ -88,19 +88,15 @@ func (uc *UserCreate) SetName(s string) *UserCreate {
 	return uc
 }
 
-// AddRoleIDs adds the "role" edge to the Role entity by IDs.
-func (uc *UserCreate) AddRoleIDs(ids ...int) *UserCreate {
-	uc.mutation.AddRoleIDs(ids...)
+// SetRoleID sets the "role_id" field.
+func (uc *UserCreate) SetRoleID(i int) *UserCreate {
+	uc.mutation.SetRoleID(i)
 	return uc
 }
 
-// AddRole adds the "role" edges to the Role entity.
-func (uc *UserCreate) AddRole(r ...*Role) *UserCreate {
-	ids := make([]int, len(r))
-	for i := range r {
-		ids[i] = r[i].ID
-	}
-	return uc.AddRoleIDs(ids...)
+// SetRole sets the "role" edge to the Role entity.
+func (uc *UserCreate) SetRole(r *Role) *UserCreate {
+	return uc.SetRoleID(r.ID)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -190,6 +186,12 @@ func (uc *UserCreate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "User.name": %w`, err)}
 		}
 	}
+	if _, ok := uc.mutation.RoleID(); !ok {
+		return &ValidationError{Name: "role_id", err: errors.New(`ent: missing required field "User.role_id"`)}
+	}
+	if _, ok := uc.mutation.RoleID(); !ok {
+		return &ValidationError{Name: "role", err: errors.New(`ent: missing required edge "User.role"`)}
+	}
 	return nil
 }
 
@@ -246,7 +248,7 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	}
 	if nodes := uc.mutation.RoleIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2O,
 			Inverse: false,
 			Table:   user.RoleTable,
 			Columns: []string{user.RoleColumn},
@@ -258,6 +260,7 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		_node.RoleID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

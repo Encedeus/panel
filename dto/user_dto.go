@@ -1,7 +1,10 @@
 package dto
 
-type UserLoginDTO struct {
+type CreateUserDTO struct {
+	Name     string `json:"name"`
 	Email    string `json:"email"`
-	Username string `json:"username"`
 	Password string `json:"password"`
+	RoleId   int    `json:"role_id"`
+	RoleName string `json:"role_name"`
+	Pfp      string `json:"pfp"`
 }

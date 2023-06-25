@@ -23,11 +23,12 @@ func (User) Fields() []ent.Field {
 		field.String("password"),
 		field.Bytes("pfp").MaxLen(4000000),
 		field.String("name").MaxLen(32),
+		field.Int("role_id"),
 	}
 }
 
 func (User) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("role", Role.Type),
+		edge.To("role", Role.Type).Field("role_id").Unique().Required(),
 	}
 }

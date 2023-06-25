@@ -26,7 +26,6 @@ type Role struct {
 	Name string `json:"name,omitempty"`
 	// Permissions holds the value of the "permissions" field.
 	Permissions  []string `json:"permissions,omitempty"`
-	user_role    *int
 	selectValues sql.SelectValues
 }
 
@@ -43,8 +42,6 @@ func (*Role) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case role.FieldCreatedAt, role.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case role.ForeignKeys[0]: // user_role
-			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -91,13 +88,6 @@ func (r *Role) assignValues(columns []string, values []any) error {
 				if err := json.Unmarshal(*value, &r.Permissions); err != nil {
 					return fmt.Errorf("unmarshal field permissions: %w", err)
 				}
-			}
-		case role.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field user_role", value)
-			} else if value.Valid {
-				r.user_role = new(int)
-				*r.user_role = int(value.Int64)
 			}
 		default:
 			r.selectValues.Set(columns[i], values[i])

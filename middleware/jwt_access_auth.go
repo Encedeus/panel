@@ -20,16 +20,9 @@ func AccessJWTAuth(next echo.HandlerFunc) echo.HandlerFunc {
 		token := util.GetTokenFromHeader(c)
 		isValid, _, err := util.ValidateAccessJWT(token)
 
-		if !isValid {
+		if !isValid || err != nil {
 			return c.JSON(http.StatusUnauthorized, echo.Map{
 				"message": "unauthorised",
-			})
-		}
-
-		// responds with a status 500 if the error is not an invalid JWT
-		if err != nil {
-			return c.JSON(http.StatusInternalServerError, echo.Map{
-				"message": "internal server error",
 			})
 		}
 

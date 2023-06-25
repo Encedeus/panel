@@ -7,6 +7,7 @@ import (
 	_ "github.com/lib/pq"
 	"panel/config"
 	"panel/ent"
+	"panel/ent/role"
 	"panel/ent/user"
 	"panel/util"
 )
@@ -34,7 +35,7 @@ func InitDB() *ent.Client {
 		log.Fatalf("failed opening connection to postgres: %v", err)
 	}
 
-	db.Schema.Create(context.Background())
+	//db.Schema.Create(context.Background())
 
 	// update Db schema
 	if err := db.Schema.Create(ctx); err != nil {
@@ -42,7 +43,9 @@ func InitDB() *ent.Client {
 	}
 
 	// creates an admin user if it does not exist
+	createSuperuserRole(db, ctx)
 	createSuperuser(db, ctx)
+
 	Db = db
 	return db
 }
@@ -50,11 +53,11 @@ func InitDB() *ent.Client {
 func createSuperuser(db *ent.Client, ctx context.Context) {
 	exists, err := db.User.Query().Where(user.Name("admin")).Exist(ctx)
 
-	fmt.Println(exists)
-
 	if exists {
 		return
 	}
+
+	userRole, _ := db.Role.Get(ctx, 1)
 
 	if err == nil && !exists {
 		db.User.Create().
@@ -62,6 +65,24 @@ func createSuperuser(db *ent.Client, ctx context.Context) {
 			SetPassword(util.HashPassword("admin")).
 			SetEmail("admin@admin.com").
 			SetPfp([]byte{1, 2, 3}).
+			SetRole(userRole).
+			Save(ctx)
+		return
+	}
+
+	log.Error("failed to create superuser")
+}
+func createSuperuserRole(db *ent.Client, ctx context.Context) {
+	exists, err := db.Role.Query().Where(role.Name("superuser")).Exist(ctx)
+
+	if exists {
+		return
+	}
+
+	if err == nil && !exists {
+		db.Role.Create().
+			SetName("superuser").
+			SetPermissions([]string{"create_user", "delete_user", "edit_user"}). // TODO: implement in  a better way
 			Save(ctx)
 		return
 	}

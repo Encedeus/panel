@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"net/http"
 	"panel/dto"
@@ -32,14 +31,14 @@ func userLoginHandler(ctx echo.Context) error {
 	var (
 		err          error
 		passwordHash string
-		userId       uuid.UUID
+		tokenData    dto.AccessTokenDTO
 	)
 
 	// check which method was used for log in
 	if loginInfo.Username != "" {
-		passwordHash, userId, err = service.GetUserPasswordHashAndUUIDByUsername(loginInfo.Username)
+		passwordHash, tokenData, err = service.GetUserAuthDataAndHashByUsername(loginInfo.Username)
 	} else if loginInfo.Email != "" {
-		passwordHash, userId, err = service.GetUserPasswordHashAndUUIDByEmail(loginInfo.Email)
+		passwordHash, tokenData, err = service.GetUserAuthDataAndHashByEmail(loginInfo.Email)
 	} else {
 		return ctx.JSON(http.StatusBadRequest, echo.Map{
 			"message": "either username or email must be specified",
@@ -48,7 +47,7 @@ func userLoginHandler(ctx echo.Context) error {
 
 	// handle errors
 	if err != nil {
-		if err.Error() == "user not found" {
+		if ent.IsNotFound(err) {
 			return ctx.JSON(http.StatusNotFound, echo.Map{
 				"message": err.Error(),
 			})
@@ -69,7 +68,7 @@ func userLoginHandler(ctx echo.Context) error {
 	}
 
 	// generate access and refresh tokens
-	accessToken, refreshToken, err := util.GetTokenPair(userId)
+	accessToken, refreshToken, err := util.GetTokenPair(tokenData)
 
 	return ctx.JSON(http.StatusOK, echo.Map{
 		"accessToken":  accessToken,
@@ -79,10 +78,18 @@ func userLoginHandler(ctx echo.Context) error {
 
 func tokenRefreshHandler(ctx echo.Context) error {
 	// error safe because of the RefreshJWTAuth middleware
-	_, userId, _ := util.ValidateRefreshJWT(util.GetTokenFromHeader(ctx))
+	_, userData, _ := util.ValidateRefreshJWT(util.GetTokenFromHeader(ctx))
+
+	authData, err := service.GetUserAuthDataAndHashByUUID(userData.UserId)
+
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "internal server error",
+		})
+	}
 
 	// generate access token
-	accessToken, _ := util.GenerateAccessToken(*userId)
+	accessToken, _ := util.GenerateAccessToken(authData)
 
 	return ctx.JSON(http.StatusOK, echo.Map{
 		"accessToken": accessToken,

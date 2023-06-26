@@ -5,6 +5,7 @@ import (
 	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
+	"golang.org/x/exp/slices"
 	"panel/config"
 	"panel/dto"
 	"strings"
@@ -58,7 +59,7 @@ func GetTokenPair(userData dto.AccessTokenDTO) (string, string, error) {
 
 // GetTokenFromHeader extracts the token from the auth header
 func GetTokenFromHeader(ctx echo.Context) string {
-	// remove "Bearer " in front of the token
+	// removes "Bearer" in front of the token and returns the token
 	return strings.Split(ctx.Request().Header.Get("Authorization"), " ")[1]
 }
 
@@ -99,16 +100,17 @@ func ValidateRefreshJWT(tokenString string) (bool, dto.RefreshTokenDTO, error) {
 	return true, claims, err
 }
 
-func DoesTokenContainPermission(permission string, ctx echo.Context) bool {
-	isValid, token, err := ValidateAccessJWT(GetTokenFromHeader(ctx))
+// DoesTokenContainPermission checks whether a JWT contains a permission
+func DoesTokenContainPermission(permission string, jwt string) bool {
+	// verifies JWT is valid
+	isValid, token, err := ValidateAccessJWT(jwt)
 	if err != nil || !isValid {
 		return false
 	}
 
-	for _, v := range token.Permissions {
-		if v == permission {
-			return true
-		}
+	// checks if JWT contains the permission or was granted all permissions via '*'
+	if !slices.Contains(token.Permissions, permission) && !slices.Contains(token.Permissions, "*") {
+		return false
 	}
 	return true
 }

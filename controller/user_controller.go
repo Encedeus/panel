@@ -23,7 +23,7 @@ func init() {
 
 func handleCreateUser(ctx echo.Context) error {
 
-	if !util.DoesTokenContainPermission("create_user", ctx) {
+	if !util.DoesTokenContainPermission("create_user", util.GetTokenFromHeader(ctx)) {
 		return ctx.JSON(http.StatusUnauthorized, echo.Map{
 			"message": "unauthorised",
 		})

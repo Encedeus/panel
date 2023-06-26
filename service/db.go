@@ -35,7 +35,7 @@ func InitDB() *ent.Client {
 		log.Fatalf("failed opening connection to postgres: %v", err)
 	}
 
-	//db.Schema.Create(context.Background())
+	// db.Schema.Create(context.Background())
 
 	// update Db schema
 	if err := db.Schema.Create(ctx); err != nil {
@@ -82,7 +82,7 @@ func createSuperuserRole(db *ent.Client, ctx context.Context) {
 	if err == nil && !exists {
 		db.Role.Create().
 			SetName("superuser").
-			SetPermissions([]string{"create_user", "delete_user", "edit_user"}). // TODO: implement in  a better way
+			SetPermissions([]string{"*"}).
 			Save(ctx)
 		return
 	}

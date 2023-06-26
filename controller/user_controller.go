@@ -46,7 +46,7 @@ func handleCreateUser(ctx echo.Context) error {
 		err = service.CreateUserRoleId(userInfo.Name, userInfo.Email, util.HashPassword(userInfo.Password), userInfo.RoleId)
 	} else {
 		return ctx.JSON(http.StatusBadRequest, echo.Map{
-			"message": "either username or email must be specified",
+			"message": "either role name or id must be specified",
 		})
 	}
 

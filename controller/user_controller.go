@@ -19,7 +19,7 @@ func init() {
 	addController(func(server *echo.Echo, db *ent.Client) {
 		userEndpoint := server.Group("/user")
 
-		userEndpoint.Static("/pfp", "./pfp")
+		userEndpoint.Static("/pfp", config.Config.CDN.Directory)
 
 		userEndpoint.Use(middleware.AccessJWTAuth)
 

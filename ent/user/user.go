@@ -25,8 +25,6 @@ const (
 	FieldEmail = "email"
 	// FieldPassword holds the string denoting the password field in the database.
 	FieldPassword = "password"
-	// FieldPfp holds the string denoting the pfp field in the database.
-	FieldPfp = "pfp"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
 	// FieldRoleID holds the string denoting the role_id field in the database.
@@ -52,7 +50,6 @@ var Columns = []string{
 	FieldUpdatedAt,
 	FieldEmail,
 	FieldPassword,
-	FieldPfp,
 	FieldName,
 	FieldRoleID,
 }
@@ -76,8 +73,6 @@ var (
 	DefaultUpdatedAt time.Time
 	// EmailValidator is a validator for the "email" field. It is called by the builders before save.
 	EmailValidator func(string) error
-	// PfpValidator is a validator for the "pfp" field. It is called by the builders before save.
-	PfpValidator func([]byte) error
 	// NameValidator is a validator for the "name" field. It is called by the builders before save.
 	NameValidator func(string) error
 )

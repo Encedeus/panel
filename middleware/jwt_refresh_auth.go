@@ -18,7 +18,9 @@ func RefreshJWTAuth(next echo.HandlerFunc) echo.HandlerFunc {
 
 		// extract and validate JWT
 		token := util.GetTokenFromHeader(c)
-		isValid, _, err := util.ValidateRefreshJWT(token)
+		isValid, refreshToken, err := util.ValidateRefreshJWT(token)
+
+		c.Request().Header.Set("UUID", refreshToken.UserId.String())
 
 		if !isValid || err != nil {
 			return c.JSON(http.StatusUnauthorized, echo.Map{

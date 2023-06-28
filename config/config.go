@@ -16,6 +16,7 @@ type Configuration struct {
 	Server ServerConfiguration   `hcl:"server,block"`
 	DB     DatabaseConfiguration `hcl:"database,block"`
 	Auth   AuthConfiguration     `hcl:"auth,block"`
+	CDN    CDNConfiguration      `hcl:"cdn,block"`
 }
 
 type ServerConfiguration struct {
@@ -34,6 +35,10 @@ type DatabaseConfiguration struct {
 type AuthConfiguration struct {
 	JWTSecretAccess  string `hcl:"jwt_secret_access"`
 	JWTSecretRefresh string `hcl:"jwt_secret_refresh"`
+}
+
+type CDNConfiguration struct {
+	Directory string `hcl:"dir"`
 }
 
 func (s *ServerConfiguration) URI() string {

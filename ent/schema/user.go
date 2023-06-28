@@ -21,7 +21,6 @@ func (User) Fields() []ent.Field {
 		field.Time("updated_at").Default(time.Now()),
 		field.String("email").MaxLen(32),
 		field.String("password"),
-		field.Bytes("pfp").MaxLen(4000000),
 		field.String("name").MaxLen(32),
 		field.Int("role_id"),
 	}

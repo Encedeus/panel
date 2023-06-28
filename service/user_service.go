@@ -2,9 +2,12 @@ package service
 
 import (
 	"context"
+	"github.com/google/uuid"
 	"github.com/labstack/gommon/log"
+	"golang.org/x/exp/slices"
 	"panel/ent"
 	"panel/ent/role"
+	"panel/ent/user"
 )
 
 func CreateUserRoleId(name string, email string, passwordHash string, roleId int) error {
@@ -34,9 +37,22 @@ func CreateUser(name string, email string, passwordHash string, role *ent.Role) 
 	_, err := Db.User.Create().
 		SetName(name).
 		SetEmail(email).
-		SetPfp([]byte{1, 2, 3}). //TODO: add a profile picture generator (github style)
 		SetPassword(passwordHash).
 		SetRole(role).
 		Save(context.Background())
 	return err
+}
+
+func DoesUserHavePermission(permission string, userID uuid.UUID) bool {
+	first, err := Db.User.Query().Where(user.UUID(userID)).Select("role_id").First(context.Background())
+	if err != nil {
+		return false
+	}
+
+	roleData, err := Db.Role.Query().Where(role.ID(first.RoleID)).Select("permissions").First(context.Background())
+	if err != nil {
+		return false
+	}
+
+	return slices.Contains(roleData.Permissions, permission)
 }

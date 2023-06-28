@@ -10,6 +10,11 @@ import (
 
 func JSONSyntaxMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
+		// ignore if the body isn't json
+		if c.Request().Header.Get("Content-Type") != "application/json" {
+			return next(c)
+		}
+
 		// decode request to byte array
 		var body []byte
 		if c.Request().Body != nil {

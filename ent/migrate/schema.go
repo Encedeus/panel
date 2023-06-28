@@ -30,7 +30,6 @@ var (
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "email", Type: field.TypeString, Size: 32},
 		{Name: "password", Type: field.TypeString},
-		{Name: "pfp", Type: field.TypeBytes, Size: 4000000},
 		{Name: "name", Type: field.TypeString, Size: 32},
 		{Name: "role_id", Type: field.TypeInt},
 	}
@@ -42,7 +41,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "users_roles_role",
-				Columns:    []*schema.Column{UsersColumns[8]},
+				Columns:    []*schema.Column{UsersColumns[7]},
 				RefColumns: []*schema.Column{RolesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},

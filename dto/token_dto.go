@@ -6,8 +6,7 @@ import (
 )
 
 type AccessTokenDTO struct {
-	UserId      uuid.UUID `json:"user_id"`
-	Permissions []string  `json:"permissions"`
+	UserId uuid.UUID `json:"user_id"`
 	jwt.StandardClaims
 }
 

@@ -15,3 +15,7 @@ auth {
   jwt_secret_access = "i95FOB61kCoJjSt2SBSifhtwMHQ7Nasi"
   jwt_secret_refresh = "SjSt2fhtwi7BiFOS95MHQiasB61kCoJN"
 }
+
+cdn {
+  dir = "./pfp"
+}

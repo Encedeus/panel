@@ -76,12 +76,6 @@ func (uc *UserCreate) SetPassword(s string) *UserCreate {
 	return uc
 }
 
-// SetPfp sets the "pfp" field.
-func (uc *UserCreate) SetPfp(b []byte) *UserCreate {
-	uc.mutation.SetPfp(b)
-	return uc
-}
-
 // SetName sets the "name" field.
 func (uc *UserCreate) SetName(s string) *UserCreate {
 	uc.mutation.SetName(s)
@@ -170,14 +164,6 @@ func (uc *UserCreate) check() error {
 	if _, ok := uc.mutation.Password(); !ok {
 		return &ValidationError{Name: "password", err: errors.New(`ent: missing required field "User.password"`)}
 	}
-	if _, ok := uc.mutation.Pfp(); !ok {
-		return &ValidationError{Name: "pfp", err: errors.New(`ent: missing required field "User.pfp"`)}
-	}
-	if v, ok := uc.mutation.Pfp(); ok {
-		if err := user.PfpValidator(v); err != nil {
-			return &ValidationError{Name: "pfp", err: fmt.Errorf(`ent: validator failed for field "User.pfp": %w`, err)}
-		}
-	}
 	if _, ok := uc.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "User.name"`)}
 	}
@@ -237,10 +223,6 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	if value, ok := uc.mutation.Password(); ok {
 		_spec.SetField(user.FieldPassword, field.TypeString, value)
 		_node.Password = value
-	}
-	if value, ok := uc.mutation.Pfp(); ok {
-		_spec.SetField(user.FieldPfp, field.TypeBytes, value)
-		_node.Pfp = value
 	}
 	if value, ok := uc.mutation.Name(); ok {
 		_spec.SetField(user.FieldName, field.TypeString, value)

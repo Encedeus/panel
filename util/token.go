@@ -5,7 +5,6 @@ import (
 	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
-	"golang.org/x/exp/slices"
 	"panel/config"
 	"panel/dto"
 	"strings"
@@ -98,19 +97,4 @@ func ValidateRefreshJWT(tokenString string) (bool, dto.RefreshTokenDTO, error) {
 	}
 
 	return true, claims, err
-}
-
-// DoesTokenContainPermission checks whether a JWT contains a permission
-func DoesTokenContainPermission(permission string, jwt string) bool {
-	// verifies JWT is valid
-	isValid, token, err := ValidateAccessJWT(jwt)
-	if err != nil || !isValid {
-		return false
-	}
-
-	// checks if JWT contains the permission or was granted all permissions via '*'
-	if !slices.Contains(token.Permissions, permission) && !slices.Contains(token.Permissions, "*") {
-		return false
-	}
-	return true
 }

@@ -80,16 +80,8 @@ func tokenRefreshHandler(ctx echo.Context) error {
 	// error safe because of the RefreshJWTAuth middleware
 	_, userData, _ := util.ValidateRefreshJWT(util.GetTokenFromHeader(ctx))
 
-	authData, err := service.GetUserAuthDataAndHashByUUID(userData.UserId)
-
-	if err != nil {
-		return ctx.JSON(http.StatusInternalServerError, echo.Map{
-			"message": "internal server error",
-		})
-	}
-
 	// generate access token
-	accessToken, _ := util.GenerateAccessToken(authData)
+	accessToken, _ := util.GenerateAccessToken(dto.AccessTokenDTO{UserId: userData.UserId})
 
 	return ctx.JSON(http.StatusOK, echo.Map{
 		"accessToken": accessToken,

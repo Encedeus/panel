@@ -568,7 +568,6 @@ type UserMutation struct {
 	updated_at    *time.Time
 	email         *string
 	password      *string
-	pfp           *[]byte
 	name          *string
 	clearedFields map[string]struct{}
 	role          *int
@@ -856,42 +855,6 @@ func (m *UserMutation) ResetPassword() {
 	m.password = nil
 }
 
-// SetPfp sets the "pfp" field.
-func (m *UserMutation) SetPfp(b []byte) {
-	m.pfp = &b
-}
-
-// Pfp returns the value of the "pfp" field in the mutation.
-func (m *UserMutation) Pfp() (r []byte, exists bool) {
-	v := m.pfp
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldPfp returns the old "pfp" field's value of the User entity.
-// If the User object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *UserMutation) OldPfp(ctx context.Context) (v []byte, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldPfp is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldPfp requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldPfp: %w", err)
-	}
-	return oldValue.Pfp, nil
-}
-
-// ResetPfp resets all changes to the "pfp" field.
-func (m *UserMutation) ResetPfp() {
-	m.pfp = nil
-}
-
 // SetName sets the "name" field.
 func (m *UserMutation) SetName(s string) {
 	m.name = &s
@@ -1024,7 +987,7 @@ func (m *UserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserMutation) Fields() []string {
-	fields := make([]string, 0, 8)
+	fields := make([]string, 0, 7)
 	if m.uuid != nil {
 		fields = append(fields, user.FieldUUID)
 	}
@@ -1039,9 +1002,6 @@ func (m *UserMutation) Fields() []string {
 	}
 	if m.password != nil {
 		fields = append(fields, user.FieldPassword)
-	}
-	if m.pfp != nil {
-		fields = append(fields, user.FieldPfp)
 	}
 	if m.name != nil {
 		fields = append(fields, user.FieldName)
@@ -1067,8 +1027,6 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 		return m.Email()
 	case user.FieldPassword:
 		return m.Password()
-	case user.FieldPfp:
-		return m.Pfp()
 	case user.FieldName:
 		return m.Name()
 	case user.FieldRoleID:
@@ -1092,8 +1050,6 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldEmail(ctx)
 	case user.FieldPassword:
 		return m.OldPassword(ctx)
-	case user.FieldPfp:
-		return m.OldPfp(ctx)
 	case user.FieldName:
 		return m.OldName(ctx)
 	case user.FieldRoleID:
@@ -1141,13 +1097,6 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetPassword(v)
-		return nil
-	case user.FieldPfp:
-		v, ok := value.([]byte)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetPfp(v)
 		return nil
 	case user.FieldName:
 		v, ok := value.(string)
@@ -1229,9 +1178,6 @@ func (m *UserMutation) ResetField(name string) error {
 		return nil
 	case user.FieldPassword:
 		m.ResetPassword()
-		return nil
-	case user.FieldPfp:
-		m.ResetPfp()
 		return nil
 	case user.FieldName:
 		m.ResetName()

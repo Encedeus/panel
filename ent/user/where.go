@@ -81,11 +81,6 @@ func Password(v string) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldPassword, v))
 }
 
-// Pfp applies equality check predicate on the "pfp" field. It's identical to PfpEQ.
-func Pfp(v []byte) predicate.User {
-	return predicate.User(sql.FieldEQ(FieldPfp, v))
-}
-
 // Name applies equality check predicate on the "name" field. It's identical to NameEQ.
 func Name(v string) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldName, v))
@@ -344,46 +339,6 @@ func PasswordEqualFold(v string) predicate.User {
 // PasswordContainsFold applies the ContainsFold predicate on the "password" field.
 func PasswordContainsFold(v string) predicate.User {
 	return predicate.User(sql.FieldContainsFold(FieldPassword, v))
-}
-
-// PfpEQ applies the EQ predicate on the "pfp" field.
-func PfpEQ(v []byte) predicate.User {
-	return predicate.User(sql.FieldEQ(FieldPfp, v))
-}
-
-// PfpNEQ applies the NEQ predicate on the "pfp" field.
-func PfpNEQ(v []byte) predicate.User {
-	return predicate.User(sql.FieldNEQ(FieldPfp, v))
-}
-
-// PfpIn applies the In predicate on the "pfp" field.
-func PfpIn(vs ...[]byte) predicate.User {
-	return predicate.User(sql.FieldIn(FieldPfp, vs...))
-}
-
-// PfpNotIn applies the NotIn predicate on the "pfp" field.
-func PfpNotIn(vs ...[]byte) predicate.User {
-	return predicate.User(sql.FieldNotIn(FieldPfp, vs...))
-}
-
-// PfpGT applies the GT predicate on the "pfp" field.
-func PfpGT(v []byte) predicate.User {
-	return predicate.User(sql.FieldGT(FieldPfp, v))
-}
-
-// PfpGTE applies the GTE predicate on the "pfp" field.
-func PfpGTE(v []byte) predicate.User {
-	return predicate.User(sql.FieldGTE(FieldPfp, v))
-}
-
-// PfpLT applies the LT predicate on the "pfp" field.
-func PfpLT(v []byte) predicate.User {
-	return predicate.User(sql.FieldLT(FieldPfp, v))
-}
-
-// PfpLTE applies the LTE predicate on the "pfp" field.
-func PfpLTE(v []byte) predicate.User {
-	return predicate.User(sql.FieldLTE(FieldPfp, v))
 }
 
 // NameEQ applies the EQ predicate on the "name" field.

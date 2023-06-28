@@ -1,8 +1,13 @@
 package controller
 
 import (
+	"fmt"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
+	"io"
 	"net/http"
+	"os"
+	"panel/config"
 	"panel/dto"
 	"panel/ent"
 	"panel/middleware"
@@ -14,16 +19,19 @@ func init() {
 	addController(func(server *echo.Echo, db *ent.Client) {
 		userEndpoint := server.Group("/user")
 
+		userEndpoint.Static("/pfp", "./pfp")
+
 		userEndpoint.Use(middleware.AccessJWTAuth)
 
 		userEndpoint.POST("/create", handleCreateUser)
-
+		userEndpoint.POST("/setpfp", SetPfp)
 	})
 }
 
 func handleCreateUser(ctx echo.Context) error {
+	userID, _ := uuid.Parse(ctx.Request().Header.Get("UUID"))
 
-	if !util.DoesTokenContainPermission("create_user", util.GetTokenFromHeader(ctx)) {
+	if service.DoesUserHavePermission("create_user", userID) {
 		return ctx.JSON(http.StatusUnauthorized, echo.Map{
 			"message": "unauthorised",
 		})
@@ -63,4 +71,29 @@ func handleCreateUser(ctx echo.Context) error {
 	}
 
 	return ctx.JSON(http.StatusCreated, echo.Map{"message": "ok"})
+}
+
+func SetPfp(ctx echo.Context) error {
+
+	file, err := ctx.FormFile("file")
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, echo.Map{"message": "bad request"})
+	}
+
+	src, err := file.Open()
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, echo.Map{"message": "internal server error"})
+	}
+	defer src.Close()
+
+	dst, err := os.Create(fmt.Sprintf("%s/%s", config.Config.CDN.Directory, ctx.Request().Header.Get("UUID")))
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, echo.Map{"message": "internal server error"})
+	}
+
+	if _, err = io.Copy(dst, src); err != nil {
+		return ctx.JSON(http.StatusInternalServerError, echo.Map{"message": "internal server error"})
+	}
+
+	return ctx.JSON(http.StatusOK, echo.Map{"message": "ok"})
 }

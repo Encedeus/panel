@@ -3,7 +3,7 @@
 </script>
 
 <div>
-  <p>10</p>
+  <p>6</p>
 </div>
 <p></p>
 <!--<Input/>-->

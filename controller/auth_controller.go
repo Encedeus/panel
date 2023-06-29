@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/gommon/log"
 	"net/http"
 	"panel/dto"
 	"panel/ent"
@@ -52,6 +53,8 @@ func userLoginHandler(ctx echo.Context) error {
 				"message": err.Error(),
 			})
 		}
+
+		log.Errorf("uncaught error querying user: %v", err)
 
 		return ctx.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "internal server error",

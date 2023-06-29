@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"github.com/google/uuid"
-	"github.com/labstack/gommon/log"
 	"golang.org/x/exp/slices"
 	"panel/ent"
 	"panel/ent/role"
@@ -15,7 +14,6 @@ func CreateUserRoleId(name string, email string, passwordHash string, roleId int
 	roleData, err := Db.Role.Get(context.Background(), roleId)
 
 	if err != nil {
-		log.Fatalf("error querying role")
 		return err
 	}
 
@@ -26,7 +24,6 @@ func CreateUserRoleName(name string, email string, passwordHash string, roleName
 	roleData, err := Db.Role.Query().Where(role.Name(roleName)).First(context.Background())
 
 	if err != nil {
-		log.Fatalf("error querying role")
 		return err
 	}
 
@@ -54,5 +51,5 @@ func DoesUserHavePermission(permission string, userID uuid.UUID) bool {
 		return false
 	}
 
-	return slices.Contains(roleData.Permissions, permission)
+	return slices.Contains(roleData.Permissions, permission) || slices.Contains(roleData.Permissions, "*")
 }

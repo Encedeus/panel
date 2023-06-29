@@ -30,7 +30,7 @@ var (
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "email", Type: field.TypeString, Size: 32},
 		{Name: "password", Type: field.TypeString},
-		{Name: "name", Type: field.TypeString, Size: 32},
+		{Name: "name", Type: field.TypeString, Unique: true, Size: 32},
 		{Name: "role_id", Type: field.TypeInt},
 	}
 	// UsersTable holds the schema information for the "users" table.

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/gommon/log"
 	"io"
 	"net/http"
 	"os"
@@ -29,9 +30,9 @@ func init() {
 }
 
 func handleCreateUser(ctx echo.Context) error {
-	userID, _ := uuid.Parse(ctx.Request().Header.Get("UUID"))
+	userId, _ := uuid.Parse(ctx.Request().Header.Get("UUID"))
 
-	if service.DoesUserHavePermission("create_user", userID) {
+	if !service.DoesUserHavePermission("create_user", userId) {
 		return ctx.JSON(http.StatusUnauthorized, echo.Map{
 			"message": "unauthorised",
 		})
@@ -61,9 +62,17 @@ func handleCreateUser(ctx echo.Context) error {
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return ctx.JSON(http.StatusNotFound, echo.Map{
-				"message": err.Error(),
+				"message": "role not found",
 			})
 		}
+
+		if ent.IsConstraintError(err) {
+			return ctx.JSON(http.StatusConflict, echo.Map{
+				"message": "username taken",
+			})
+		}
+
+		log.Errorf("uncaught error querying role: %v", err)
 
 		return ctx.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "internal server error",
@@ -74,7 +83,6 @@ func handleCreateUser(ctx echo.Context) error {
 }
 
 func SetPfp(ctx echo.Context) error {
-
 	file, err := ctx.FormFile("file")
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, echo.Map{"message": "bad request"})

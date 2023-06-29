@@ -53,7 +53,7 @@
 
 ## Endpoints documentation
  - ### Auth 
-   - `/auth/login`
+   - `POST /auth/login`
      - logging in using the email or username and the password 
        - request body
          ```
@@ -70,7 +70,7 @@
                 "refreshToken": <refresh token>
             }
          ```
-   - `/auth/refresh`
+   - `GET /auth/refresh`
      - refreshing the access token using the refresh token
        - **note: request has no body**
        - request header
@@ -83,3 +83,33 @@
                 "accessToken": <access token>
             }
          ```
+ - ### User
+   - `POST /user/create`
+     - creating a user
+       - request header
+         ```
+            Authorization: Bearer <access token>
+         ```
+       - request body 
+         ```
+            {
+                "name": <username>,
+                "password": <password>,
+                "email": <email>,
+                "role_id": <role id, not required if role name is provided>
+                "role_name": <role name, not required if role id is provided>
+            }
+         ```
+   - `POST /user/setpfp`
+     - setting a user pfp, used in user creation and updating
+       - request header
+         ```
+            Authorization: Bearer <access token>
+         ```
+       - request body (multipart form)
+         ```
+            file=<file path>
+         ```
+   - `GET /user/pfp/:uuid`
+     - getting a user pfp
+       - parameter set in url (uuid after `/user/pfp/`)

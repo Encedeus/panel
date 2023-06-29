@@ -25,13 +25,16 @@ func init() {
 		userEndpoint.Use(middleware.AccessJWTAuth)
 
 		userEndpoint.POST("/create", handleCreateUser)
-		userEndpoint.POST("/setpfp", SetPfp)
+		userEndpoint.POST("/setpfp", setPfp)
+		userEndpoint.POST("/update", handleUserUpdate)
 	})
 }
 
 func handleCreateUser(ctx echo.Context) error {
+	// get uuid from header provided by the middleware
 	userId, _ := uuid.Parse(ctx.Request().Header.Get("UUID"))
 
+	// check permissions
 	if !service.DoesUserHavePermission("create_user", userId) {
 		return ctx.JSON(http.StatusUnauthorized, echo.Map{
 			"message": "unauthorised",
@@ -41,6 +44,7 @@ func handleCreateUser(ctx echo.Context) error {
 	userInfo := dto.CreateUserDTO{}
 	ctx.Bind(&userInfo)
 
+	// check if all the fields are provided
 	if userInfo.Name == "" || userInfo.Password == "" || userInfo.Email == "" {
 		return ctx.JSON(http.StatusBadRequest, echo.Map{
 			"message": "bad request",
@@ -48,7 +52,7 @@ func handleCreateUser(ctx echo.Context) error {
 	}
 
 	var err error
-
+	// check which method was used for role assignment
 	if userInfo.RoleName != "" {
 		err = service.CreateUserRoleName(userInfo.Name, userInfo.Email, util.HashPassword(userInfo.Password), userInfo.RoleName)
 	} else if userInfo.RoleId != 0 {
@@ -59,6 +63,7 @@ func handleCreateUser(ctx echo.Context) error {
 		})
 	}
 
+	// error checking
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return ctx.JSON(http.StatusNotFound, echo.Map{
@@ -72,6 +77,7 @@ func handleCreateUser(ctx echo.Context) error {
 			})
 		}
 
+		// log any uncaught errors
 		log.Errorf("uncaught error querying role: %v", err)
 
 		return ctx.JSON(http.StatusInternalServerError, echo.Map{
@@ -82,25 +88,78 @@ func handleCreateUser(ctx echo.Context) error {
 	return ctx.JSON(http.StatusCreated, echo.Map{"message": "ok"})
 }
 
-func SetPfp(ctx echo.Context) error {
+func setPfp(ctx echo.Context) error {
+	// get file from multipart
 	file, err := ctx.FormFile("file")
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, echo.Map{"message": "bad request"})
 	}
 
+	// open file
 	src, err := file.Open()
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, echo.Map{"message": "internal server error"})
 	}
 	defer src.Close()
 
+	// create file
 	dst, err := os.Create(fmt.Sprintf("%s/%s", config.Config.CDN.Directory, ctx.Request().Header.Get("UUID")))
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, echo.Map{"message": "internal server error"})
 	}
 
+	// write to file
 	if _, err = io.Copy(dst, src); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, echo.Map{"message": "internal server error"})
+	}
+
+	return ctx.JSON(http.StatusOK, echo.Map{"message": "ok"})
+}
+
+func handleUserUpdate(ctx echo.Context) error {
+	userId, _ := uuid.Parse(ctx.Request().Header.Get("UUID"))
+
+	// check permissions
+	if !service.DoesUserHavePermission("update_user", userId) {
+		return ctx.JSON(http.StatusUnauthorized, echo.Map{
+			"message": "unauthorised",
+		})
+	}
+
+	updateInfo := dto.UpdateUserDTO{}
+	ctx.Bind(&updateInfo)
+
+	// check if no fields are provided
+	if updateInfo.Name == "" && updateInfo.Email == "" && updateInfo.Password == "" && updateInfo.RoleName == "" && updateInfo.RoleId == 0 {
+		return ctx.JSON(http.StatusBadRequest, echo.Map{
+			"message": "bad request",
+		})
+	}
+
+	err := service.UpdateUser(updateInfo, userId)
+
+	// error checking
+	if err != nil {
+
+		if ent.IsNotFound(err) {
+			return ctx.JSON(http.StatusNotFound, echo.Map{
+				"message": "role not found",
+			})
+		}
+		if ent.IsValidationError(err) {
+			return ctx.JSON(http.StatusNotFound, echo.Map{
+				"message": "validation error",
+			})
+		}
+		if ent.IsConstraintError(err) {
+			return ctx.JSON(http.StatusNotFound, echo.Map{
+				"message": "constraint error",
+			})
+		}
+
+		return ctx.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "internal server error",
+		})
 	}
 
 	return ctx.JSON(http.StatusOK, echo.Map{"message": "ok"})

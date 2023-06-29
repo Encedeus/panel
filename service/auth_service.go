@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"github.com/labstack/gommon/log"
 	"panel/dto"
 	"panel/ent"
@@ -11,7 +10,7 @@ import (
 
 // GetUserAuthDataAndHashByUsername returns the user's uuid and hashed password provided the username of the user
 func GetUserAuthDataAndHashByUsername(username string) (string, dto.AccessTokenDTO, error) {
-	userData, err := Db.User.Query().Where(user.Name(username)).First(context.Background())
+	userData, err := Db.User.Query().Where(user.Name(username)).Select("uuid", "password").First(context.Background())
 
 	if err != nil {
 		if !ent.IsNotFound(err) {
@@ -21,8 +20,6 @@ func GetUserAuthDataAndHashByUsername(username string) (string, dto.AccessTokenD
 		return "", dto.AccessTokenDTO{}, err
 	}
 
-	fmt.Println(userData)
-
 	return userData.Password, dto.AccessTokenDTO{
 		UserId: userData.UUID,
 	}, nil
@@ -30,7 +27,7 @@ func GetUserAuthDataAndHashByUsername(username string) (string, dto.AccessTokenD
 
 // GetUserAuthDataAndHashByEmail returns the user's uuid and hashed password provided the email of the user
 func GetUserAuthDataAndHashByEmail(email string) (string, dto.AccessTokenDTO, error) {
-	userData, err := Db.User.Query().Where(user.Email(email)).Select("uuid", "password", "user_role").First(context.Background())
+	userData, err := Db.User.Query().Where(user.Email(email)).Select("uuid", "password").First(context.Background())
 
 	if err != nil {
 		if ent.IsNotFound(err) {

@@ -22,6 +22,8 @@ type Role struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// DeletedAt holds the value of the "deleted_at" field.
+	DeletedAt time.Time `json:"deleted_at,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
 	// Permissions holds the value of the "permissions" field.
@@ -40,7 +42,7 @@ func (*Role) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case role.FieldName:
 			values[i] = new(sql.NullString)
-		case role.FieldCreatedAt, role.FieldUpdatedAt:
+		case role.FieldCreatedAt, role.FieldUpdatedAt, role.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -74,6 +76,12 @@ func (r *Role) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
 				r.UpdatedAt = value.Time
+			}
+		case role.FieldDeletedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
+			} else if value.Valid {
+				r.DeletedAt = value.Time
 			}
 		case role.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -130,6 +138,9 @@ func (r *Role) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
 	builder.WriteString(r.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("deleted_at=")
+	builder.WriteString(r.DeletedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("name=")
 	builder.WriteString(r.Name)

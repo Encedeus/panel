@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"github.com/google/uuid"
 	"golang.org/x/exp/slices"
 	"panel/dto"
@@ -9,37 +10,38 @@ import (
 	"panel/ent/role"
 	"panel/ent/user"
 	"panel/util"
+	"time"
 )
 
-func CreateUserRoleId(name string, email string, passwordHash string, roleId int) error {
+func CreateUserRoleId(name string, email string, passwordHash string, roleId int) (*uuid.UUID, error) {
 
 	roleData, err := Db.Role.Get(context.Background(), roleId)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	return CreateUser(name, email, passwordHash, roleData)
 }
 
-func CreateUserRoleName(name string, email string, passwordHash string, roleName string) error {
+func CreateUserRoleName(name string, email string, passwordHash string, roleName string) (*uuid.UUID, error) {
 	roleData, err := Db.Role.Query().Where(role.Name(roleName)).First(context.Background())
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	return CreateUser(name, email, passwordHash, roleData)
 }
 
-func CreateUser(name string, email string, passwordHash string, role *ent.Role) error {
-	_, err := Db.User.Create().
+func CreateUser(name string, email string, passwordHash string, role *ent.Role) (*uuid.UUID, error) {
+	userData, err := Db.User.Create().
 		SetName(name).
 		SetEmail(email).
 		SetPassword(passwordHash).
 		SetRole(role).
 		Save(context.Background())
-	return err
+	return &userData.UUID, err
 }
 
 // DoesUserHavePermission checks if user's role have a permission
@@ -58,8 +60,8 @@ func DoesUserHavePermission(permission string, userID uuid.UUID) bool {
 }
 
 // UpdateUser updates the user given an updateInfo dto
-func UpdateUser(updateInfo dto.UpdateUserDTO, userId uuid.UUID) error {
-	userData, err := Db.User.Query().Where(user.UUID(userId)).First(context.Background())
+func UpdateUser(updateInfo dto.UpdateUserDTO) error {
+	userData, err := Db.User.Query().Where(user.UUID(updateInfo.UserId)).First(context.Background())
 	if err != nil {
 		return err
 	}
@@ -89,6 +91,25 @@ func UpdateUser(updateInfo dto.UpdateUserDTO, userId uuid.UUID) error {
 			return roleErr
 		}
 		_, err = userData.Update().SetRole(roleData).Save(context.Background())
+	}
+
+	return err
+}
+
+func DeleteUser(userId uuid.UUID) error {
+	userData, err := Db.User.Query().Where(user.UUID(userId)).First(context.Background())
+	if err != nil {
+		return err
+	}
+
+	// -62135596800 is the unix timestamp of the time set when deleted_at in null
+	if userData.DeletedAt.Unix() != -62135596800 {
+		return errors.New("already deleted")
+	}
+
+	userData, err = userData.Update().SetDeletedAt(time.Now()).Save(context.Background())
+	if err != nil {
+		return err
 	}
 
 	return err

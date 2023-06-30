@@ -26,16 +26,17 @@ func init() {
 
 		userEndpoint.POST("/create", handleCreateUser)
 		userEndpoint.POST("/setpfp", setPfp)
-		userEndpoint.POST("/update", handleUserUpdate)
+		userEndpoint.POST("/update", handleUpdateUser)
+		userEndpoint.DELETE("/delete", handleDeleteUser)
 	})
 }
 
 func handleCreateUser(ctx echo.Context) error {
 	// get uuid from header provided by the middleware
-	userId, _ := uuid.Parse(ctx.Request().Header.Get("UUID"))
+	authUUID, _ := uuid.Parse(ctx.Request().Header.Get("UUID"))
 
 	// check permissions
-	if !service.DoesUserHavePermission("create_user", userId) {
+	if !service.DoesUserHavePermission("create_user", authUUID) {
 		return ctx.JSON(http.StatusUnauthorized, echo.Map{
 			"message": "unauthorised",
 		})
@@ -51,12 +52,15 @@ func handleCreateUser(ctx echo.Context) error {
 		})
 	}
 
-	var err error
+	var (
+		err    error
+		userId *uuid.UUID
+	)
 	// check which method was used for role assignment
 	if userInfo.RoleName != "" {
-		err = service.CreateUserRoleName(userInfo.Name, userInfo.Email, util.HashPassword(userInfo.Password), userInfo.RoleName)
+		userId, err = service.CreateUserRoleName(userInfo.Name, userInfo.Email, util.HashPassword(userInfo.Password), userInfo.RoleName)
 	} else if userInfo.RoleId != 0 {
-		err = service.CreateUserRoleId(userInfo.Name, userInfo.Email, util.HashPassword(userInfo.Password), userInfo.RoleId)
+		userId, err = service.CreateUserRoleId(userInfo.Name, userInfo.Email, util.HashPassword(userInfo.Password), userInfo.RoleId)
 	} else {
 		return ctx.JSON(http.StatusBadRequest, echo.Map{
 			"message": "either role name or id must be specified",
@@ -85,7 +89,58 @@ func handleCreateUser(ctx echo.Context) error {
 		})
 	}
 
-	return ctx.JSON(http.StatusCreated, echo.Map{"message": "ok"})
+	return ctx.JSON(http.StatusCreated, echo.Map{"uuid": userId.String()})
+}
+
+func handleUpdateUser(ctx echo.Context) error {
+	authUUID, _ := uuid.Parse(ctx.Request().Header.Get("UUID"))
+
+	// check permissions
+	if !service.DoesUserHavePermission("update_user", authUUID) {
+		return ctx.JSON(http.StatusUnauthorized, echo.Map{
+			"message": "unauthorised",
+		})
+	}
+
+	updateInfo := dto.UpdateUserDTO{}
+	ctx.Bind(&updateInfo)
+
+	// check if no fields are provided
+	if (updateInfo.Name == "" && updateInfo.Email == "" && updateInfo.Password == "" && updateInfo.RoleName == "" && updateInfo.RoleId == 0) || updateInfo.UserId.ID() == 0 {
+		return ctx.JSON(http.StatusBadRequest, echo.Map{
+			"message": "bad request",
+		})
+	}
+
+	err := service.UpdateUser(updateInfo)
+
+	// error checking
+	if err != nil {
+
+		if ent.IsNotFound(err) {
+			return ctx.JSON(http.StatusNotFound, echo.Map{
+				"message": "role not found",
+			})
+		}
+		if ent.IsValidationError(err) {
+			return ctx.JSON(http.StatusBadRequest, echo.Map{
+				"message": "validation error",
+			})
+		}
+		if ent.IsConstraintError(err) {
+			return ctx.JSON(http.StatusBadRequest, echo.Map{
+				"message": "constraint error",
+			})
+		}
+
+		log.Errorf("uncaught error updating user: %v", err)
+
+		return ctx.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "internal server error",
+		})
+	}
+
+	return ctx.JSON(http.StatusOK, echo.Map{"message": "ok"})
 }
 
 func setPfp(ctx echo.Context) error {
@@ -116,46 +171,42 @@ func setPfp(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, echo.Map{"message": "ok"})
 }
 
-func handleUserUpdate(ctx echo.Context) error {
-	userId, _ := uuid.Parse(ctx.Request().Header.Get("UUID"))
+func handleDeleteUser(ctx echo.Context) error {
+	authUUID, _ := uuid.Parse(ctx.Request().Header.Get("UUID"))
 
 	// check permissions
-	if !service.DoesUserHavePermission("update_user", userId) {
+	if !service.DoesUserHavePermission("delete_user", authUUID) {
 		return ctx.JSON(http.StatusUnauthorized, echo.Map{
 			"message": "unauthorised",
 		})
 	}
 
-	updateInfo := dto.UpdateUserDTO{}
-	ctx.Bind(&updateInfo)
+	deleteInfo := dto.DeleteUserDTO{}
+	ctx.Bind(&deleteInfo)
 
-	// check if no fields are provided
-	if updateInfo.Name == "" && updateInfo.Email == "" && updateInfo.Password == "" && updateInfo.RoleName == "" && updateInfo.RoleId == 0 {
+	// check if uuid is provided
+	if deleteInfo.UserId.ID() == 0 {
 		return ctx.JSON(http.StatusBadRequest, echo.Map{
 			"message": "bad request",
 		})
 	}
 
-	err := service.UpdateUser(updateInfo, userId)
+	err := service.DeleteUser(deleteInfo.UserId)
 
 	// error checking
 	if err != nil {
-
 		if ent.IsNotFound(err) {
 			return ctx.JSON(http.StatusNotFound, echo.Map{
-				"message": "role not found",
+				"message": "user not found",
 			})
 		}
-		if ent.IsValidationError(err) {
-			return ctx.JSON(http.StatusNotFound, echo.Map{
-				"message": "validation error",
+		if err.Error() == "already deleted" {
+			return ctx.JSON(http.StatusGone, echo.Map{
+				"message": "user already deleted",
 			})
 		}
-		if ent.IsConstraintError(err) {
-			return ctx.JSON(http.StatusNotFound, echo.Map{
-				"message": "constraint error",
-			})
-		}
+
+		log.Errorf("uncaught error deleting user: %v", err)
 
 		return ctx.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "internal server error",

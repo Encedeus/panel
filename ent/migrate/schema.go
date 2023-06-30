@@ -13,7 +13,8 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "name", Type: field.TypeString, Size: 24},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "name", Type: field.TypeString, Unique: true, Size: 24},
 		{Name: "permissions", Type: field.TypeJSON, Nullable: true},
 	}
 	// RolesTable holds the schema information for the "roles" table.
@@ -28,6 +29,7 @@ var (
 		{Name: "uuid", Type: field.TypeUUID},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "email", Type: field.TypeString, Size: 32},
 		{Name: "password", Type: field.TypeString},
 		{Name: "name", Type: field.TypeString, Unique: true, Size: 32},
@@ -41,7 +43,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "users_roles_role",
-				Columns:    []*schema.Column{UsersColumns[7]},
+				Columns:    []*schema.Column{UsersColumns[8]},
 				RefColumns: []*schema.Column{RolesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},

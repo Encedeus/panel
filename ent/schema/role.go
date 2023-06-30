@@ -14,9 +14,10 @@ type Role struct {
 // Fields of the Role.
 func (Role) Fields() []ent.Field {
 	return []ent.Field{
-		field.Time("created_at").Default(time.Now()),
-		field.Time("updated_at").Default(time.Now()),
-		field.String("name").MaxLen(24),
+		field.Time("created_at").Default(time.Now),
+		field.Time("updated_at").UpdateDefault(time.Now).Default(time.Now),
+		field.Time("deleted_at").Optional(),
+		field.String("name").MaxLen(24).Unique(),
 		field.Strings("permissions").Optional(),
 	}
 }

@@ -64,6 +64,20 @@ func (uc *UserCreate) SetNillableUpdatedAt(t *time.Time) *UserCreate {
 	return uc
 }
 
+// SetDeletedAt sets the "deleted_at" field.
+func (uc *UserCreate) SetDeletedAt(t time.Time) *UserCreate {
+	uc.mutation.SetDeletedAt(t)
+	return uc
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (uc *UserCreate) SetNillableDeletedAt(t *time.Time) *UserCreate {
+	if t != nil {
+		uc.SetDeletedAt(*t)
+	}
+	return uc
+}
+
 // SetEmail sets the "email" field.
 func (uc *UserCreate) SetEmail(s string) *UserCreate {
 	uc.mutation.SetEmail(s)
@@ -133,11 +147,11 @@ func (uc *UserCreate) defaults() {
 		uc.mutation.SetUUID(v)
 	}
 	if _, ok := uc.mutation.CreatedAt(); !ok {
-		v := user.DefaultCreatedAt
+		v := user.DefaultCreatedAt()
 		uc.mutation.SetCreatedAt(v)
 	}
 	if _, ok := uc.mutation.UpdatedAt(); !ok {
-		v := user.DefaultUpdatedAt
+		v := user.DefaultUpdatedAt()
 		uc.mutation.SetUpdatedAt(v)
 	}
 }
@@ -215,6 +229,10 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	if value, ok := uc.mutation.UpdatedAt(); ok {
 		_spec.SetField(user.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
+	}
+	if value, ok := uc.mutation.DeletedAt(); ok {
+		_spec.SetField(user.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = value
 	}
 	if value, ok := uc.mutation.Email(); ok {
 		_spec.SetField(user.FieldEmail, field.TypeString, value)

@@ -48,6 +48,20 @@ func (rc *RoleCreate) SetNillableUpdatedAt(t *time.Time) *RoleCreate {
 	return rc
 }
 
+// SetDeletedAt sets the "deleted_at" field.
+func (rc *RoleCreate) SetDeletedAt(t time.Time) *RoleCreate {
+	rc.mutation.SetDeletedAt(t)
+	return rc
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (rc *RoleCreate) SetNillableDeletedAt(t *time.Time) *RoleCreate {
+	if t != nil {
+		rc.SetDeletedAt(*t)
+	}
+	return rc
+}
+
 // SetName sets the "name" field.
 func (rc *RoleCreate) SetName(s string) *RoleCreate {
 	rc.mutation.SetName(s)
@@ -96,11 +110,11 @@ func (rc *RoleCreate) ExecX(ctx context.Context) {
 // defaults sets the default values of the builder before save.
 func (rc *RoleCreate) defaults() {
 	if _, ok := rc.mutation.CreatedAt(); !ok {
-		v := role.DefaultCreatedAt
+		v := role.DefaultCreatedAt()
 		rc.mutation.SetCreatedAt(v)
 	}
 	if _, ok := rc.mutation.UpdatedAt(); !ok {
-		v := role.DefaultUpdatedAt
+		v := role.DefaultUpdatedAt()
 		rc.mutation.SetUpdatedAt(v)
 	}
 }
@@ -154,6 +168,10 @@ func (rc *RoleCreate) createSpec() (*Role, *sqlgraph.CreateSpec) {
 	if value, ok := rc.mutation.UpdatedAt(); ok {
 		_spec.SetField(role.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
+	}
+	if value, ok := rc.mutation.DeletedAt(); ok {
+		_spec.SetField(role.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = value
 	}
 	if value, ok := rc.mutation.Name(); ok {
 		_spec.SetField(role.FieldName, field.TypeString, value)

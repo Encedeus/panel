@@ -64,7 +64,6 @@ func createSuperuser(db *ent.Client, ctx context.Context) {
 			SetName("admin").
 			SetPassword(util.HashPassword("admin")).
 			SetEmail("admin@admin.com").
-			//SetPfp([]byte{1, 2, 3}).
 			SetRole(userRole).
 			Save(ctx)
 		return
@@ -80,10 +79,11 @@ func createSuperuserRole(db *ent.Client, ctx context.Context) {
 	}
 
 	if err == nil && !exists {
-		db.Role.Create().
+		_, err := db.Role.Create().
 			SetName("superuser").
 			SetPermissions([]string{"*"}).
 			Save(ctx)
+		log.Error(err)
 		return
 	}
 

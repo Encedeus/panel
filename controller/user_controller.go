@@ -19,15 +19,49 @@ import (
 func init() {
 	addController(func(server *echo.Echo, db *ent.Client) {
 		userEndpoint := server.Group("/user")
-
+		userEndpoint.GET("/", getUser)
 		userEndpoint.Static("/pfp", config.Config.CDN.Directory)
 
 		userEndpoint.Use(middleware.AccessJWTAuth)
 
 		userEndpoint.POST("/create", handleCreateUser)
-		userEndpoint.POST("/setpfp", setPfp)
-		userEndpoint.POST("/update", handleUpdateUser)
+		userEndpoint.PUT("/setpfp", setPfp)
+		userEndpoint.PATCH("/update", handleUpdateUser)
 		userEndpoint.DELETE("/delete", handleDeleteUser)
+	})
+}
+
+func getUser(ctx echo.Context) error {
+	userInfo := dto.GetUserDTO{}
+	ctx.Bind(&userInfo)
+
+	if userInfo.UserId.ID() == 0 {
+		return ctx.JSON(http.StatusBadRequest, echo.Map{"message": "bad request"})
+	}
+
+	userData, err := service.GetUser(userInfo.UserId)
+
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return ctx.JSON(http.StatusNotFound, echo.Map{"message": "user not found"})
+		}
+		if err.Error() == "user deleted" {
+			return ctx.JSON(http.StatusGone, echo.Map{"message": "user deleted"})
+		}
+
+		log.Errorf("error querying user: %v", err)
+
+		return ctx.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "internal server error",
+		})
+	}
+
+	return ctx.JSON(http.StatusOK, echo.Map{
+		"name":       userData.Name,
+		"email":      userData.Email,
+		"created_at": userData.CreatedAt,
+		"updated_at": userData.UpdatedAt,
+		"role_id":    userData.RoleID,
 	})
 }
 
@@ -132,6 +166,11 @@ func handleUpdateUser(ctx echo.Context) error {
 				"message": "constraint error",
 			})
 		}
+		if err.Error() == "user deleted" {
+			return ctx.JSON(http.StatusGone, echo.Map{
+				"message": "user deleted",
+			})
+		}
 
 		log.Errorf("uncaught error updating user: %v", err)
 
@@ -144,11 +183,19 @@ func handleUpdateUser(ctx echo.Context) error {
 }
 
 func setPfp(ctx echo.Context) error {
-	// get file from multipart
+	// get params from multipart
+	userId := ctx.FormValue("uuid")
 	file, err := ctx.FormFile("file")
+
+	// validate request
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, echo.Map{"message": "bad request"})
 	}
+	userUUID, err := uuid.Parse(userId)
+	if !service.DoesUserWithUUIDExist(userUUID) {
+		return ctx.JSON(http.StatusNotFound, echo.Map{"message": "user not found"})
+	}
+	fmt.Println(userUUID, fmt.Sprintf("%s/%s", config.Config.CDN.Directory, userId))
 
 	// open file
 	src, err := file.Open()
@@ -158,7 +205,7 @@ func setPfp(ctx echo.Context) error {
 	defer src.Close()
 
 	// create file
-	dst, err := os.Create(fmt.Sprintf("%s/%s", config.Config.CDN.Directory, ctx.Request().Header.Get("UUID")))
+	dst, err := os.Create(fmt.Sprintf("%s/%s", config.Config.CDN.Directory, userId))
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, echo.Map{"message": "internal server error"})
 	}

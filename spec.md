@@ -88,6 +88,14 @@
                  }
               ```
 - ### User
+    - `GET /user`
+        - getting info about a user
+            - request body
+              ```
+                 {
+                     "id": <role id>
+                 }
+              ```
     - `POST /user/create`
         - creating a user
             - request header
@@ -104,7 +112,7 @@
                      "role_name": <role name, not required if role id is provided>
                  }
               ```
-    - `POST /user/setpfp`
+    - `PUT /user/setpfp`
         - setting a user pfp, used in user creation and updating
             - request header
               ```
@@ -117,7 +125,7 @@
     - `GET /user/pfp/:uuid`
         - getting a user pfp
             - parameter set in url (uuid after `/user/pfp/`)
-    - `POST /user/update`
+    - `PATCH /user/update`
         - updating a user
             - request header
               ```
@@ -147,6 +155,14 @@
                  }
               ```
 - ### Role
+    - `GET /role`
+      - getting info about a role 
+        - request body
+              ```
+                 {
+                     "id": <role id>
+                 }
+              ```
     - `POST /role/create`
         - creating a role
             - request header
@@ -160,7 +176,7 @@
                      "permissions": <permission, array of strings>
                  }                
               ```
-    - `POST /role/update`
+    - `PATCH /role/update`
         - updating a role
             - request header
               ```

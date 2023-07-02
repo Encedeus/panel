@@ -2,7 +2,11 @@ package service
 
 import (
 	"context"
+	"errors"
 	"panel/dto"
+	"panel/ent"
+	"panel/ent/role"
+	"panel/util"
 	"time"
 )
 
@@ -18,6 +22,10 @@ func UpdateRole(roleInfo dto.UpdateRoleDTO) error {
 	roleData, err := Db.Role.Get(context.Background(), roleInfo.Id)
 	if err != nil {
 		return err
+	}
+
+	if util.IsRoleDeleted(roleData) {
+		return errors.New("role deleted")
 	}
 
 	if roleInfo.Name != "" {
@@ -47,6 +55,26 @@ func DeleteRole(roleId int) error {
 		return err
 	}
 
+	if util.IsRoleDeleted(roleData) {
+		return errors.New("already deleted")
+	}
+
 	_, err = roleData.Update().SetDeletedAt(time.Now()).Save(context.Background())
 	return err
+}
+
+func GetRole(roleId int) (*ent.Role, error) {
+	roleData, err := Db.Role.Query().
+		Where(role.ID(roleId)).
+		Select("name", "created_at", "updated_at", "deleted_at", "permissions").
+		First(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	if util.IsRoleDeleted(roleData) {
+		return nil, errors.New("role deleted")
+	}
+
+	return roleData, err
 }

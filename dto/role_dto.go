@@ -13,3 +13,6 @@ type UpdateRoleDTO struct {
 type DeleteRoleDTO struct {
 	Id int `json:"id"`
 }
+type GetRoleDTO struct {
+	Id int `json:"id"`
+}

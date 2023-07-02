@@ -15,14 +15,55 @@ func init() {
 	addController(func(server *echo.Echo, db *ent.Client) {
 		roleEndpoint := server.Group("/role")
 
+		roleEndpoint.GET("/", getRole)
+
 		roleEndpoint.Use(middleware.AccessJWTAuth)
 
 		roleEndpoint.POST("/create", handleCreateRole)
-		roleEndpoint.POST("/update", handleUpdateRole)
+		roleEndpoint.PATCH("/update", handleUpdateRole)
 		roleEndpoint.DELETE("/delete", handleDeleteRole)
 	})
 }
 
+func getRole(ctx echo.Context) error {
+	roleInfo := dto.GetRoleDTO{}
+	ctx.Bind(&roleInfo)
+
+	if roleInfo.Id == 0 {
+		return ctx.JSON(http.StatusBadRequest, echo.Map{
+			"message": "bad request",
+		})
+	}
+
+	roleData, err := service.GetRole(roleInfo.Id)
+
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return ctx.JSON(http.StatusNotFound, echo.Map{
+				"message": "role not found",
+			})
+		}
+
+		if err.Error() == "role deleted" {
+			return ctx.JSON(http.StatusGone, echo.Map{
+				"message": "role deleted",
+			})
+		}
+
+		log.Errorf("uncaught error querying role: %v", err)
+
+		return ctx.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "internal server error",
+		})
+	}
+
+	return ctx.JSON(http.StatusOK, echo.Map{
+		"name":        roleData.Name,
+		"permissions": roleData.Permissions,
+		"created_at":  roleData.CreatedAt,
+		"updated_at":  roleData.UpdatedAt,
+	})
+}
 func handleCreateRole(ctx echo.Context) error {
 	userId, _ := uuid.Parse(ctx.Request().Header.Get("UUID"))
 
@@ -108,6 +149,11 @@ func handleUpdateRole(ctx echo.Context) error {
 				"message": "constraint error",
 			})
 		}
+		if err.Error() == "role deleted" {
+			return ctx.JSON(http.StatusGone, echo.Map{
+				"message": "role deleted",
+			})
+		}
 
 		log.Errorf("uncaught error updating role: %v", err)
 
@@ -138,11 +184,16 @@ func handleDeleteRole(ctx echo.Context) error {
 	}
 
 	err := service.DeleteRole(roleInfo.Id)
-
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return ctx.JSON(http.StatusNotFound, echo.Map{
 				"message": "role not found",
+			})
+		}
+
+		if err.Error() == "already deleted" {
+			return ctx.JSON(http.StatusGone, echo.Map{
+				"message": "role already deleted",
 			})
 		}
 		log.Errorf("uncaught error deleting role: %v", err)

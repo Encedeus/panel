@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/google/uuid"
 	"golang.org/x/exp/slices"
 	"panel/dto"
@@ -46,12 +47,16 @@ func CreateUser(name string, email string, passwordHash string, role *ent.Role) 
 
 // DoesUserHavePermission checks if user's role have a permission
 func DoesUserHavePermission(permission string, userID uuid.UUID) bool {
-	first, err := Db.User.Query().Where(user.UUID(userID)).Select("role_id").First(context.Background())
+	userData, err := Db.User.Query().Where(user.UUID(userID)).Select("role_id").First(context.Background())
 	if err != nil {
 		return false
 	}
 
-	roleData, err := Db.Role.Query().Where(role.ID(first.RoleID)).Select("permissions").First(context.Background())
+	if util.IsUserDeleted(userData) {
+		return false
+	}
+
+	roleData, err := Db.Role.Query().Where(role.ID(userData.RoleID)).Select("permissions").First(context.Background())
 	if err != nil {
 		return false
 	}
@@ -62,8 +67,13 @@ func DoesUserHavePermission(permission string, userID uuid.UUID) bool {
 // UpdateUser updates the user given an updateInfo dto
 func UpdateUser(updateInfo dto.UpdateUserDTO) error {
 	userData, err := Db.User.Query().Where(user.UUID(updateInfo.UserId)).First(context.Background())
+
 	if err != nil {
 		return err
+	}
+
+	if util.IsUserDeleted(userData) {
+		return errors.New("user deleted")
 	}
 
 	if updateInfo.Name != "" {
@@ -102,8 +112,7 @@ func DeleteUser(userId uuid.UUID) error {
 		return err
 	}
 
-	// -62135596800 is the unix timestamp of the time set when deleted_at in null
-	if userData.DeletedAt.Unix() != -62135596800 {
+	if util.IsUserDeleted(userData) {
 		return errors.New("already deleted")
 	}
 
@@ -113,4 +122,32 @@ func DeleteUser(userId uuid.UUID) error {
 	}
 
 	return err
+}
+
+func GetUser(userId uuid.UUID) (*ent.User, error) {
+	userData, err := Db.User.Query().
+		Where(user.UUID(userId)).
+		Select("uuid", "name", "created_at", "updated_at", "deleted_at", "email", "role_id").
+		First(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Println(userData.DeletedAt)
+
+	if util.IsUserDeleted(userData) {
+		return nil, errors.New("user deleted")
+	}
+
+	return userData, err
+}
+
+func DoesUserWithUUIDExist(userId uuid.UUID) bool {
+	userData, err := Db.User.Query().Where(user.UUID(userId)).First(context.Background())
+
+	if err != nil || util.IsUserDeleted(userData) {
+		return false
+	}
+
+	return true
 }

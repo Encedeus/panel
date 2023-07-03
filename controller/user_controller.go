@@ -188,9 +188,10 @@ func setPfp(ctx echo.Context) error {
 	file, err := ctx.FormFile("file")
 
 	// validate request
-	if err != nil {
+	if err != nil || userId == "" {
 		return ctx.JSON(http.StatusBadRequest, echo.Map{"message": "bad request"})
 	}
+
 	userUUID, err := uuid.Parse(userId)
 	if !service.DoesUserWithUUIDExist(userUUID) {
 		return ctx.JSON(http.StatusNotFound, echo.Map{"message": "user not found"})

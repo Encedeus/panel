@@ -1,6 +1,7 @@
 <style>
   :global(body) {
-    background-image: url("$lib/assets/auth-bg.png");
+    background-image: url("$lib/assets/auth-bg.svg");
+    background-size: cover;
   }
 </style>
 

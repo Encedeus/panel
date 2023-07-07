@@ -19,15 +19,15 @@ import (
 func init() {
 	addController(func(server *echo.Echo, db *ent.Client) {
 		userEndpoint := server.Group("/user")
-		userEndpoint.GET("/", getUser)
 		userEndpoint.Static("/pfp", config.Config.CDN.Directory)
 
 		userEndpoint.Use(middleware.AccessJWTAuth)
 
-		userEndpoint.POST("/create", handleCreateUser)
-		userEndpoint.PUT("/setpfp", setPfp)
-		userEndpoint.PATCH("/update", handleUpdateUser)
-		userEndpoint.DELETE("/delete", handleDeleteUser)
+		userEndpoint.GET("", getUser)
+		userEndpoint.POST("", handleCreateUser)
+		userEndpoint.PUT("", setPfp)
+		userEndpoint.PATCH("", handleUpdateUser)
+		userEndpoint.DELETE("", handleDeleteUser)
 	})
 }
 

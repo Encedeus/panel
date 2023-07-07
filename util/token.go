@@ -3,10 +3,12 @@ package util
 import (
 	"errors"
 	"github.com/golang-jwt/jwt"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
 	"panel/config"
 	"panel/dto"
+	"panel/service"
 	"strings"
 	"time"
 )
@@ -15,6 +17,7 @@ import (
 func GenerateAccessToken(userData dto.AccessTokenDTO) (string, error) {
 
 	userData.ExpiresAt = time.Now().Add(15 * time.Minute).Unix()
+	userData.IssuedAt = time.Now().Unix()
 
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, userData)
 	accessTokenString, err := accessToken.SignedString([]byte(config.Config.Auth.JWTSecretAccess))
@@ -29,6 +32,7 @@ func GenerateAccessToken(userData dto.AccessTokenDTO) (string, error) {
 func GenerateRefreshToken(userData dto.RefreshTokenDTO) (string, error) {
 	// generate a token containing the user's uuid
 	userData.ExpiresAt = time.Now().Add(168 * time.Hour).Unix()
+	userData.IssuedAt = time.Now().Unix()
 
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, userData)
 	accessTokenString, err := accessToken.SignedString([]byte(config.Config.Auth.JWTSecretRefresh))
@@ -78,6 +82,11 @@ func ValidateAccessJWT(tokenString string) (bool, dto.AccessTokenDTO, error) {
 		return false, claims, err
 	}
 
+	isUpdated, err := IsUserUpdated(claims.UserId, claims.IssuedAt)
+	if err != nil || isUpdated {
+		return false, claims, err
+	}
+
 	return true, claims, err
 }
 func ValidateRefreshJWT(tokenString string) (bool, dto.RefreshTokenDTO, error) {
@@ -96,5 +105,23 @@ func ValidateRefreshJWT(tokenString string) (bool, dto.RefreshTokenDTO, error) {
 		return false, claims, err
 	}
 
+	isUpdated, err := IsUserUpdated(claims.UserId, claims.IssuedAt)
+	if err != nil || isUpdated {
+		return false, claims, err
+	}
+
 	return true, claims, err
+}
+
+func IsUserUpdated(userId uuid.UUID, issuedAt int64) (bool, error) {
+	lastUpdate, err := service.GetLastUpdate(userId)
+	if err != nil {
+		return false, err
+	}
+
+	if lastUpdate > issuedAt {
+		return true, nil
+	}
+
+	return false, nil
 }

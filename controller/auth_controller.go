@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"panel/dto"
 	"panel/ent"
+	"panel/hashing"
 	"panel/middleware"
 	"panel/service"
 	"panel/util"
@@ -62,7 +63,7 @@ func userLoginHandler(ctx echo.Context) error {
 	}
 
 	// check if the password hash is a match
-	auth := util.VerifyHash(loginInfo.Password, passwordHash)
+	auth := hashing.VerifyHash(loginInfo.Password, passwordHash)
 
 	if !auth {
 		return ctx.JSON(http.StatusUnauthorized, echo.Map{

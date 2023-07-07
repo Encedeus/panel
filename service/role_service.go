@@ -6,7 +6,6 @@ import (
 	"panel/dto"
 	"panel/ent"
 	"panel/ent/role"
-	"panel/util"
 	"time"
 )
 
@@ -24,7 +23,7 @@ func UpdateRole(roleInfo dto.UpdateRoleDTO) error {
 		return err
 	}
 
-	if util.IsRoleDeleted(roleData) {
+	if IsRoleDeleted(roleData) {
 		return errors.New("role deleted")
 	}
 
@@ -55,7 +54,7 @@ func DeleteRole(roleId int) error {
 		return err
 	}
 
-	if util.IsRoleDeleted(roleData) {
+	if IsRoleDeleted(roleData) {
 		return errors.New("already deleted")
 	}
 
@@ -72,9 +71,13 @@ func GetRole(roleId int) (*ent.Role, error) {
 		return nil, err
 	}
 
-	if util.IsRoleDeleted(roleData) {
+	if IsRoleDeleted(roleData) {
 		return nil, errors.New("role deleted")
 	}
 
 	return roleData, err
+}
+
+func IsRoleDeleted(roleData *ent.Role) bool {
+	return roleData.DeletedAt.Unix() != -62135596800
 }

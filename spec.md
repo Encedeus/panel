@@ -88,14 +88,8 @@
                  }
               ```
 - ### User
-    - `GET /user`
+    - `GET /user/:uuid`
         - getting info about a user
-            - request body
-              ```
-                 {
-                     "id": <role id>
-                 }
-              ```
     - `POST /user/create`
         - creating a user
             - request header
@@ -112,7 +106,7 @@
                      "role_name": <role name, not required if role id is provided>
                  }
               ```
-    - `PUT /user/setpfp`
+    - `PUT /user`
         - setting a user pfp, used in user creation and updating
             - request header
               ```
@@ -125,7 +119,7 @@
     - `GET /user/pfp/:uuid`
         - getting a user pfp
             - parameter set in url (uuid after `/user/pfp/`)
-    - `PATCH /user/update`
+    - `PATCH /user`
         - updating a user
             - request header
               ```
@@ -142,17 +136,11 @@
                      "role_name": <role name, not required if role id is provided>
                  }
               ```  
-    - `DELETE /user/delete`
+    - `DELETE /user/:id`
         - updating a user
             - request header
               ```
                  Authorization: Bearer <access token>
-              ```
-            - request body
-              ```
-                 {
-                     "id": <user uuid>
-                 }
               ```
 - ### Role
     - `GET /role`
@@ -162,8 +150,8 @@
                  {
                      "id": <role id>
                  }
-              ```
-    - `POST /role/create`
+              ````
+    - `POST /role`
         - creating a role
             - request header
               ```
@@ -176,7 +164,7 @@
                      "permissions": <permission, array of strings>
                  }                
               ```
-    - `PATCH /role/update`
+    - `PATCH /role`
         - updating a role
             - request header
               ```
@@ -190,7 +178,7 @@
                      "permissions": <permission, array of strings>
                  }                
               ```
-    - `DELETE /role/delete`
+    - `DELETE /role`
         - creating a role
             - request header
               ```

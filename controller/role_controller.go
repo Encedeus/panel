@@ -161,7 +161,7 @@ func handleUpdateRole(ctx echo.Context) error {
 		})
 	}
 
-	return ctx.JSON(http.StatusOK, echo.Map{"message": "ok"})
+	return ctx.NoContent(http.StatusOK)
 }
 
 func handleDeleteRole(ctx echo.Context) error {
@@ -202,5 +202,5 @@ func handleDeleteRole(ctx echo.Context) error {
 		})
 	}
 
-	return ctx.JSON(http.StatusOK, echo.Map{"message": "ok"})
+	return ctx.NoContent(http.StatusOK)
 }

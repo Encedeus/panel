@@ -14,6 +14,7 @@ import (
 	"panel/middleware"
 	"panel/service"
 	"panel/util"
+	"strings"
 )
 
 func init() {
@@ -23,23 +24,23 @@ func init() {
 
 		userEndpoint.Use(middleware.AccessJWTAuth)
 
-		userEndpoint.GET("", getUser)
+		userEndpoint.GET("/:id", getUser)
 		userEndpoint.POST("", handleCreateUser)
 		userEndpoint.PUT("", setPfp)
 		userEndpoint.PATCH("", handleUpdateUser)
-		userEndpoint.DELETE("", handleDeleteUser)
+		userEndpoint.DELETE("/:id", handleDeleteUser)
 	})
 }
 
 func getUser(ctx echo.Context) error {
-	userInfo := dto.GetUserDTO{}
-	ctx.Bind(&userInfo)
+	rawUserId := ctx.Param("id")
 
-	if userInfo.UserId.ID() == 0 {
+	userId, err := uuid.Parse(rawUserId)
+	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, echo.Map{"message": "bad request"})
 	}
 
-	userData, err := service.GetUser(userInfo.UserId)
+	userData, err := service.GetUser(userId)
 
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -80,7 +81,8 @@ func handleCreateUser(ctx echo.Context) error {
 	ctx.Bind(&userInfo)
 
 	// check if all the fields are provided
-	if userInfo.Name == "" || userInfo.Password == "" || userInfo.Email == "" {
+
+	if strings.TrimSpace(userInfo.Name) == "" || strings.TrimSpace(userInfo.Password) == "" || strings.TrimSpace(userInfo.Email) == "" {
 		return ctx.JSON(http.StatusBadRequest, echo.Map{
 			"message": "bad request",
 		})
@@ -179,7 +181,7 @@ func handleUpdateUser(ctx echo.Context) error {
 		})
 	}
 
-	return ctx.JSON(http.StatusOK, echo.Map{"message": "ok"})
+	return ctx.NoContent(http.StatusOK)
 }
 
 func setPfp(ctx echo.Context) error {
@@ -201,7 +203,7 @@ func setPfp(ctx echo.Context) error {
 	// open file
 	src, err := file.Open()
 	if err != nil {
-		return ctx.JSON(http.StatusInternalServerError, echo.Map{"message": "internal server error"})
+		return ctx.JSON(http.StatusBadRequest, echo.Map{"message": "invalid file format"})
 	}
 	defer src.Close()
 
@@ -216,7 +218,7 @@ func setPfp(ctx echo.Context) error {
 		return ctx.JSON(http.StatusInternalServerError, echo.Map{"message": "internal server error"})
 	}
 
-	return ctx.JSON(http.StatusOK, echo.Map{"message": "ok"})
+	return ctx.NoContent(http.StatusOK)
 }
 
 func handleDeleteUser(ctx echo.Context) error {
@@ -229,17 +231,14 @@ func handleDeleteUser(ctx echo.Context) error {
 		})
 	}
 
-	deleteInfo := dto.DeleteUserDTO{}
-	ctx.Bind(&deleteInfo)
+	rawUserId := ctx.Param("id")
 
-	// check if uuid is provided
-	if deleteInfo.UserId.ID() == 0 {
-		return ctx.JSON(http.StatusBadRequest, echo.Map{
-			"message": "bad request",
-		})
+	userId, err := uuid.Parse(rawUserId)
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, echo.Map{"message": "bad request"})
 	}
 
-	err := service.DeleteUser(deleteInfo.UserId)
+	err = service.DeleteUser(userId)
 
 	// error checking
 	if err != nil {
@@ -261,5 +260,5 @@ func handleDeleteUser(ctx echo.Context) error {
 		})
 	}
 
-	return ctx.JSON(http.StatusOK, echo.Map{"message": "ok"})
+	return ctx.NoContent(http.StatusOK)
 }

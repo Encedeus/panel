@@ -6,7 +6,7 @@
   export let className = "";
 </script>
 
-<div class="{className}">
+<div class="drop-shadow-xl {className}">
   <div class="bg-indigo-900 h-20 w-[35rem] rounded-t-xl flex justify-start items-center">
     <span class="ml-8">
       <slot name="title"/>

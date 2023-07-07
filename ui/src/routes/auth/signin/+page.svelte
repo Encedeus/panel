@@ -6,7 +6,7 @@
 </script>
 
 <aside class="absolute top-0 right-0 mt-5 mr-7">
-  <span class="text-white text-sm font-bold tracking-wide">Don't have an account?&nbsp; • &nbsp;<a href="/auth/signup" class="text-indigo-600">Sign Up&nbsp;<SmallArrowRight/></a></span>
+  <span class="drop-shadow-xl text-white text-sm font-bold tracking-wide">Don't have an account?&nbsp; • &nbsp;<a href="/auth/signup" class="text-indigo-600">Sign Up&nbsp;<SmallArrowRight/></a></span>
 </aside>
 <main class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
   <AuthCard height="[16rem]" buttonLabel="Sign In">

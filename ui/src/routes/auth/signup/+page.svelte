@@ -16,7 +16,7 @@
     <div class="flex flex-col gap-5" slot="inputs">
       <Input placeholder="Enter Username" size="lg" label="Username"/>
       <Input placeholder="Enter E-Mail" size="lg" label="E-Mail"/>
-      <Input placeholder="Enter Password" size="lg" label="Password"/>
+      <Input placeholder="Enter Password" size="lg" label="Password" type="password"/>
       <Input placeholder="Enter Password" size="lg" label="Confirm Password"/>
     </div>
   </AuthCard>

@@ -15,13 +15,12 @@ func init() {
 	addController(func(server *echo.Echo, db *ent.Client) {
 		roleEndpoint := server.Group("/role")
 
-		roleEndpoint.GET("/", getRole)
-
 		roleEndpoint.Use(middleware.AccessJWTAuth)
 
-		roleEndpoint.POST("/create", handleCreateRole)
-		roleEndpoint.PATCH("/update", handleUpdateRole)
-		roleEndpoint.DELETE("/delete", handleDeleteRole)
+		roleEndpoint.GET("/", getRole)
+		roleEndpoint.POST("", handleCreateRole)
+		roleEndpoint.PATCH("", handleUpdateRole)
+		roleEndpoint.DELETE("", handleDeleteRole)
 	})
 }
 
@@ -162,7 +161,7 @@ func handleUpdateRole(ctx echo.Context) error {
 		})
 	}
 
-	return ctx.JSON(http.StatusOK, echo.Map{"message": "ok"})
+	return ctx.NoContent(http.StatusOK)
 }
 
 func handleDeleteRole(ctx echo.Context) error {
@@ -203,5 +202,5 @@ func handleDeleteRole(ctx echo.Context) error {
 		})
 	}
 
-	return ctx.JSON(http.StatusOK, echo.Map{"message": "ok"})
+	return ctx.NoContent(http.StatusOK)
 }

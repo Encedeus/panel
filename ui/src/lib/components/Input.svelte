@@ -4,6 +4,7 @@
   export let placeholder = "";
   export let className = "";
   export let label = "";
+  export let type: "text" | "password" | "email" = "text";
 
   const sizes = new Map<string, string>([
     ["sm", "pr-32"],
@@ -18,7 +19,7 @@
   {#if label}
     <label class="text-white font-bold text-[1rem] ml-4">{label}</label>
   {/if}
-  <input bind:value={value} {placeholder} type="text" class="focus:outline-indigo-500 -outline-offset-0 focus:outline outline-none border-none {sizes.get(size)} pl-7 py-3 font-inter font-bold text-xs rounded-full placeholder-white placeholder-opacity-25 text-white text-opacity-25 bg-indigo-900 {className}">
+  <input bind:value={value} {placeholder} {type} class="focus:outline-indigo-500 -outline-offset-0 focus:outline outline-none border-none {sizes.get(size)} pl-7 py-3 font-inter font-bold text-xs rounded-full placeholder-white placeholder-opacity-25 text-white bg-indigo-900 {className}">
 </div>
 
 <style>

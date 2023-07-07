@@ -18,10 +18,11 @@ type UpdateUserDTO struct {
 	RoleId   int       `json:"role_id"`
 	RoleName string    `json:"role_name"`
 }
-type DeleteUserDTO struct {
-	UserId uuid.UUID `json:"id"`
-}
 
-type GetUserDTO struct {
+/*type DeleteUserDTO struct {
 	UserId uuid.UUID `json:"id"`
-}
+}*/
+
+/*type GetUserDTO struct {
+	UserId uuid.UUID `json:"id"`
+}*/

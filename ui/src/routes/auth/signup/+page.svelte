@@ -17,7 +17,7 @@
       <Input placeholder="Enter Username" size="lg" label="Username"/>
       <Input placeholder="Enter E-Mail" size="lg" label="E-Mail"/>
       <Input placeholder="Enter Password" size="lg" label="Password" type="password"/>
-      <Input placeholder="Enter Password" size="lg" label="Confirm Password"/>
+      <Input placeholder="Enter Password" size="lg" label="Confirm Password" type="password"/>
     </div>
   </AuthCard>
 </main>

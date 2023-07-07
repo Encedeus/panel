@@ -73,7 +73,7 @@ func userLoginHandler(ctx echo.Context) error {
 	// generate access and refresh tokens
 	accessToken, refreshToken, err := util.GetTokenPair(tokenData)
 
-	return ctx.JSON(http.StatusOK, echo.Map{
+	return ctx.JSON(http.StatusCreated, echo.Map{
 		"accessToken":  accessToken,
 		"refreshToken": refreshToken,
 	})

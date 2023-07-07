@@ -9,6 +9,7 @@ import (
 	"panel/ent"
 	"panel/middleware"
 	"panel/service"
+	"strconv"
 )
 
 func init() {
@@ -17,24 +18,22 @@ func init() {
 
 		roleEndpoint.Use(middleware.AccessJWTAuth)
 
-		roleEndpoint.GET("/", getRole)
+		roleEndpoint.GET("/:id", getRole)
 		roleEndpoint.POST("", handleCreateRole)
 		roleEndpoint.PATCH("", handleUpdateRole)
-		roleEndpoint.DELETE("", handleDeleteRole)
+		roleEndpoint.DELETE("/:id", handleDeleteRole)
 	})
 }
 
 func getRole(ctx echo.Context) error {
-	roleInfo := dto.GetRoleDTO{}
-	ctx.Bind(&roleInfo)
-
-	if roleInfo.Id == 0 {
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil || id <= 0 {
 		return ctx.JSON(http.StatusBadRequest, echo.Map{
 			"message": "bad request",
 		})
 	}
 
-	roleData, err := service.GetRole(roleInfo.Id)
+	roleData, err := service.GetRole(id)
 
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -59,8 +58,8 @@ func getRole(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, echo.Map{
 		"name":        roleData.Name,
 		"permissions": roleData.Permissions,
-		"created_at":  roleData.CreatedAt,
-		"updated_at":  roleData.UpdatedAt,
+		"createdAt":   roleData.CreatedAt,
+		"updatedAt":   roleData.UpdatedAt,
 	})
 }
 func handleCreateRole(ctx echo.Context) error {
@@ -173,16 +172,14 @@ func handleDeleteRole(ctx echo.Context) error {
 		})
 	}
 
-	roleInfo := dto.DeleteRoleDTO{}
-	ctx.Bind(&roleInfo)
-
-	if roleInfo.Id == 0 {
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil || id <= 0 {
 		return ctx.JSON(http.StatusBadRequest, echo.Map{
 			"message": "bad request",
 		})
 	}
 
-	err := service.DeleteRole(roleInfo.Id)
+	err = service.DeleteRole(id)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return ctx.JSON(http.StatusNotFound, echo.Map{

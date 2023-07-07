@@ -11,9 +11,9 @@ import (
 	"panel/config"
 	"panel/dto"
 	"panel/ent"
+	"panel/hashing"
 	"panel/middleware"
 	"panel/service"
-	"panel/util"
 )
 
 func init() {
@@ -92,9 +92,9 @@ func handleCreateUser(ctx echo.Context) error {
 	)
 	// check which method was used for role assignment
 	if userInfo.RoleName != "" {
-		userId, err = service.CreateUserRoleName(userInfo.Name, userInfo.Email, util.HashPassword(userInfo.Password), userInfo.RoleName)
+		userId, err = service.CreateUserRoleName(userInfo.Name, userInfo.Email, hashing.HashPassword(userInfo.Password), userInfo.RoleName)
 	} else if userInfo.RoleId != 0 {
-		userId, err = service.CreateUserRoleId(userInfo.Name, userInfo.Email, util.HashPassword(userInfo.Password), userInfo.RoleId)
+		userId, err = service.CreateUserRoleId(userInfo.Name, userInfo.Email, hashing.HashPassword(userInfo.Password), userInfo.RoleId)
 	} else {
 		return ctx.JSON(http.StatusBadRequest, echo.Map{
 			"message": "either role name or id must be specified",
@@ -146,6 +146,7 @@ func handleUpdateUser(ctx echo.Context) error {
 		})
 	}
 
+	updateInfo.Password = hashing.HashPassword(updateInfo.Password)
 	err := service.UpdateUser(updateInfo)
 
 	// error checking
@@ -196,7 +197,6 @@ func setPfp(ctx echo.Context) error {
 	if !service.DoesUserWithUUIDExist(userUUID) {
 		return ctx.JSON(http.StatusNotFound, echo.Map{"message": "user not found"})
 	}
-	fmt.Println(userUUID, fmt.Sprintf("%s/%s", config.Config.CDN.Directory, userId))
 
 	// open file
 	src, err := file.Open()

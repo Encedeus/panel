@@ -9,7 +9,7 @@ import (
 	"panel/ent"
 	"panel/ent/role"
 	"panel/ent/user"
-	"panel/util"
+	"panel/hashing"
 )
 
 var Db *ent.Client
@@ -62,7 +62,7 @@ func createSuperuser(db *ent.Client, ctx context.Context) {
 	if err == nil && !exists {
 		db.User.Create().
 			SetName("admin").
-			SetPassword(util.HashPassword("admin")).
+			SetPassword(hashing.HashPassword("admin")).
 			SetEmail("admin@admin.com").
 			SetRole(userRole).
 			Save(ctx)

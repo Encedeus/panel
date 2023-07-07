@@ -3,14 +3,12 @@ package service
 import (
 	"context"
 	"errors"
-	"fmt"
 	"github.com/google/uuid"
 	"golang.org/x/exp/slices"
 	"panel/dto"
 	"panel/ent"
 	"panel/ent/role"
 	"panel/ent/user"
-	"panel/util"
 	"time"
 )
 
@@ -52,7 +50,7 @@ func DoesUserHavePermission(permission string, userID uuid.UUID) bool {
 		return false
 	}
 
-	if util.IsUserDeleted(userData) {
+	if IsUserDeleted(userData) {
 		return false
 	}
 
@@ -72,7 +70,7 @@ func UpdateUser(updateInfo dto.UpdateUserDTO) error {
 		return err
 	}
 
-	if util.IsUserDeleted(userData) {
+	if IsUserDeleted(userData) {
 		return errors.New("user deleted")
 	}
 
@@ -81,7 +79,7 @@ func UpdateUser(updateInfo dto.UpdateUserDTO) error {
 	}
 
 	if updateInfo.Password != "" {
-		_, err = userData.Update().SetPassword(util.HashPassword(updateInfo.Password)).Save(context.Background())
+		_, err = userData.Update().SetPassword(updateInfo.Password).Save(context.Background())
 	}
 
 	if updateInfo.Email != "" {
@@ -112,7 +110,7 @@ func DeleteUser(userId uuid.UUID) error {
 		return err
 	}
 
-	if util.IsUserDeleted(userData) {
+	if IsUserDeleted(userData) {
 		return errors.New("already deleted")
 	}
 
@@ -133,9 +131,7 @@ func GetUser(userId uuid.UUID) (*ent.User, error) {
 		return nil, err
 	}
 
-	fmt.Println(userData.DeletedAt)
-
-	if util.IsUserDeleted(userData) {
+	if IsUserDeleted(userData) {
 		return nil, errors.New("user deleted")
 	}
 
@@ -145,9 +141,25 @@ func GetUser(userId uuid.UUID) (*ent.User, error) {
 func DoesUserWithUUIDExist(userId uuid.UUID) bool {
 	userData, err := Db.User.Query().Where(user.UUID(userId)).First(context.Background())
 
-	if err != nil || util.IsUserDeleted(userData) {
+	if err != nil || IsUserDeleted(userData) {
 		return false
 	}
 
 	return true
+}
+
+func GetLastUpdate(userId uuid.UUID) (int64, error) {
+	userData, err := Db.User.Query().
+		Where(user.UUID(userId), user.DeletedAtIsNil()).
+		Select("updated_at").
+		First(context.Background())
+
+	if err != nil {
+		return 0, nil
+	}
+
+	return userData.UpdatedAt.Unix(), nil
+}
+func IsUserDeleted(userData *ent.User) bool {
+	return userData.DeletedAt.Unix() != -62135596800
 }

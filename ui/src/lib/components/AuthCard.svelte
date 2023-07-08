@@ -4,6 +4,7 @@
   export let buttonLabel = "";
   export let height: string;
   export let className = "";
+  export let onClick: Function;
 </script>
 
 <div class="drop-shadow-xl {className}">
@@ -16,6 +17,6 @@
     <div class="mt-7">
       <slot name="inputs"/>
     </div>
-    <Button className="mb-11">{buttonLabel}</Button>
+    <Button on:click={onClick} className="mb-11">{buttonLabel}</Button>
   </div>
 </div>

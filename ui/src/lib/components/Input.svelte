@@ -5,6 +5,7 @@
   export let className = "";
   export let label = "";
   export let type: "password" | "text" = "text";
+  export let error = "";
 
   const sizes = new Map<string, string>([
     ["sm", "pr-32"],
@@ -20,11 +21,11 @@
     <label class="text-white font-bold text-[1rem] ml-4">{label}</label>
   {/if}
   {#if type === "password"}
-    <input bind:value={value} {placeholder} type="password" class="focus:outline-indigo-500 -outline-offset-0 focus:outline outline-none border-none {sizes.get(size)} pl-7 py-3 font-inter font-bold text-xs rounded-full placeholder-white placeholder-opacity-25 text-white bg-indigo-900 {className}">
+    <input bind:value={value} {placeholder} type="password"
+           class="outline-offset-0 outline-none focus:outline-indigo-500 focus:outline outline-2 border-none {sizes.get(size)} pl-7 py-3 font-inter font-bold text-xs rounded-full placeholder-white placeholder-opacity-25 text-white bg-indigo-900 {className}">
   {:else}
-    <input bind:value={value} {placeholder} type="text" class="focus:outline-indigo-500 -outline-offset-0 focus:outline outline-none border-none {sizes.get(size)} pl-7 py-3 font-inter font-bold text-xs rounded-full placeholder-white placeholder-opacity-25 text-white bg-indigo-900 {className}">
+    <input bind:value={value} {placeholder} type="text"
+           class="outline-offset-0 outline-none focus:outline-indigo-500 focus:outline outline-2 border-none {sizes.get(size)} pl-7 py-3 font-inter font-bold text-xs rounded-full placeholder-white placeholder-opacity-25 text-white bg-indigo-900 {className}">
   {/if}
 </div>
 
-<style>
-</style>

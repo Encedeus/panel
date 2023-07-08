@@ -3,6 +3,23 @@
   import CardHeader from "$lib/components/CardHeader.svelte";
   import AuthCard from "$lib/components/AuthCard.svelte";
   import SmallArrowRight from "$lib/components/heroicons/SmallArrowRight.svelte";
+  import { api } from "../../../lib/services/api_service";
+  import { User } from "@encedeus/js-api";
+
+  let username = "";
+  let email = "";
+  let password = "";
+  let confirmPassword = "";
+
+  function signUp() {
+
+
+    api.usersService.createUser({
+      name: username,
+      email,
+      password, roleId: 0, roleName: ""
+    });
+  }
 </script>
 
 <aside class="absolute top-0 right-0 mt-5 mr-7">
@@ -14,10 +31,10 @@
       Sign Up
     </CardHeader>
     <div class="flex flex-col gap-5" slot="inputs">
-      <Input placeholder="Enter Username" size="lg" label="Username"/>
-      <Input placeholder="Enter E-Mail" size="lg" label="E-Mail"/>
-      <Input placeholder="Enter Password" size="lg" label="Password" type="password"/>
-      <Input placeholder="Enter Password" size="lg" label="Confirm Password" type="password"/>
+      <Input bind:value={username} placeholder="Enter Username" size="lg" label="Username"/>
+      <Input bind:value={email} placeholder="Enter E-Mail" size="lg" label="E-Mail"/>
+      <Input bind:value={password} placeholder="Enter Password" size="lg" label="Password" type="password"/>
+      <Input bind:value={confirmPassword} placeholder="Enter Password" size="lg" label="Confirm Password" type="password"/>
     </div>
   </AuthCard>
 </main>

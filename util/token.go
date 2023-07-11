@@ -16,8 +16,8 @@ import (
 // GenerateAccessToken generates an access token containing the uuid of a user that expires in 15 minutes
 func GenerateAccessToken(userData dto.AccessTokenDTO) (string, error) {
 
-	userData.ExpiresAt = time.Now().Add(15 * time.Minute).Unix()
-	userData.IssuedAt = time.Now().Unix()
+	userData.ExpiresAt = time.Now().UTC().Add(15 * time.Minute).Unix()
+	userData.IssuedAt = time.Now().UTC().Unix()
 
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, userData)
 	accessTokenString, err := accessToken.SignedString([]byte(config.Config.Auth.JWTSecretAccess))
@@ -31,8 +31,8 @@ func GenerateAccessToken(userData dto.AccessTokenDTO) (string, error) {
 // GenerateRefreshToken generates a refresh token containing the uuid of a user that expires in a week
 func GenerateRefreshToken(userData dto.RefreshTokenDTO) (string, error) {
 	// generate a token containing the user's uuid
-	userData.ExpiresAt = time.Now().Add(168 * time.Hour).Unix()
-	userData.IssuedAt = time.Now().Unix()
+	userData.ExpiresAt = time.Now().Add(168 * time.Hour).UTC().Unix()
+	userData.IssuedAt = time.Now().UTC().Unix()
 
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, userData)
 	accessTokenString, err := accessToken.SignedString([]byte(config.Config.Auth.JWTSecretRefresh))

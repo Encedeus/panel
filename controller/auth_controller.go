@@ -10,12 +10,11 @@ import (
 	"panel/middleware"
 	"panel/service"
 	"panel/util"
-	"time"
 )
 
 func init() {
 	addController(func(server *echo.Echo, db *ent.Client) {
-		usersEndpoint := server.Group("/auth")
+		usersEndpoint := server.Group("auth")
 		{
 			usersEndpoint.POST("/login", userLoginHandler)
 
@@ -75,17 +74,9 @@ func userLoginHandler(ctx echo.Context) error {
 	// generate access and refresh tokens
 	accessToken, refreshToken, err := util.GetTokenPair(tokenData)
 
-	refreshTokenCookie := new(http.Cookie)
-	refreshTokenCookie.SameSite = http.SameSiteStrictMode
-	refreshTokenCookie.HttpOnly = true
-	refreshTokenCookie.Expires = time.Now().AddDate(0, 0, 7)
-	refreshTokenCookie.Name = "encedeus_refreshToken"
-	refreshTokenCookie.Value = refreshToken
-	refreshTokenCookie.Secure = true
-
-	ctx.SetCookie(refreshTokenCookie)
 	return ctx.JSON(http.StatusCreated, echo.Map{
-		"accessToken": accessToken,
+		"accessToken":  accessToken,
+		"refreshToken": refreshToken,
 	})
 }
 

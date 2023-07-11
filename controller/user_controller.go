@@ -19,7 +19,7 @@ import (
 
 func init() {
 	addController(func(server *echo.Echo, db *ent.Client) {
-		userEndpoint := server.Group("/user")
+		userEndpoint := server.Group("user")
 		userEndpoint.Static("/pfp", config.Config.CDN.Directory)
 
 		userEndpoint.Use(middleware.AccessJWTAuth)
@@ -58,11 +58,11 @@ func getUser(ctx echo.Context) error {
 	}
 
 	return ctx.JSON(http.StatusOK, echo.Map{
-		"name":       userData.Name,
-		"email":      userData.Email,
-		"created_at": userData.CreatedAt,
-		"updated_at": userData.UpdatedAt,
-		"role_id":    userData.RoleID,
+		"name":      userData.Name,
+		"email":     userData.Email,
+		"createdAt": userData.CreatedAt,
+		"updatedAt": userData.UpdatedAt,
+		"roleId":    userData.RoleID,
 	})
 }
 

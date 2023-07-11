@@ -14,7 +14,7 @@ import (
 
 func init() {
 	addController(func(server *echo.Echo, db *ent.Client) {
-		roleEndpoint := server.Group("/role")
+		roleEndpoint := server.Group("role")
 
 		roleEndpoint.Use(middleware.AccessJWTAuth)
 

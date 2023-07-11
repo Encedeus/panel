@@ -6,11 +6,11 @@ import (
 )
 
 type AccessTokenDTO struct {
-	UserId uuid.UUID `json:"user_id"`
+	UserId uuid.UUID `json:"userId"`
 	jwt.StandardClaims
 }
 
 type RefreshTokenDTO struct {
-	UserId uuid.UUID `json:"user_id"`
+	UserId uuid.UUID `json:"userId"`
 	jwt.StandardClaims
 }

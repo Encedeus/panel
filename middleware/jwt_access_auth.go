@@ -20,13 +20,13 @@ func AccessJWTAuth(next echo.HandlerFunc) echo.HandlerFunc {
 		token := util.GetTokenFromHeader(c)
 		isValid, accessToken, err := util.ValidateAccessJWT(token)
 
-		c.Request().Header.Set("UUID", accessToken.UserId.String())
-
 		if !isValid || err != nil {
 			return c.JSON(http.StatusUnauthorized, echo.Map{
 				"message": "unauthorised",
 			})
 		}
+
+		c.Request().Header.Set("UUID", accessToken.UserId.String())
 
 		return next(c)
 	}

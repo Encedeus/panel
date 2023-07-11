@@ -16,6 +16,6 @@
   ]);
 </script>
 
-<button {type} class="text-white font-bold text-sm rounded-full {colors.get(color)} {sizes.get(size)} {className}">
+<button on:click {type} class="text-white font-bold text-sm rounded-full {colors.get(color)} {sizes.get(size)} {className}">
   <slot/>
 </button>

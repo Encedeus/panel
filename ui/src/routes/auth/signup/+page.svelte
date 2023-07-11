@@ -1,3 +1,4 @@
+<!--
 <script lang="ts">
   import Input from "$lib/components/Input.svelte";
   import CardHeader from "$lib/components/CardHeader.svelte";
@@ -11,7 +12,7 @@
   let password = "";
   let confirmPassword = "";
 
-  function signUp() {
+/*  function signUp() {
 
 
     api.usersService.createUser({
@@ -19,7 +20,7 @@
       email,
       password, roleId: 0, roleName: ""
     });
-  }
+  }*/
 </script>
 
 <aside class="absolute top-0 right-0 mt-5 mr-7">
@@ -38,3 +39,4 @@
     </div>
   </AuthCard>
 </main>
+-->

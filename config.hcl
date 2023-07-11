@@ -6,9 +6,9 @@ server {
 database {
   host = "localhost"
   port = 5432
-  user = "Panel"
+  user = "postgres"
   name = "PanelDB"
-  password = "testPassword"
+  password = "root"
 }
 
 auth {

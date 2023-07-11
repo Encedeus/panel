@@ -1,7 +1,6 @@
 <script lang="ts">
   import Button from "$lib/components/Button.svelte";
 
-  export let buttonLabel = "";
   export let height: string;
   export let className = "";
   export let onClick: Function;
@@ -17,6 +16,8 @@
     <div class="mt-7">
       <slot name="inputs"/>
     </div>
-    <Button on:click={onClick} className="mb-11">{buttonLabel}</Button>
+    <div class="mb-11">
+      <slot name="button"/>
+    </div>
   </div>
 </div>

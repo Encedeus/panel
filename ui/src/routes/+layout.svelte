@@ -4,9 +4,9 @@
   import { goto } from "$app/navigation";
   import { onMount } from "svelte";
 
-  onMount(async () => {
-    if (!(await isUserSignedIn())) {
-      await goto("/auth/signin");
+  onMount(() => {
+    if (!isUserSignedIn()) {
+      goto("/auth/signin");
     }
   });
 </script>

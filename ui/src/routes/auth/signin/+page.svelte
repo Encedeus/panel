@@ -20,25 +20,11 @@
 
   let alert: HTMLElement;
 
-/*
-  $: {
-    if((passwordError && usernameError) === false) {
-      setTimeout(() => {
-        if(alert) {
-          alert.classList.add("hidden");
-          errorLabel = "";
-        }
-      }, 240)
-    }
-  }
-*/
-
   async function signIn() {
     const { error, accessToken, refreshToken } = await sendAuthenticationRequest(name, password);
-
+    signIn.called = true;
     checkForErrors(error);
     saveTokens(accessToken, refreshToken);
-    signIn.called = true;
   }
 
   async function sendAuthenticationRequest(name: string, password: string): Promise<LoginUserResponse> {
@@ -64,7 +50,7 @@
   }
 
   function checkForErrors(error: LoginUserErrors) {
-    if(error) {
+    if(error as LoginUserErrors !== LoginUserErrors.OK as LoginUserErrors) {
       usernameError = false;
       passwordError = false;
       errorLabel = "";
@@ -89,12 +75,6 @@
     }
   }
 
-/*  function gracefulAlertShutdown() {
-    setTimeout(() => {
-      // errorLabel = "";
-      // alert.classList.add("hidden");
-    }, 230);
-  }*/
 </script>
 
 <aside class="absolute top-0 right-0 mt-5 mr-7">
@@ -122,15 +102,17 @@
   </AuthCard>
 </main>
 
-<aside bind:this={alert} class="absolute left-10 {signIn.called ? '' : 'hidden'} {(passwordError || usernameError) === true ? 'come-up-animation bottom-10' : 'come-down-animation -bottom-16'}">
-  <Toast mode="error" size="md">
-    <p slot="label">{errorLabel}</p>
-  </Toast>
-</aside>
+{#if signIn.called}
+  <aside bind:this={alert} class="absolute left-10 {(passwordError || usernameError) ? 'come-up-animation bottom-10' : 'come-down-animation -bottom-16'}">
+    <Toast mode="error" size="md">
+      <p slot="label">{errorLabel}</p>
+    </Toast>
+  </aside>
+{/if}
 
 <style lang="postcss">
   :global(body) {
-    overflow: hidden;
+    @apply overflow-hidden;
   }
 
   :root {

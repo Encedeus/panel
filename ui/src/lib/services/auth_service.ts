@@ -53,7 +53,7 @@ export async function getRefreshToken(): Promise<string> {
 }
 
 export function saveRefreshToken(refreshToken: string) {
-  if (localStorage.getItem("encedeus_refreshToken")) {
+  if (refreshToken) {
     localStorage.setItem("encedeus_refreshToken", refreshToken);
   }
 }

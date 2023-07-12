@@ -13,7 +13,6 @@
     saveRefreshToken,
     saveAccessToken,
   } from "../../../lib/services/auth_service";
-  import { onMount } from "svelte";
 
   let name = "";
   let password = "";
@@ -23,10 +22,6 @@
   let passwordError = false;
 
   let alert: HTMLElement;
-
-  onMount(() => {
-    alert.classList.add("hidden");
-  });
 
   $: {
     if (!errorLabel) {
@@ -39,6 +34,14 @@
   }
 
   async function signIn() {
+    signIn.called = true;
+
+    const { error, accessToken, refreshToken } = sendAuthenticationRequest(name, password);
+    checkForErrors(error);
+    saveTokens(accessToken, refreshToken);
+  }
+
+  async function sendAuthenticationRequest(name: string, password: string): Promise<LoginUserResponse> {
     let resp: LoginUserResponse;
     if (isEmailValid(name)) {
       resp = await api.authService.loginUser({
@@ -52,12 +55,22 @@
       });
     }
 
-    if(resp.error) {
+    return resp;
+  }
+
+  function saveTokens(accessToken: string, refreshToken: string) {
+    saveRefreshToken(refreshToken);
+    saveAccessToken(accessToken);
+  }
+
+  function checkForErrors(error: LoginUserErrors) {
+    if(error) {
       usernameError = false;
       passwordError = false;
       errorLabel = "";
     }
-    switch (LoginUserErrors[resp.error]) {
+
+    switch (LoginUserErrors[error]) {
       case LoginUserErrors.WRONG_PASSWORD as LoginUserErrors:
         errorLabel = "Wrong Password";
         passwordError = true;
@@ -74,9 +87,6 @@
         errorLabel = "Internal Server Error";
         break;
     }
-
-    saveRefreshToken(resp.refreshToken);
-    saveAccessToken(resp.accessToken);
   }
 </script>
 
@@ -107,7 +117,7 @@
   </AuthCard>
 </main>
 
-<aside bind:this={alert} class="absolute bottom-10 left-10 {errorLabel ? 'come-up-animation' : 'come-down-animation'}">
+<aside bind:this={alert} class="absolute bottom-10 left-10 {!signIn.called ? 'hidden' : 'block'} {errorLabel ? 'come-up-animation' : 'come-down-animation'}">
   <Toast mode="error" size="md">
     <p slot="label">{errorLabel}</p>
   </Toast>

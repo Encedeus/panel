@@ -23,22 +23,14 @@
 
   let alert: HTMLElement;
 
-  $: {
-    if (!errorLabel) {
-      setTimeout(() => {
-        if (alert) {
-          alert.classList.add("hidden");
-        }
-      }, 1000);
-    }
-  }
-
   async function signIn() {
-    signIn.called = true;
+    const { error, accessToken, refreshToken } = await sendAuthenticationRequest(name, password);
 
-    const { error, accessToken, refreshToken } = sendAuthenticationRequest(name, password);
     checkForErrors(error);
     saveTokens(accessToken, refreshToken);
+    signIn.called = true;
+
+    console.log(errorLabel);
   }
 
   async function sendAuthenticationRequest(name: string, password: string): Promise<LoginUserResponse> {
@@ -88,6 +80,13 @@
         break;
     }
   }
+
+  function gracefulAlertShutdown() {
+    setTimeout(() => {
+      alert.classList.add("hidden");
+      errorLabel = "";
+    }, 240)
+  }
 </script>
 
 <aside class="absolute top-0 right-0 mt-5 mr-7">
@@ -103,13 +102,12 @@
       <Input on:input={() => {
         if(usernameError) {
           usernameError = false;
-          errorLabel = "";
-        }
+          gracefulAlertShutdown();        }
        }} bind:error={usernameError} bind:value={name} placeholder="Enter Username or E-Mail" size="lg" label="Username/E-Mail"/>
       <Input on:input={() => {
         if(passwordError) {
           passwordError = false;
-          errorLabel = "";
+          gracefulAlertShutdown();
         }
       }} bind:error={passwordError} bind:value={password} placeholder="Enter Password" size="lg" label="Password" type="password"/>
     </div>
@@ -117,7 +115,7 @@
   </AuthCard>
 </main>
 
-<aside bind:this={alert} class="absolute bottom-10 left-10 {!signIn.called ? 'hidden' : 'block'} {errorLabel ? 'come-up-animation' : 'come-down-animation'}">
+<aside bind:this={alert} class="absolute bottom-10 left-10 {signIn.called ? '' : 'hidden'} {(passwordError || usernameError) ? 'come-up-animation' : 'come-down-animation'}">
   <Toast mode="error" size="md">
     <p slot="label">{errorLabel}</p>
   </Toast>
@@ -147,12 +145,12 @@
   }
 
   .come-up-animation {
-    animation-duration: 1s;
+    animation-duration: 0.5s;
     animation-name: come-up;
   }
 
   .come-down-animation {
-    animation-duration: 1s;
+    animation-duration: 0.25s;
     animation-name: come-down;
   }
 </style>

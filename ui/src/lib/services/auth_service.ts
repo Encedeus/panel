@@ -17,7 +17,9 @@ export async function refreshAccessToken(): Promise<string> {
     return;
   }
 
-  saveAccessToken(accessToken);
+  if (accessToken) {
+    saveAccessToken(accessToken);
+  }
   return accessToken || null;
 }
 
@@ -28,6 +30,9 @@ export async function getAccessToken(): Promise<string> {
     if (await getRefreshToken()) {
       return await refreshAccessToken();
     }
+
+    await signOut();
+    return null;
   }
 
   const payload = decodeJwt(accessToken);
@@ -48,7 +53,9 @@ export async function getRefreshToken(): Promise<string> {
 }
 
 export function saveRefreshToken(refreshToken: string) {
-  localStorage.setItem("encedeus_refreshToken", refreshToken);
+  if (localStorage.getItem("encedeus_refreshToken")) {
+    localStorage.setItem("encedeus_refreshToken", refreshToken);
+  }
 }
 
 export async function isUserSignedIn(): Promise<boolean> {
@@ -60,8 +67,8 @@ export async function getSignedInUser(): Promise<User> {
   if (!accessToken) {
     return null;
   }
-  const tokenPayload = decodeJwt(accessToken);
 
+  const tokenPayload = decodeJwt(accessToken);
   const resp = await api.usersService.getUserById(<string>tokenPayload.userId);
   if (resp.error && resp.error !== GetUserErrors.OK) {
     await signOut();
@@ -77,6 +84,6 @@ export function saveAccessToken(accessToken: string) {
 
 export async function signOut() {
   saveAccessToken("");
-  saveRefreshToken("");
+  localStorage.removeItem("encedeus_refreshToken");
   await goto("/auth/signin");
 }

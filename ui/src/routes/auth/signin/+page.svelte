@@ -89,12 +89,12 @@
     }
   }
 
-  function gracefulAlertShutdown() {
+/*  function gracefulAlertShutdown() {
     setTimeout(() => {
-      errorLabel = "";
-      alert.classList.add("hidden");
+      // errorLabel = "";
+      // alert.classList.add("hidden");
     }, 230);
-  }
+  }*/
 </script>
 
 <aside class="absolute top-0 right-0 mt-5 mr-7">
@@ -109,13 +109,11 @@
     <div class="flex flex-col gap-5" slot="inputs">
       <Input on:input={() => {
         if(usernameError) {
-          gracefulAlertShutdown();
           usernameError = false;
         }
        }} bind:error={usernameError} bind:value={name} placeholder="Enter Username or E-Mail" size="lg" label="Username/E-Mail"/>
       <Input on:input={() => {
         if(passwordError) {
-          gracefulAlertShutdown();
           passwordError = false;
         }
       }} bind:error={passwordError} bind:value={password} placeholder="Enter Password" size="lg" label="Password" type="password"/>
@@ -124,7 +122,7 @@
   </AuthCard>
 </main>
 
-<aside bind:this={alert} class="absolute bottom-10 left-10 {signIn.called ? '' : 'hidden'} {(passwordError || usernameError) === true ? 'come-up-animation' : 'come-down-animation'}">
+<aside bind:this={alert} class="absolute left-10 {signIn.called ? '' : 'hidden'} {(passwordError || usernameError) === true ? 'come-up-animation bottom-10' : 'come-down-animation -bottom-16'}">
   <Toast mode="error" size="md">
     <p slot="label">{errorLabel}</p>
   </Toast>
@@ -135,9 +133,13 @@
     overflow: hidden;
   }
 
+  :root {
+    --animation-delay: 0.25s;
+  }
+
   @keyframes come-up {
     from {
-      @apply -bottom-16 block;
+      @apply -bottom-16;
     }
     to {
       @apply bottom-10;
@@ -146,7 +148,7 @@
 
   @keyframes come-down {
     from {
-      @apply bottom-10 block;
+      @apply bottom-10;
     }
     to {
       @apply -bottom-16;
@@ -154,12 +156,12 @@
   }
 
   .come-up-animation {
-    animation-duration: 0.25s;
+    animation-duration: var(--animation-delay);
     animation-name: come-up;
   }
 
   .come-down-animation {
-    animation-duration: 0.25s;
+    animation-duration: var(--animation-delay);
     animation-name: come-down;
   }
 </style>

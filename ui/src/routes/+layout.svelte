@@ -5,7 +5,6 @@
   import { onMount } from "svelte";
 
   onMount(async () => {
-    console.log(await isUserSignedIn());
     if (!(await isUserSignedIn())) {
       await goto("/auth/signin");
     }

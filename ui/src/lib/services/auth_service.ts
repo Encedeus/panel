@@ -9,41 +9,39 @@ import {
 import { goto } from "$app/navigation";
 
 export async function refreshAccessToken(): Promise<string> {
-  const resp = await api.authService.refreshAccessToken(getRefreshToken());
-  if (resp.error !== RefreshAccessTokenErrors.OK) {
-    signOut();
+  const { accessToken, error } = await api.authService.refreshAccessToken(
+    await getRefreshToken(),
+  );
+  if (error !== RefreshAccessTokenErrors.OK) {
+    await signOut();
     return;
   }
 
-  accessTokenStore.set(resp.accessToken);
-  return resp.accessToken || "";
+  saveAccessToken(accessToken);
+  return accessToken || null;
 }
 
-export function getAccessToken(): string {
+export async function getAccessToken(): Promise<string> {
   let accessToken = "";
-  const unsubscribe = accessTokenStore.subscribe(
-    token => (accessToken = token),
-  );
+  accessTokenStore.subscribe(token => (accessToken = token))();
   if (!accessToken) {
-    if (getRefreshToken()) {
-      refreshAccessToken().then(v => (accessToken = v));
+    if (await getRefreshToken()) {
+      return await refreshAccessToken();
     }
-    return accessToken;
   }
 
   const payload = decodeJwt(accessToken);
   if (Date.now() >= payload.exp * 1000) {
-    refreshAccessToken().then(v => (accessToken = v));
+    return await refreshAccessToken();
   }
 
-  unsubscribe();
-  return accessToken;
+  return null;
 }
 
-export function getRefreshToken(): string {
+export async function getRefreshToken(): Promise<string> {
   const refreshToken: string = localStorage.getItem("encedeus_refreshToken");
   if (!refreshToken) {
-    signOut();
+    await signOut();
   }
 
   return refreshToken;
@@ -54,15 +52,11 @@ export function saveRefreshToken(refreshToken: string) {
 }
 
 export async function isUserSignedIn(): Promise<boolean> {
-  if (!getAccessToken()) {
-    return false;
-  }
-
-  return true;
+  return !(await getAccessToken());
 }
 
 export async function getSignedInUser(): Promise<User> {
-  const accessToken = getAccessToken();
+  const accessToken = await getAccessToken();
   if (!accessToken) {
     return null;
   }
@@ -70,7 +64,7 @@ export async function getSignedInUser(): Promise<User> {
 
   const resp = await api.usersService.getUserById(<string>tokenPayload.userId);
   if (resp.error && resp.error !== GetUserErrors.OK) {
-    signOut();
+    await signOut();
   }
 
   return resp.user;
@@ -81,8 +75,8 @@ export function saveAccessToken(accessToken: string) {
   api.accessToken = accessToken;
 }
 
-export function signOut() {
+export async function signOut() {
   saveAccessToken("");
   saveRefreshToken("");
-  goto("/auth/signin");
+  await goto("/auth/signin");
 }

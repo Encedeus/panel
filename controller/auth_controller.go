@@ -51,7 +51,7 @@ func userLoginHandler(ctx echo.Context) error {
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return ctx.JSON(http.StatusNotFound, echo.Map{
-				"message": err.Error(),
+				"message": "user not found",
 			})
 		}
 

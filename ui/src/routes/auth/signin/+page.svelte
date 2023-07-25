@@ -22,8 +22,10 @@
 
   async function signIn() {
     const { error, accessToken, refreshToken } = await sendAuthenticationRequest(name, password);
-    signIn.called = true;
     checkForErrors(error);
+    if (error && error as LoginUserErrors !== LoginUserErrors.OK as LoginUserErrors) {
+      signIn.called = true;
+    }
     saveTokens(accessToken, refreshToken);
   }
 
@@ -60,18 +62,18 @@
       case LoginUserErrors.WRONG_PASSWORD as LoginUserErrors:
         errorLabel = "Wrong Password";
         passwordError = true;
-        break;
+        return;
       case LoginUserErrors.WRONG_EMAIL_OR_USERNAME as LoginUserErrors:
         errorLabel = "Wrong Email or Username";
         usernameError = true;
-        break;
+        return;
       case LoginUserErrors.USERNAME_OR_EMAIL_NOT_SPECIFIED as LoginUserErrors:
         errorLabel = "Email or Username not specified";
         usernameError = true;
-        break;
+        return;
       case LoginUserErrors.INTERNAL_SERVER_ERROR as LoginUserErrors:
         errorLabel = "Internal Server Error";
-        break;
+        return;
     }
   }
 

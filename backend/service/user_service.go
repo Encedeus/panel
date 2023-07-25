@@ -40,6 +40,11 @@ func CreateUser(name string, email string, passwordHash string, role *ent.Role) 
 		SetPassword(passwordHash).
 		SetRole(role).
 		Save(context.Background())
+
+	if err != nil {
+		return nil, err
+	}
+
 	return &userData.UUID, err
 }
 

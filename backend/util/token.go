@@ -116,7 +116,7 @@ func ValidateRefreshJWT(tokenString string) (bool, dto.RefreshTokenDTO, error) {
 func IsUserUpdated(userId uuid.UUID, issuedAt int64) (bool, error) {
 	lastUpdate, err := service.GetLastUpdate(userId)
 	if err != nil {
-		return false, err
+		return true, err
 	}
 
 	if lastUpdate > issuedAt {

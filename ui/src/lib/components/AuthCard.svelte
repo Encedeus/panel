@@ -1,9 +1,6 @@
 <script lang="ts">
-  import Button from "$lib/components/Button.svelte";
-
   export let height: string;
   export let className = "";
-  export let onClick: Function;
 </script>
 
 <div class="drop-shadow-xl {className}">

@@ -1,6 +1,6 @@
 <script lang="ts">
   import "../app.css";
-  import { isUserSignedIn } from "../lib/services/auth_service";
+/*  import { isUserSignedIn } from "../lib/services/auth_service";
   import { goto } from "$app/navigation";
   import { onMount } from "svelte";
 
@@ -8,7 +8,7 @@
     if (!isUserSignedIn()) {
       goto("/auth/signin");
     }
-  });
+  });*/
 </script>
 
 <slot/>

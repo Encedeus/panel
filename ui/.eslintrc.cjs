@@ -19,7 +19,8 @@ module.exports = {
     "@typescript-eslint"
   ],
   rules: {
-
+    semi: 2,
+    indent: ["error", 4],
   },
   overrides: [
     {

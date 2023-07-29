@@ -1,7 +1,7 @@
 <script lang="ts">
     import Input from "$lib/components/generic/Input.svelte";
-    import CardHeader from "$lib/components/CardHeader.svelte";
-    import AuthCard from "$lib/components/AuthCard.svelte";
+    import CardHeader from "$lib/components/generic/CardHeader.svelte";
+    import AuthCard from "$lib/components/generic/AuthCard.svelte";
     import SmallArrowRight from "$lib/components/heroicons/SmallArrowRight.svelte";
     import { api } from "../../../lib/services/api_service";
     import { isEmailValid } from "../../../lib/services/validation_service";
@@ -19,8 +19,6 @@
     let usernameError = false;
     let passwordError = false;
 
-    let alert: HTMLElement;
-
     async function signIn() {
         const { error, accessToken, refreshToken } = await sendAuthenticationRequest(name, password);
         checkForErrors(error);
@@ -29,7 +27,6 @@
             return;
         }
         saveTokens(accessToken, refreshToken);
-        document.body.style.removeProperty("background");
         await goto("/dashboard/servers");
     }
 
@@ -111,7 +108,7 @@
 </main>
 
 {#if signIn.called}
-    <aside bind:this={alert} class="absolute left-10 {(passwordError || usernameError) ? 'come-up-animation bottom-10' : 'come-down-animation -bottom-16'}">
+    <aside class="absolute left-10 {(passwordError || usernameError) ? 'come-up-animation bottom-10' : 'come-down-animation -bottom-16'}">
         <Toast mode="error" size="md">
             <p slot="label">{errorLabel}</p>
         </Toast>

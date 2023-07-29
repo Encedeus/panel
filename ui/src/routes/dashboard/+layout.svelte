@@ -6,7 +6,6 @@
   import DoorExitIcon from "../../lib/components/heroicons/DoorExitIcon.svelte";
   import DefaultUserIcon from "../../lib/components/heroicons/DefaultUserIcon.svelte";
   import { signOut } from "$lib/services/auth_service";
-
 </script>
 
 <div class="absolute w-screen h-screen bg-slate-900"></div>

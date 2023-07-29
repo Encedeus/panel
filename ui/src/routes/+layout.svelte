@@ -5,9 +5,9 @@
   import { onMount } from "svelte";
 
   onMount(() => {
-    if (!isUserSignedIn()) {
-      goto("/auth/signin");
-    }
+      if (!isUserSignedIn()) {
+          goto("/auth/signin");
+      }
   });*/
 </script>
 

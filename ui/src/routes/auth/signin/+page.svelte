@@ -10,6 +10,7 @@
     import { LoginUserErrors } from "@encedeus/js-api";
     import Button from "$lib/components/generic/Button.svelte";
     import { saveAccessToken, saveRefreshToken } from "../../../lib/services/auth_service";
+    import { goto } from "$app/navigation";
 
     let name = "";
     let password = "";
@@ -25,8 +26,11 @@
         checkForErrors(error);
         if (error && error as LoginUserErrors !== LoginUserErrors.OK as LoginUserErrors) {
             signIn.called = true;
+            return;
         }
         saveTokens(accessToken, refreshToken);
+        document.body.style.removeProperty("background");
+        await goto("/dashboard/servers");
     }
 
     async function sendAuthenticationRequest(name: string, password: string): Promise<LoginUserResponse> {
@@ -83,6 +87,8 @@
     <span class="drop-shadow-xl text-white text-sm font-bold tracking-wide">Don't have an account?&nbsp; • &nbsp;<a href="/auth/signup" class="text-indigo-600">Sign Up&nbsp;<SmallArrowRight/></a></span>
 </aside>
 
+<div class="w-screen h-screen bg-image"></div>
+
 <main class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
     <AuthCard height="[16rem]" buttonLabel="Sign In">
         <CardHeader slot="title">
@@ -113,8 +119,9 @@
 {/if}
 
 <style lang="postcss">
-    :global(body) {
-        @apply overflow-hidden;
+    .bg-image {
+        background: url("$lib/assets/auth-bg.svg");
+        background-size: 450%;
     }
 
     :root {

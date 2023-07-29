@@ -4,7 +4,7 @@
   export let placeholder = "";
   export let className = "";
   export let label = "";
-  export let type: "password" | "text" = "text";
+  export let type: "password" | "text" | "search" = "text";
   export let error = false;
 
   const sizes = new Map<string, string>([

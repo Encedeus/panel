@@ -20,7 +20,7 @@ export async function refreshAccessToken(): Promise<string> {
     if (accessToken) {
         saveAccessToken(accessToken);
     }
-    return accessToken || null;
+    return accessToken;
 }
 
 export async function getAccessToken(): Promise<string> {

@@ -6,6 +6,7 @@ module.exports = {
       fontFamily: {
         "inter": "Inter",
         "monti": "Montserrat",
+        "lato": "Lato",
       }
     },
   },

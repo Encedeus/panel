@@ -13,11 +13,16 @@ import (
 	"time"
 )
 
+const (
+	RefreshTokenExpireTime = 168 * time.Hour
+	AccessTokenExpireTime  = 15 * time.Minute
+)
+
 // GenerateAccessToken generates an access token containing the uuid of a user that expires in 15 minutes
 func GenerateAccessToken(userData dto.AccessTokenDTO) (string, error) {
 
-	userData.ExpiresAt = time.Now().UTC().Add(15 * time.Minute).Unix()
-	userData.IssuedAt = time.Now().UTC().Unix()
+	userData.ExpiresAt = time.Now().Add(AccessTokenExpireTime).Unix()
+	userData.IssuedAt = time.Now().Unix()
 
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, userData)
 	accessTokenString, err := accessToken.SignedString([]byte(config.Config.Auth.JWTSecretAccess))
@@ -31,8 +36,8 @@ func GenerateAccessToken(userData dto.AccessTokenDTO) (string, error) {
 // GenerateRefreshToken generates a refresh token containing the uuid of a user that expires in a week
 func GenerateRefreshToken(userData dto.RefreshTokenDTO) (string, error) {
 	// generate a token containing the user's uuid
-	userData.ExpiresAt = time.Now().Add(168 * time.Hour).UTC().Unix()
-	userData.IssuedAt = time.Now().UTC().Unix()
+	userData.ExpiresAt = time.Now().Add(RefreshTokenExpireTime).Unix()
+	userData.IssuedAt = time.Now().Unix()
 
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, userData)
 	accessTokenString, err := accessToken.SignedString([]byte(config.Config.Auth.JWTSecretRefresh))
@@ -64,6 +69,16 @@ func GetTokenPair(userData dto.AccessTokenDTO) (string, string, error) {
 func GetTokenFromHeader(ctx echo.Context) string {
 	// removes "Bearer" in front of the token and returns the token
 	return strings.Split(ctx.Request().Header.Get("Authorization"), " ")[1]
+}
+
+// GetRefreshTokenFromCookie extracts the refresh token from a browser cookie
+func GetRefreshTokenFromCookie(ctx echo.Context) (string, error) {
+	cookie, err := ctx.Cookie("encedeus_refreshToken")
+	if err != nil {
+		return "", err
+	}
+
+	return cookie.Value, nil
 }
 
 func ValidateAccessJWT(tokenString string) (bool, dto.AccessTokenDTO, error) {

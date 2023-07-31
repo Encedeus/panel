@@ -10,6 +10,7 @@ import (
 	"panel/middleware"
 	"panel/service"
 	"panel/util"
+	"time"
 )
 
 func init() {
@@ -21,6 +22,8 @@ func init() {
 			usersEndpoint.Use(middleware.RefreshJWTAuth)
 
 			usersEndpoint.GET("/refresh", tokenRefreshHandler)
+
+			usersEndpoint.DELETE("/logout", logoutHandler)
 		}
 	})
 }
@@ -74,15 +77,26 @@ func userLoginHandler(ctx echo.Context) error {
 	// generate access and refresh tokens
 	accessToken, refreshToken, err := util.GetTokenPair(tokenData)
 
+	// set refresh token cookie
+	ctx.SetCookie(&http.Cookie{
+		Name:     "encedeus_refreshToken",
+		Value:    refreshToken,
+		Secure:   true,
+		Expires:  time.Now().Add(util.RefreshTokenExpireTime),
+		SameSite: http.SameSiteStrictMode,
+		HttpOnly: true,
+		Path:     "/",
+	})
+
 	return ctx.JSON(http.StatusCreated, echo.Map{
-		"accessToken":  accessToken,
-		"refreshToken": refreshToken,
+		"accessToken": accessToken,
 	})
 }
 
 func tokenRefreshHandler(ctx echo.Context) error {
 	// error safe because of the RefreshJWTAuth middleware
-	_, userData, _ := util.ValidateRefreshJWT(util.GetTokenFromHeader(ctx))
+	token, _ := util.GetRefreshTokenFromCookie(ctx)
+	_, userData, _ := util.ValidateRefreshJWT(token)
 
 	// generate access token
 	accessToken, _ := util.GenerateAccessToken(dto.AccessTokenDTO{UserId: userData.UserId})
@@ -90,4 +104,17 @@ func tokenRefreshHandler(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, echo.Map{
 		"accessToken": accessToken,
 	})
+}
+
+func logoutHandler(ctx echo.Context) error {
+	ctx.SetCookie(&http.Cookie{
+		Name:     "encedeus_refreshToken",
+		HttpOnly: true,
+		SameSite: http.SameSiteStrictMode,
+		Expires:  time.UnixMilli(0),
+		Secure:   true,
+		Path:     "/",
+	})
+
+	return ctx.NoContent(http.StatusOK)
 }

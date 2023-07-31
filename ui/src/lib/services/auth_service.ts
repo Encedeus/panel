@@ -2,17 +2,13 @@ import { accessTokenStore } from "../store";
 import { decodeJwt } from "jose";
 import { api } from "./api_service";
 import {
-    GetUserErrors,
-    RefreshAccessTokenErrors,
     User,
 } from "@encedeus/js-api";
 import { goto } from "$app/navigation";
 
 export async function refreshAccessToken(): Promise<string> {
-    const { accessToken, error } = await api.authService.refreshAccessToken(
-        await getRefreshToken(),
-    );
-    if (error !== RefreshAccessTokenErrors.OK) {
+    const { accessToken, error } = await api.authService.refreshAccessToken();
+    if (error) {
         await signOut();
         return;
     }
@@ -27,12 +23,7 @@ export async function getAccessToken(): Promise<string> {
     let accessToken = "";
     accessTokenStore.subscribe(token => (accessToken = token))();
     if (!accessToken) {
-        if (await getRefreshToken()) {
-            return await refreshAccessToken();
-        }
-
-        await signOut();
-        return null;
+        return await refreshAccessToken();
     }
 
     const payload = decodeJwt(accessToken);
@@ -41,21 +32,6 @@ export async function getAccessToken(): Promise<string> {
     }
 
     return null;
-}
-
-export async function getRefreshToken(): Promise<string> {
-    const refreshToken: string = localStorage.getItem("encedeus_refreshToken");
-    if (!refreshToken) {
-        await signOut();
-    }
-
-    return refreshToken;
-}
-
-export function saveRefreshToken(refreshToken: string) {
-    if (refreshToken) {
-        localStorage.setItem("encedeus_refreshToken", refreshToken);
-    }
 }
 
 export async function isUserSignedIn(): Promise<boolean> {
@@ -70,7 +46,7 @@ export async function getSignedInUser(): Promise<User> {
 
     const tokenPayload = decodeJwt(accessToken);
     const resp = await api.usersService.getUserById(<string>tokenPayload.userId);
-    if (resp.error && resp.error !== GetUserErrors.OK) {
+    if (resp.error) {
         await signOut();
     }
 
@@ -84,6 +60,6 @@ export function saveAccessToken(accessToken: string) {
 
 export async function signOut() {
     saveAccessToken("");
-    localStorage.removeItem("encedeus_refreshToken");
+    await api.authService.logout();
     await goto("/auth/signin");
 }

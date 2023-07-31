@@ -9,7 +9,7 @@
     import type { LoginUserResponse } from "@encedeus/js-api";
     import { LoginUserErrors } from "@encedeus/js-api";
     import Button from "$lib/components/generic/Button.svelte";
-    import { saveAccessToken, saveRefreshToken } from "../../../lib/services/auth_service";
+    import { saveAccessToken } from "../../../lib/services/auth_service";
     import { goto } from "$app/navigation";
 
     let name = "";
@@ -20,13 +20,13 @@
     let passwordError = false;
 
     async function signIn() {
-        const { error, accessToken, refreshToken } = await sendAuthenticationRequest(name, password);
+        const { error, accessToken } = await sendAuthenticationRequest(name, password);
         checkForErrors(error);
-        if (error && error as LoginUserErrors !== LoginUserErrors.OK as LoginUserErrors) {
+        if (error) {
             signIn.called = true;
             return;
         }
-        saveTokens(accessToken, refreshToken);
+        saveAccessToken(accessToken);
         await goto("/dashboard/servers");
     }
 
@@ -47,13 +47,8 @@
         return resp;
     }
 
-    function saveTokens(accessToken: string, refreshToken: string) {
-        saveRefreshToken(refreshToken);
-        saveAccessToken(accessToken);
-    }
-
     function checkForErrors(error: LoginUserErrors) {
-        if(error as LoginUserErrors !== LoginUserErrors.OK as LoginUserErrors) {
+        if(error) {
             usernameError = false;
             passwordError = false;
             errorLabel = "";

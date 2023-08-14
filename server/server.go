@@ -1,13 +1,14 @@
 package server
 
 import (
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 	"panel/config"
 	"panel/service"
+
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
-func ServerInit() {
+func Init() {
 	e := echo.New()
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowMethods:     []string{"GET", "POST", "DELETE", "PUT", "PATCH", "HEAD"},
@@ -16,5 +17,6 @@ func ServerInit() {
 		AllowCredentials: true,
 	}))
 	RouteInit(e, service.InitDB())
+
 	e.Logger.Fatal(e.Start(config.Config.Server.URI()))
 }

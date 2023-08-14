@@ -20,10 +20,9 @@ const (
 
 // GenerateAccessToken generates an access token containing the uuid of a user that expires in 15 minutes
 func GenerateAccessToken(userData dto.AccessTokenDTO) (string, error) {
-
 	userData.ExpiresAt = time.Now().Add(AccessTokenExpireTime).Unix()
 	userData.IssuedAt = time.Now().Unix()
-
+	
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, userData)
 	accessTokenString, err := accessToken.SignedString([]byte(config.Config.Auth.JWTSecretAccess))
 	if err != nil {

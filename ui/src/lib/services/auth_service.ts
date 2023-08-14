@@ -45,7 +45,7 @@ export async function getSignedInUser(): Promise<User> {
     }
 
     const tokenPayload = decodeJwt(accessToken);
-    const resp = await api.usersService.getUserById(<string>tokenPayload.userId);
+    const resp = await api.usersService.findUserById(tokenPayload.userId as string);
     if (resp.error) {
         await signOut();
     }
@@ -60,6 +60,6 @@ export function saveAccessToken(accessToken: string) {
 
 export async function signOut() {
     saveAccessToken("");
-    await api.authService.logout();
+    await api.authService.signOut();
     await goto("/auth/signin");
 }

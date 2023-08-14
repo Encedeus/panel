@@ -62,6 +62,7 @@ func getRole(ctx echo.Context) error {
 		"updatedAt":   roleData.UpdatedAt,
 	})
 }
+
 func handleCreateRole(ctx echo.Context) error {
 	userId, _ := uuid.Parse(ctx.Request().Header.Get("UUID"))
 
@@ -110,6 +111,7 @@ func handleCreateRole(ctx echo.Context) error {
 
 	return ctx.JSON(http.StatusOK, echo.Map{"id": roleId})
 }
+
 func handleUpdateRole(ctx echo.Context) error {
 	userId, _ := uuid.Parse(ctx.Request().Header.Get("UUID"))
 

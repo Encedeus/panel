@@ -30,7 +30,7 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"@encedeus/js-api": "^0.0.37",
+		"@encedeus/js-api": "^0.0.43",
 		"dotenv": "^16.3.1",
 		"jose": "^4.14.4"
 	}

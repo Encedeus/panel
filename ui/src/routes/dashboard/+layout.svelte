@@ -1,31 +1,27 @@
 <script>
-  import NavBar from "$lib/components/internal/nav/NavBar.svelte";
-  import NavItem from "$lib/components/internal/nav/NavItem.svelte";
-  import SettingsIcon from "$lib/components/heroicons/SettingsIcon.svelte";
-  import ServerIcon from "$lib/components/heroicons/ServerIcon.svelte";
-  import DoorExitIcon from "../../lib/components/heroicons/DoorExitIcon.svelte";
-  import DefaultUserIcon from "../../lib/components/heroicons/DefaultUserIcon.svelte";
-  import { signOut } from "$lib/services/auth_service";
+    import SettingsIcon from "$lib/components/heroicons/SettingsIcon.svelte";
+    import TabEnvironment from "$lib/components/tabs/TabEnvironment.svelte";
+    import SideBarTab from "$lib/components/internal/nav/SideBarTab.svelte";
+    import CloudIcon from "$lib/components/heroicons/CloudIcon.svelte";
 </script>
 
-<div class="absolute w-screen h-screen bg-slate-900"></div>
+<TabEnvironment>
+    <div slot="tabs">
+        <SideBarTab link="/dashboard/account/settings">
+            <SettingsIcon slot="icon"/>
+            <span class="text-white font-monti font-normal" slot="label">
+                Settings
+            </span>
+        </SideBarTab>
+        <SideBarTab link="/dashboard/account/api">
+            <CloudIcon slot="icon"/>
+            <span class="text-white font-monti font-normal" slot="label">
+                API Credentials
+            </span>
+        </SideBarTab>
+    </div>
+    <div slot="content">
+        <slot/>
+    </div>
+</TabEnvironment>
 
-<NavBar>
-  <div slot="logo" class="text-white text-3xl font-bold font-lato">Encedeus</div>
-  <div class="flex items-center justify-between gap-3 mr-5" slot="links">
-    <NavItem link="/dashboard/account/settings">
-      <SettingsIcon/>
-    </NavItem>
-    <NavItem link="/dashboard/servers">
-      <ServerIcon/>
-    </NavItem>
-    <NavItem on:click={signOut}>
-      <DoorExitIcon/>
-    </NavItem>
-    <NavItem>
-      <DefaultUserIcon/>
-    </NavItem>
-  </div>
-</NavBar>
-
-<slot/>

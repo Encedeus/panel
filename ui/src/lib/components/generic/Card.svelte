@@ -18,7 +18,7 @@
   const widths = new Map<string, string>([
       ["sm", ""],
       ["md", "w-[40rem]"],
-      ["lg", "w-32"],
+      ["lg", "w-[48rem]"],
       ["screen", "w-[97.5vw]"]
   ]);
 
@@ -37,7 +37,7 @@
       <slot name="title"/>
     </span>
     </div>
-    <div class="bg-indigo-950 rounded-b-lg {heights.get(height)} {widths.get(width)} w-full h-full">
+    <div class="bg-indigo-950 rounded-b-lg {heights.get(height)} {widths.get(width)}">
         <div class="mt-5 w-full h-full">
             <slot name="content"/>
         </div>

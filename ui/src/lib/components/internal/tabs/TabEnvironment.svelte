@@ -1,11 +1,11 @@
 <script lang="ts">
-    import SideBar from "../internal/nav/SideBar.svelte";
-    import NavBar from "../internal/nav/NavBar.svelte";
-    import NavItem from "../internal/nav/NavItem.svelte";
-    import SettingsIcon from "../heroicons/SettingsIcon.svelte";
-    import ServerIcon from "../heroicons/ServerIcon.svelte";
-    import DoorExitIcon from "../heroicons/DoorExitIcon.svelte";
-    import DefaultUserIcon from "../heroicons/DefaultUserIcon.svelte";
+    import SideBar from "$lib/components/internal/nav/SideBar.svelte";
+    import NavBar from "$lib/components/internal/nav/NavBar.svelte";
+    import NavItem from "$lib/components/internal/nav/NavItem.svelte";
+    import SettingsIcon from "$lib/components/heroicons/SettingsIcon.svelte";
+    import ServerIcon from "$lib/components/heroicons/ServerIcon.svelte";
+    import DoorExitIcon from "$lib/components/heroicons/DoorExitIcon.svelte";
+    import DefaultUserIcon from "$lib/components/heroicons/DefaultUserIcon.svelte";
     import { signOut } from "$lib/services/auth_service";
     import { page } from "$app/stores";
 </script>

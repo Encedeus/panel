@@ -1,8 +1,8 @@
 package server
 
 import (
-	"panel/config"
-	"panel/service"
+	"github.com/Encedeus/panel/config"
+	"github.com/Encedeus/panel/service"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"

@@ -6,9 +6,9 @@ import (
 	"context"
 	"fmt"
 	"math"
-	"panel/ent/predicate"
-	"panel/ent/role"
-	"panel/ent/user"
+	"github.com/Encedeus/panel/ent/predicate"
+	"github.com/Encedeus/panel/ent/role"
+	"github.com/Encedeus/panel/ent/user"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"

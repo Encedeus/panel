@@ -3,7 +3,7 @@ package middleware
 import (
 	"github.com/labstack/echo/v4"
 	"net/http"
-	"panel/util"
+	"github.com/Encedeus/panel/util"
 	"strings"
 )
 

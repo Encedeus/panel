@@ -5,10 +5,10 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
 	"net/http"
-	"panel/dto"
-	"panel/ent"
-	"panel/middleware"
-	"panel/service"
+	"github.com/Encedeus/panel/dto"
+	"github.com/Encedeus/panel/ent"
+	"github.com/Encedeus/panel/middleware"
+	"github.com/Encedeus/panel/service"
 	"strconv"
 )
 

@@ -2,7 +2,7 @@ package controller
 
 import (
 	"github.com/labstack/echo/v4"
-	"panel/ent"
+	"github.com/Encedeus/panel/ent"
 )
 
 type IController interface {

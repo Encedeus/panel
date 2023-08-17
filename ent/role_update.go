@@ -6,8 +6,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"panel/ent/predicate"
-	"panel/ent/role"
+	"github.com/Encedeus/panel/ent/predicate"
+	"github.com/Encedeus/panel/ent/role"
 	"time"
 
 	"entgo.io/ent/dialect/sql"

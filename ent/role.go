@@ -5,7 +5,7 @@ package ent
 import (
 	"encoding/json"
 	"fmt"
-	"panel/ent/role"
+	"github.com/Encedeus/panel/ent/role"
 	"strings"
 	"time"
 

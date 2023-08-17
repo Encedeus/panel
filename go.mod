@@ -1,4 +1,4 @@
-module panel
+module github.com/Encedeus/panel
 
 go 1.20
 

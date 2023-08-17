@@ -8,12 +8,12 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"panel/config"
-	"panel/dto"
-	"panel/ent"
-	"panel/hashing"
-	"panel/middleware"
-	"panel/service"
+	"github.com/Encedeus/panel/config"
+	"github.com/Encedeus/panel/dto"
+	"github.com/Encedeus/panel/ent"
+	"github.com/Encedeus/panel/hashing"
+	"github.com/Encedeus/panel/middleware"
+	"github.com/Encedeus/panel/service"
 	"strings"
 )
 

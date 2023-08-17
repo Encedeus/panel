@@ -5,7 +5,7 @@ package hook
 import (
 	"context"
 	"fmt"
-	"panel/ent"
+	"github.com/Encedeus/panel/ent"
 )
 
 // The RoleFunc type is an adapter to allow the use of ordinary

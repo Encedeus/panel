@@ -3,9 +3,9 @@
 package ent
 
 import (
-	"panel/ent/role"
-	"panel/ent/schema"
-	"panel/ent/user"
+	"github.com/Encedeus/panel/ent/role"
+	"github.com/Encedeus/panel/ent/schema"
+	"github.com/Encedeus/panel/ent/user"
 	"time"
 
 	"github.com/google/uuid"

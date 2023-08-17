@@ -6,9 +6,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
-	"panel/config"
-	"panel/dto"
-	"panel/service"
+	"github.com/Encedeus/panel/config"
+	"github.com/Encedeus/panel/dto"
+	"github.com/Encedeus/panel/service"
 	"strings"
 	"time"
 )

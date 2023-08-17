@@ -3,9 +3,9 @@ package service
 import (
 	"context"
 	"errors"
-	"panel/dto"
-	"panel/ent"
-	"panel/ent/role"
+	"github.com/Encedeus/panel/dto"
+	"github.com/Encedeus/panel/ent"
+	"github.com/Encedeus/panel/ent/role"
 	"time"
 )
 

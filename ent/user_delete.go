@@ -4,8 +4,8 @@ package ent
 
 import (
 	"context"
-	"panel/ent/predicate"
-	"panel/ent/user"
+	"github.com/Encedeus/panel/ent/predicate"
+	"github.com/Encedeus/panel/ent/user"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"

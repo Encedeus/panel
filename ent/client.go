@@ -8,10 +8,10 @@ import (
 	"fmt"
 	"log"
 
-	"panel/ent/migrate"
+	"github.com/Encedeus/panel/ent/migrate"
 
-	"panel/ent/role"
-	"panel/ent/user"
+	"github.com/Encedeus/panel/ent/role"
+	"github.com/Encedeus/panel/ent/user"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"

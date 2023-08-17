@@ -5,10 +5,10 @@ import (
 	"errors"
 	"github.com/google/uuid"
 	"golang.org/x/exp/slices"
-	"panel/dto"
-	"panel/ent"
-	"panel/ent/role"
-	"panel/ent/user"
+	"github.com/Encedeus/panel/dto"
+	"github.com/Encedeus/panel/ent"
+	"github.com/Encedeus/panel/ent/role"
+	"github.com/Encedeus/panel/ent/user"
 	"time"
 )
 

@@ -3,7 +3,7 @@
 package role
 
 import (
-	"panel/ent/predicate"
+	"github.com/Encedeus/panel/ent/predicate"
 	"time"
 
 	"entgo.io/ent/dialect/sql"

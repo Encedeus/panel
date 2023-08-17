@@ -3,9 +3,9 @@ package server
 import (
 	"github.com/labstack/echo/v4"
 	"net/http"
-	"panel/controller"
-	"panel/ent"
-	"panel/middleware"
+	"github.com/Encedeus/panel/controller"
+	"github.com/Encedeus/panel/ent"
+	"github.com/Encedeus/panel/middleware"
 )
 
 func RouteInit(server *echo.Echo, db *ent.Client) {

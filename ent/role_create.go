@@ -6,7 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"panel/ent/role"
+	"github.com/Encedeus/panel/ent/role"
 	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"

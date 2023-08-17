@@ -3,9 +3,9 @@ package service
 import (
 	"context"
 	"github.com/labstack/gommon/log"
-	"panel/dto"
-	"panel/ent"
-	"panel/ent/user"
+	"github.com/Encedeus/panel/dto"
+	"github.com/Encedeus/panel/ent"
+	"github.com/Encedeus/panel/ent/user"
 )
 
 // GetUserAuthDataAndHashByUsername returns the user's uuid and hashed password provided the username of the user

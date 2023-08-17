@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"github.com/labstack/gommon/log"
 	_ "github.com/lib/pq"
-	"panel/config"
-	"panel/ent"
-	"panel/ent/role"
-	"panel/ent/user"
-	"panel/hashing"
+	"github.com/Encedeus/panel/config"
+	"github.com/Encedeus/panel/ent"
+	"github.com/Encedeus/panel/ent/role"
+	"github.com/Encedeus/panel/ent/user"
+	"github.com/Encedeus/panel/hashing"
 )
 
 var Db *ent.Client

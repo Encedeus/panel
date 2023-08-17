@@ -6,8 +6,8 @@ import (
 	"context"
 	"fmt"
 	"math"
-	"panel/ent/predicate"
-	"panel/ent/role"
+	"github.com/Encedeus/panel/ent/predicate"
+	"github.com/Encedeus/panel/ent/role"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"

@@ -5,5 +5,10 @@ export default defineConfig({
     plugins: [sveltekit()],
     build: {
         sourcemap: "inline",
+    },
+    server: {
+        watch: {
+            usePolling: true,
+        }
     }
 });

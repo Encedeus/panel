@@ -2,6 +2,7 @@ package main
 
 import (
 	"panel/config"
+	"panel/module"
 	"panel/server"
 	"panel/service"
 )
@@ -9,5 +10,6 @@ import (
 func main() {
 	config.InitConfig()
 	service.InitDB()
-	server.ServerInit()
+    go module.Init()
+    server.Init()
 }

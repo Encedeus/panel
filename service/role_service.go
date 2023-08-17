@@ -14,6 +14,7 @@ func CreateRole(name string, permissions []string) (int, error) {
 		SetName(name).
 		SetPermissions(permissions).
 		Save(context.Background())
+
 	return roleData.ID, err
 }
 

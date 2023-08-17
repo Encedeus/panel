@@ -24,11 +24,25 @@ import DriveIcon from "$lib/components/heroicons/DriveIcon.svelte";
         </div>
         <div class="flex gap-3 items-center">
             <BoxIcon/>
-            <span class="font-lato font-semibold text-sm">69.42%</span>
+            <span class="flex flex-col gap-0">
+                <span class="font-lato font-semibold text-sm">
+                    0 kB
+                </span>
+                <span class="font-lato font-bold text-white text-opacity-25 text-[8.5px]">
+                    Of 128 MB
+                </span>
+            </span>
         </div>
         <div class="flex gap-3 items-center">
             <DriveIcon/>
-            <span class="font-lato font-semibold text-sm">69.42%</span>
+            <span class="flex flex-col gap-0">
+                <span class="font-lato font-semibold text-sm">
+                    2.7 MB
+                </span>
+                <span class="font-lato font-bold text-white text-opacity-25 text-[8.5px]">
+                    Of 512 MB
+                </span>
+            </span>
         </div>
     </div>
 </div>

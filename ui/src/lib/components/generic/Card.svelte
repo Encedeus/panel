@@ -2,7 +2,7 @@
   export let className = "";
   export let height: "sm" | "md" | "lg" = "sm";
   export let headerHeight: "sm" | "md" = "sm";
-  export let width: "sm" | "md" | "lg" = "sm";
+  export let width: "sm" | "md" | "lg" | "screen" = "sm";
   export let headerTextSize: "sm" | "md" | "lg" = "sm";
 
   const headerHeights = new Map<string, string>([

@@ -29,7 +29,7 @@
   ]);
 </script>
 
-<div class="drop-shadow-xl flex flex-col gap-0 {className} w-full h-full">
+<div class="drop-shadow-xl flex flex-col gap-0 {className}">
     <div class="bg-indigo-900 {headerHeights.get(headerHeight)} {widths.get(width)} rounded-t-lg flex gap-3 justify-start items-center">
     <span class="ml-7">
       <slot name="icon"/>

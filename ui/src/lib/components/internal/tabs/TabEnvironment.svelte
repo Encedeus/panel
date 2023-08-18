@@ -35,12 +35,14 @@
                     <slot name="tabs"/>  
                 </div>
             </SideBar>
-            <div class="bg-slate-900 basis-full">
+            <div class="bg-slate-900 basis-full scroll">
                 <slot name="content"/>
             </div>
         </div>
     {:else}
-        <slot name="content"/>
+        <div class="scroll">
+            <slot name="content"/>
+        </div>
     {/if}
 </div>
 
@@ -49,5 +51,12 @@
 <style>
     :global(body) {
         overflow: hidden;
+    }
+
+    .scroll {
+        height: 100vh;
+        width: 100vw;
+        overflow-y: auto !important;
+        padding-bottom: 4.5rem;
     }
 </style>

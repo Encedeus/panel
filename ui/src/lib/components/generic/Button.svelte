@@ -5,7 +5,7 @@
   export let className = "";
 
   const sizes = new Map<string, string>([
-      ["sm", ""],
+      ["sm", "w-24 h-8"],
       ["md", "w-32 h-11"],
       ["lg", ""],
       ["xl", ""],

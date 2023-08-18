@@ -4,6 +4,7 @@
   export let headerHeight: "sm" | "md" = "sm";
   export let width: "sm" | "md" | "lg" | "screen" = "sm";
   export let headerTextSize: "sm" | "md" | "lg" = "sm";
+  export let fixedHeight = false;
 
   const headerHeights = new Map<string, string>([
       ["sm", "h-14"],
@@ -23,12 +24,12 @@
   ]);
 
   const heights = new Map<string, string>([
-      ["sm", "min-h-[20rem]"],
-      ["md", "min-h-[28rem]"]
+      ["sm", `${fixedHeight ? "max-h-[20rem]" : "min-h-[20rem]"}`],
+      ["md", `${fixedHeight ? "max-h-[27.5rem]" : "min-h-[27.5rem]"}`]
   ]);
 </script>
 
-<div class="drop-shadow-xl flex flex-col gap-0 {className}">
+<div class="drop-shadow-xl flex flex-col gap-0 {className} w-full h-full">
     <div class="bg-indigo-900 {headerHeights.get(headerHeight)} {widths.get(width)} rounded-t-lg flex gap-3 justify-start items-center">
     <span class="ml-7">
       <slot name="icon"/>
@@ -37,9 +38,8 @@
       <slot name="title"/>
     </span>
     </div>
-    <div class="bg-indigo-950 rounded-b-lg {heights.get(height)} {widths.get(width)}">
-        <div class="mt-5 w-full h-full">
-            <slot name="content"/>
-        </div>
+    <div class="bg-indigo-950 rounded-b-lg {fixedHeight ? 'overflow-y-auto' : ''} {heights.get(height)} {widths.get(width)}">
+        <slot name="content"/>
+        <!-- <slot/> -->
     </div>
 </div>

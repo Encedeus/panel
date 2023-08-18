@@ -11,7 +11,7 @@
       ["sm", "pr-32"],
       ["md", "pr-56"],
       ["lg", "pr-72"],
-      ["xl", "pr-96"],
+      ["xl", "w-[43rem]"],
   ]);
 
 </script>
@@ -22,7 +22,7 @@
   {/if}
   {#if type === "password"}
     <input on:input bind:value={value} {placeholder} type="password"
-           class="{!error ? 'focus:outline-indigo-500' : 'outline-red-500'} outline-offset-0 outline-none focus:outline outline-2 border-none {sizes.get(size)} pl-7 py-3 font-inter font-bold text-xs rounded-full placeholder-white placeholder-opacity-25 text-white bg-indigo-900 {className}">
+           class=" {!error ? 'focus:outline-indigo-500' : 'outline-red-500'} outline-offset-0 outline-none focus:outline outline-2 border-none {sizes.get(size)} pl-7 py-3 font-inter font-bold text-xs rounded-full placeholder-white placeholder-opacity-25 text-white bg-indigo-900 {className}">
   {:else}
     <input on:input bind:value={value} {placeholder} type="text"
            class="{!error ? 'focus:outline-indigo-500' : 'outline-red-500'} outline-offset-0 outline-none focus:outline outline-2 border-none {sizes.get(size)} pl-7 py-3 font-inter font-bold text-xs rounded-full placeholder-white placeholder-opacity-25 text-white bg-indigo-900 {className}">

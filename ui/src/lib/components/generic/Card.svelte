@@ -25,21 +25,21 @@
 
   const heights = new Map<string, string>([
       ["sm", `${fixedHeight ? "max-h-[20rem]" : "min-h-[20rem]"}`],
-      ["md", `${fixedHeight ? "max-h-[27.5rem]" : "min-h-[27.5rem]"}`]
+      ["md", `${fixedHeight ? "max-h-[27.5rem]" : "min-h-[27.5rem]"}`],
+      ["lg", `${fixedHeight ? "max-h-[36rem]" : "min-h-[36rem]"}`]
   ]);
 </script>
 
 <div class="drop-shadow-xl flex flex-col gap-0 {className}">
-    <div class="bg-indigo-900 {headerHeights.get(headerHeight)} {widths.get(width)} rounded-t-lg flex gap-3 justify-start items-center">
-    <span class="ml-7">
-      <slot name="icon"/>
-    </span>
+    <div class="bg-indigo-900 {headerHeights.get(headerHeight)} {widths.get(width)} rounded-t-lg flex gap-3 justify-start items-center drop-shadow-2xl">
+        <span class="ml-7">
+            <slot name="icon"/>
+        </span>
         <span class="text-white {headerTextSizes.get(headerTextSize)} font-medium">
-      <slot name="title"/>
-    </span>
+            <slot name="title"/>
+        </span>
     </div>
     <div class="bg-indigo-950 rounded-b-lg {fixedHeight ? 'overflow-y-auto' : ''} {heights.get(height)} {widths.get(width)}">
         <slot name="content"/>
-        <!-- <slot/> -->
     </div>
 </div>

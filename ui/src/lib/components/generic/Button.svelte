@@ -1,6 +1,6 @@
 <script lang="ts">
   export let size: "sm" | "md" | "lg" | "xl" = "md";
-  export let color: "indigo" = "indigo";
+  export let color: "indigo" | "red" = "indigo";
   export let type: "button" | "submit" = "button";
   export let className = "";
 
@@ -12,10 +12,11 @@
   ]);
 
   const colors = new Map<string, string>([
-      ["indigo", "bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-900 hover:shadow-xl active:shadow-xl transition-all"],
+      ["indigo", "bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-900 "],
+      ["red", "bg-red-600 hover:bg-red-700 active:bg-red-800"],
   ]);
 </script>
 
-<button on:click {type} class="text-white font-bold text-sm rounded-full {colors.get(color)} {sizes.get(size)} {className}">
+<button on:click {type} class="text-white font-bold text-sm rounded-full {colors.get(color)} {sizes.get(size)} hover:shadow-xl active:shadow-xl transition-all {className}">
   <slot/>
 </button>

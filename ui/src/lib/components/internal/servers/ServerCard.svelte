@@ -1,12 +1,13 @@
 <script lang="ts">
+    import ServerStackIcon from "$lib/components/heroicons/ServerStackIcon.svelte";
+    import CpuIcon from "$lib/components/heroicons/CpuIcon.svelte";
+    import BoxIcon from "$lib/components/heroicons/BoxIcon.svelte";
+    import DriveIcon from "$lib/components/heroicons/DriveIcon.svelte";
 
-import ServerStackIcon from "$lib/components/heroicons/ServerStackIcon.svelte";
-import CpuIcon from "$lib/components/heroicons/CpuIcon.svelte";
-import BoxIcon from "$lib/components/heroicons/BoxIcon.svelte";
-import DriveIcon from "$lib/components/heroicons/DriveIcon.svelte";
+    export let className = "";
 </script>
 
-<div class="bg-indigo-900 h-14 w-[95vw] rounded-lg flex items-center justify-between text-white px-4">
+<div class="bg-indigo-900 h-14 rounded-lg flex items-center justify-between text-white px-4 {className}">
     <div class="flex gap-3">
             <span class="self-center">
                 <ServerStackIcon/>
@@ -28,7 +29,7 @@ import DriveIcon from "$lib/components/heroicons/DriveIcon.svelte";
                 <span class="font-lato font-semibold text-sm">
                     0 kB
                 </span>
-                <span class="font-lato font-bold text-white text-opacity-25 text-[8.5px]">
+                <span class="font-lato font-bold text-white text-opacity-25 text-[10px]">
                     Of 128 MB
                 </span>
             </span>
@@ -39,7 +40,7 @@ import DriveIcon from "$lib/components/heroicons/DriveIcon.svelte";
                 <span class="font-lato font-semibold text-sm">
                     2.7 MB
                 </span>
-                <span class="font-lato font-bold text-white text-opacity-25 text-[8.5px]">
+                <span class="font-lato font-bold text-white text-opacity-25 text-[10px]">
                     Of 512 MB
                 </span>
             </span>

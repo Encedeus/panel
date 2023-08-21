@@ -6,11 +6,14 @@
     import TextArea from "$lib/components/generic/TextArea.svelte";
     import KeyIcon from "$lib/components/heroicons/KeyIcon.svelte";
     import PlusIcon from "$lib/components/heroicons/PlusIcon.svelte";
+    import ConfirmationModal from "$lib/components/internal/credentials/ConfirmationModal.svelte";
     import KeyTab from "$lib/components/internal/credentials/KeyTab.svelte";
+
+    let modalOpen = false;
 </script>
 
 <main class="p-6 flex flex-col items-center">
-    <div class="flex flex-col xl:flex-row gap-8 items-end justify-end">
+    <div class="flex min-[1860px]:flex-row flex-col gap-8 items-end justify-end">
         <div class="w-full h-full">
             <CardHeader size="lg" className="mb-5 self-start">
                 API Credentials
@@ -36,7 +39,7 @@
                 </span>
                 <KeyIcon slot="icon"/>
                 <div slot="content" class="flex flex-col items-center justify-center h-full gap-4 p-8">
-                    <KeyTab name="Neovim Key" lastUsed="AUG 25TH, 2020 19:20" key="NfFv11gxmcmP5faS" className="flex-grow w-full"/>
+                    <KeyTab on:delete={() => modalOpen = true} name="Neovim Key" lastUsed="AUG 25TH, 2020 19:20" key="NfFv11gxmcmP5faS" className="flex-grow w-full"/>
                     <KeyTab name="Neovim Key" lastUsed="AUG 25TH, 2020 19:20" key="NfFv11gxmcmP5faS" className="flex-grow w-full"/>
                     <KeyTab name="Neovim Key" lastUsed="AUG 25TH, 2020 19:20" key="NfFv11gxmcmP5faS" className="flex-grow w-full"/>
                     <KeyTab name="Neovim Key" lastUsed="AUG 25TH, 2020 19:20" key="NfFv11gxmcmP5faS" className="flex-grow w-full"/>
@@ -48,5 +51,6 @@
             </Card>
         </div>
     </div>
+    <ConfirmationModal open={modalOpen} on:cancel={() => modalOpen = false} description="This step will permanently delete the selected API key."/>
 </main>
 

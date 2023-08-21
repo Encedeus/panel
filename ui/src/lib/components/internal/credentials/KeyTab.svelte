@@ -1,11 +1,17 @@
 <script lang="ts">
     import KeyIcon from "$lib/components/heroicons/KeyIcon.svelte";
-  import TrashCanIcon from "$lib/components/heroicons/TrashCanIcon.svelte";
+    import TrashCanIcon from "$lib/components/heroicons/TrashCanIcon.svelte";
+    import { createEventDispatcher } from "svelte";
 
     export let name = "";
     export let key = "";
     export let lastUsed = "";
     export let className = "";
+
+    const dispatch = createEventDispatcher();
+    function onDelete() {
+        dispatch("delete");
+    }
 </script>
 
 <div class="flex items-center justify-between py-4 px-6 bg-indigo-900 rounded-xl {className}">
@@ -18,7 +24,7 @@
    </div>
    <div class="flex items-center gap-6">
         <span class="rounded-xl bg-indigo-950 text-white text-sm py-1.5 px-7">{key}</span>
-        <span class="hover:cursor-pointer">
+        <span class="hover:cursor-pointer" on:click={onDelete}>
             <TrashCanIcon width={34} height={34}/>
         </span>
    </div>

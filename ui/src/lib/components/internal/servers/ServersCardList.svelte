@@ -7,10 +7,20 @@
 </script>
 
 <div>
-  <Card headerHeight="sm" height="md" width="screen" className={className}>
+  <Card headerHeight="sm" fixedHeight={true} height="lg" width="screen" className={className}>
     <span slot="title">Servers</span>
     <ServerStackIcon slot="icon"/>
-    <div slot="content" class="flex flex-col items-center mt-5 gap-3">
+    <div slot="content" class="flex flex-col items-stretch gap-3 p-6">
+      <ServerCard/>
+      <ServerCard/>
+      <ServerCard/>
+      <ServerCard/>
+      <ServerCard/>
+      <ServerCard/>
+      <ServerCard/>
+      <ServerCard/>
+      <ServerCard/>
+      <ServerCard/>
       <ServerCard/>
       <ServerCard/>
     </div>

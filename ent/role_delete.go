@@ -4,12 +4,12 @@ package ent
 
 import (
 	"context"
-	"github.com/Encedeus/panel/ent/predicate"
-	"github.com/Encedeus/panel/ent/role"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/Encedeus/panel/ent/predicate"
+	"github.com/Encedeus/panel/ent/role"
 )
 
 // RoleDelete is the builder for deleting a Role entity.
@@ -40,7 +40,7 @@ func (rd *RoleDelete) ExecX(ctx context.Context) int {
 }
 
 func (rd *RoleDelete) sqlExec(ctx context.Context) (int, error) {
-	_spec := sqlgraph.NewDeleteSpec(role.Table, sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewDeleteSpec(role.Table, sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID))
 	if ps := rd.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {

@@ -9,7 +9,6 @@ import (
     "github.com/labstack/echo/v4"
     "github.com/labstack/gommon/log"
     "net/http"
-    "strconv"
 )
 
 func init() {
@@ -26,14 +25,14 @@ func init() {
 }
 
 func getRole(ctx echo.Context) error {
-    id, err := strconv.Atoi(ctx.Param("id"))
-    if err != nil || id <= 0 {
+    id, err := uuid.Parse(ctx.Param("id"))
+    if err != nil {
         return ctx.JSON(http.StatusBadRequest, echo.Map{
             "message": "bad request",
         })
     }
 
-    roleData, err := services.GetRole(id)
+    roleData, err := services.FindRole(id)
 
     if err != nil {
         if ent.IsNotFound(err) {
@@ -122,10 +121,10 @@ func handleUpdateRole(ctx echo.Context) error {
     }
 
     roleInfo := dto.UpdateRoleDTO{}
-    ctx.Bind(&roleInfo)
+    _ = ctx.Bind(&roleInfo)
 
     // check if all fields are provided
-    if (roleInfo.Name == "" && len(roleInfo.Permissions) == 0) || roleInfo.Id == 0 {
+    if (roleInfo.Name == "" && len(roleInfo.Permissions) == 0) || roleInfo.ID.String() == "" {
         return ctx.JSON(http.StatusBadRequest, echo.Map{
             "message": "bad request",
         })
@@ -174,8 +173,8 @@ func handleDeleteRole(ctx echo.Context) error {
         })
     }
 
-    id, err := strconv.Atoi(ctx.Param("id"))
-    if err != nil || id <= 0 {
+    id, err := uuid.Parse(ctx.Param("id"))
+    if err != nil {
         return ctx.JSON(http.StatusBadRequest, echo.Map{
             "message": "bad request",
         })

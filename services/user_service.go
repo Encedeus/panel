@@ -12,7 +12,7 @@ import (
     "time"
 )
 
-func CreateUserRoleId(name string, email string, passwordHash string, roleId int) (*uuid.UUID, error) {
+func CreateUserRoleId(name string, email string, passwordHash string, roleId uuid.UUID) (*uuid.UUID, error) {
 
     roleData, err := Db.Role.Get(context.Background(), roleId)
 
@@ -45,12 +45,12 @@ func CreateUser(name string, email string, passwordHash string, role *ent.Role) 
         return nil, err
     }
 
-    return &userData.UUID, err
+    return &userData.ID, err
 }
 
 // DoesUserHavePermission checks if user's role have a permission
 func DoesUserHavePermission(permission string, userID uuid.UUID) bool {
-    userData, err := Db.User.Query().Where(user.UUID(userID)).Select("role_id").First(context.Background())
+    userData, err := Db.User.Query().Where(user.IDEQ(userID)).Select("role_id").First(context.Background())
     if err != nil {
         return false
     }
@@ -69,7 +69,7 @@ func DoesUserHavePermission(permission string, userID uuid.UUID) bool {
 
 // UpdateUser updates the user given an updateInfo dto
 func UpdateUser(updateInfo dto.UpdateUserDTO) error {
-    userData, err := Db.User.Query().Where(user.UUID(updateInfo.UserId)).First(context.Background())
+    userData, err := Db.User.Query().Where(user.IDEQ(updateInfo.UserId)).First(context.Background())
 
     if err != nil {
         return err
@@ -98,7 +98,9 @@ func UpdateUser(updateInfo dto.UpdateUserDTO) error {
         }
         _, err = userData.Update().SetRole(roleData).Save(context.Background())
 
-    } else if updateInfo.RoleId != 0 {
+    }
+
+    if s := updateInfo.RoleId.String(); s != "" {
         roleData, roleErr := Db.Role.Query().Where(role.ID(updateInfo.RoleId)).First(context.Background())
         if roleErr != nil {
             return roleErr
@@ -110,7 +112,7 @@ func UpdateUser(updateInfo dto.UpdateUserDTO) error {
 }
 
 func DeleteUser(userId uuid.UUID) error {
-    userData, err := Db.User.Query().Where(user.UUID(userId)).First(context.Background())
+    userData, err := Db.User.Query().Where(user.IDEQ(userId)).First(context.Background())
     if err != nil {
         return err
     }
@@ -129,7 +131,7 @@ func DeleteUser(userId uuid.UUID) error {
 
 func GetUser(userId uuid.UUID) (*ent.User, error) {
     userData, err := Db.User.Query().
-        Where(user.UUID(userId)).
+        Where(user.IDEQ(userId)).
         Select("uuid", "name", "created_at", "updated_at", "deleted_at", "email", "role_id").
         First(context.Background())
     if err != nil {
@@ -144,7 +146,7 @@ func GetUser(userId uuid.UUID) (*ent.User, error) {
 }
 
 func DoesUserWithUUIDExist(userId uuid.UUID) bool {
-    userData, err := Db.User.Query().Where(user.UUID(userId)).First(context.Background())
+    userData, err := Db.User.Query().Where(user.IDEQ(userId)).First(context.Background())
 
     if err != nil || IsUserDeleted(userData) {
         return false
@@ -155,7 +157,7 @@ func DoesUserWithUUIDExist(userId uuid.UUID) bool {
 
 func GetLastUpdate(userId uuid.UUID) (int64, error) {
     userData, err := Db.User.Query().
-        Where(user.UUID(userId), user.DeletedAtIsNil()).
+        Where(user.IDEQ(userId), user.DeletedAtIsNil()).
         Select("updated_at").
         First(context.Background())
 
@@ -167,4 +169,17 @@ func GetLastUpdate(userId uuid.UUID) (int64, error) {
 }
 func IsUserDeleted(userData *ent.User) bool {
     return userData.DeletedAt.Unix() != -62135596800
+}
+
+func IsUserUpdated(userId uuid.UUID, issuedAt int64) (bool, error) {
+    lastUpdate, err := GetLastUpdate(userId)
+    if err != nil {
+        return true, err
+    }
+
+    if lastUpdate > issuedAt {
+        return true, nil
+    }
+
+    return false, nil
 }

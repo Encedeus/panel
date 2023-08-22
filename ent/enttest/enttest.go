@@ -4,13 +4,13 @@ package enttest
 
 import (
 	"context"
+
 	"github.com/Encedeus/panel/ent"
 	// required by schema hooks.
 	_ "github.com/Encedeus/panel/ent/runtime"
 
-	"github.com/Encedeus/panel/ent/migrate"
-
 	"entgo.io/ent/dialect/sql/schema"
+	"github.com/Encedeus/panel/ent/migrate"
 )
 
 type (

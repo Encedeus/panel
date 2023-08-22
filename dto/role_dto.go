@@ -1,18 +1,20 @@
 package dto
 
+import "github.com/google/uuid"
+
 type CreateRoleDTO struct {
-	Name        string   `json:"name"`
-	Permissions []string `json:"permissions"`
+    Name        string   `json:"name"`
+    Permissions []string `json:"permissions"`
 }
 type UpdateRoleDTO struct {
-	Name        string   `json:"name"`
-	Permissions []string `json:"permissions"`
-	Id          int      `json:"id"`
+    Name        string    `json:"name"`
+    Permissions []string  `json:"permissions"`
+    ID          uuid.UUID `json:"id"`
 }
 
 type DeleteRoleDTO struct {
-	Id int `json:"id"`
+    ID uuid.UUID `json:"id"`
 }
 type GetRoleDTO struct {
-	Id int `json:"id"`
+    ID uuid.UUID `json:"id"`
 }

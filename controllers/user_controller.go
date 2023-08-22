@@ -78,7 +78,7 @@ func handleCreateUser(ctx echo.Context) error {
     }
 
     userInfo := dto.CreateUserDTO{}
-    ctx.Bind(&userInfo)
+    _ = ctx.Bind(&userInfo)
 
     // check if all the fields are provided
 
@@ -95,7 +95,7 @@ func handleCreateUser(ctx echo.Context) error {
     // check which method was used for role assignment
     if userInfo.RoleName != "" {
         userId, err = services.CreateUserRoleName(userInfo.Name, userInfo.Email, hashing.HashPassword(userInfo.Password), userInfo.RoleName)
-    } else if userInfo.RoleId != 0 {
+    } else if userInfo.RoleId.String() == "" {
         userId, err = services.CreateUserRoleId(userInfo.Name, userInfo.Email, hashing.HashPassword(userInfo.Password), userInfo.RoleId)
     } else {
         return ctx.JSON(http.StatusBadRequest, echo.Map{
@@ -139,10 +139,10 @@ func handleUpdateUser(ctx echo.Context) error {
     }
 
     updateInfo := dto.UpdateUserDTO{}
-    ctx.Bind(&updateInfo)
+    _ = ctx.Bind(&updateInfo)
 
     // check if no fields are provided
-    if (updateInfo.Name == "" && updateInfo.Email == "" && updateInfo.Password == "" && updateInfo.RoleName == "" && updateInfo.RoleId == 0) || updateInfo.UserId.ID() == 0 {
+    if (updateInfo.Name == "" && updateInfo.Email == "" && updateInfo.Password == "" && updateInfo.RoleName == "" && updateInfo.RoleId.String() == "") || updateInfo.UserId.ID() == 0 {
         return ctx.JSON(http.StatusBadRequest, echo.Map{
             "message": "bad request",
         })

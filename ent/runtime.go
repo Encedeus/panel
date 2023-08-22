@@ -3,11 +3,12 @@
 package ent
 
 import (
+	"time"
+
+	"github.com/Encedeus/panel/ent/apikey"
 	"github.com/Encedeus/panel/ent/role"
 	"github.com/Encedeus/panel/ent/schema"
 	"github.com/Encedeus/panel/ent/user"
-	"time"
-
 	"github.com/google/uuid"
 )
 
@@ -15,28 +16,38 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	apikeyFields := schema.ApiKey{}.Fields()
+	_ = apikeyFields
+	// apikeyDescKey is the schema descriptor for key field.
+	apikeyDescKey := apikeyFields[3].Descriptor()
+	// apikey.KeyValidator is a validator for the "key" field. It is called by the builders before save.
+	apikey.KeyValidator = apikeyDescKey.Validators[0].(func(string) error)
+	// apikeyDescID is the schema descriptor for id field.
+	apikeyDescID := apikeyFields[0].Descriptor()
+	// apikey.DefaultID holds the default value on creation for the id field.
+	apikey.DefaultID = apikeyDescID.Default.(func() uuid.UUID)
 	roleFields := schema.Role{}.Fields()
 	_ = roleFields
 	// roleDescCreatedAt is the schema descriptor for created_at field.
-	roleDescCreatedAt := roleFields[0].Descriptor()
+	roleDescCreatedAt := roleFields[1].Descriptor()
 	// role.DefaultCreatedAt holds the default value on creation for the created_at field.
 	role.DefaultCreatedAt = roleDescCreatedAt.Default.(func() time.Time)
 	// roleDescUpdatedAt is the schema descriptor for updated_at field.
-	roleDescUpdatedAt := roleFields[1].Descriptor()
+	roleDescUpdatedAt := roleFields[2].Descriptor()
 	// role.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	role.DefaultUpdatedAt = roleDescUpdatedAt.Default.(func() time.Time)
 	// role.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	role.UpdateDefaultUpdatedAt = roleDescUpdatedAt.UpdateDefault.(func() time.Time)
 	// roleDescName is the schema descriptor for name field.
-	roleDescName := roleFields[3].Descriptor()
+	roleDescName := roleFields[4].Descriptor()
 	// role.NameValidator is a validator for the "name" field. It is called by the builders before save.
 	role.NameValidator = roleDescName.Validators[0].(func(string) error)
+	// roleDescID is the schema descriptor for id field.
+	roleDescID := roleFields[0].Descriptor()
+	// role.DefaultID holds the default value on creation for the id field.
+	role.DefaultID = roleDescID.Default.(func() uuid.UUID)
 	userFields := schema.User{}.Fields()
 	_ = userFields
-	// userDescUUID is the schema descriptor for uuid field.
-	userDescUUID := userFields[0].Descriptor()
-	// user.DefaultUUID holds the default value on creation for the uuid field.
-	user.DefaultUUID = userDescUUID.Default.(func() uuid.UUID)
 	// userDescCreatedAt is the schema descriptor for created_at field.
 	userDescCreatedAt := userFields[1].Descriptor()
 	// user.DefaultCreatedAt holds the default value on creation for the created_at field.
@@ -55,4 +66,8 @@ func init() {
 	userDescName := userFields[6].Descriptor()
 	// user.NameValidator is a validator for the "name" field. It is called by the builders before save.
 	user.NameValidator = userDescName.Validators[0].(func(string) error)
+	// userDescID is the schema descriptor for id field.
+	userDescID := userFields[0].Descriptor()
+	// user.DefaultID holds the default value on creation for the id field.
+	user.DefaultID = userDescID.Default.(func() uuid.UUID)
 }

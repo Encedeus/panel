@@ -1,16 +1,19 @@
 package dto
 
 import (
-	"github.com/golang-jwt/jwt"
-	"github.com/google/uuid"
+    "github.com/google/uuid"
 )
 
-type AccessTokenDTO struct {
-	UserId uuid.UUID `json:"userId"`
-	jwt.StandardClaims
+type TokenDTO struct {
+    UserId uuid.UUID `json:"userId"`
 }
 
-type RefreshTokenDTO struct {
-	UserId uuid.UUID `json:"userId"`
-	jwt.StandardClaims
+type AccessTokenDTO TokenDTO
+
+type RefreshTokenDTO TokenDTO
+
+type AccountAPIKeyDTO struct {
+    IPAddresses []string  `json:"ipAddresses"`
+    Description string    `json:"description"`
+    UserID      uuid.UUID `json:"userId"`
 }

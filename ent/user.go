@@ -4,13 +4,13 @@ package ent
 
 import (
 	"fmt"
-	"github.com/Encedeus/panel/ent/role"
-	"github.com/Encedeus/panel/ent/user"
 	"strings"
 	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/Encedeus/panel/ent/role"
+	"github.com/Encedeus/panel/ent/user"
 	"github.com/google/uuid"
 )
 
@@ -18,9 +18,7 @@ import (
 type User struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
-	// UUID holds the value of the "uuid" field.
-	UUID uuid.UUID `json:"uuid,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -34,7 +32,7 @@ type User struct {
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
 	// RoleID holds the value of the "role_id" field.
-	RoleID int `json:"role_id,omitempty"`
+	RoleID uuid.UUID `json:"role_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UserQuery when eager-loading is set.
 	Edges        UserEdges `json:"edges"`
@@ -68,13 +66,11 @@ func (*User) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case user.FieldID, user.FieldRoleID:
-			values[i] = new(sql.NullInt64)
 		case user.FieldEmail, user.FieldPassword, user.FieldName:
 			values[i] = new(sql.NullString)
 		case user.FieldCreatedAt, user.FieldUpdatedAt, user.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
-		case user.FieldUUID:
+		case user.FieldID, user.FieldRoleID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -92,16 +88,10 @@ func (u *User) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case user.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
-			}
-			u.ID = int(value.Int64)
-		case user.FieldUUID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
-				return fmt.Errorf("unexpected type %T for field uuid", values[i])
+				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
-				u.UUID = *value
+				u.ID = *value
 			}
 		case user.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -140,10 +130,10 @@ func (u *User) assignValues(columns []string, values []any) error {
 				u.Name = value.String
 			}
 		case user.FieldRoleID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field role_id", values[i])
-			} else if value.Valid {
-				u.RoleID = int(value.Int64)
+			} else if value != nil {
+				u.RoleID = *value
 			}
 		default:
 			u.selectValues.Set(columns[i], values[i])
@@ -186,9 +176,6 @@ func (u *User) String() string {
 	var builder strings.Builder
 	builder.WriteString("User(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", u.ID))
-	builder.WriteString("uuid=")
-	builder.WriteString(fmt.Sprintf("%v", u.UUID))
-	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(u.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")

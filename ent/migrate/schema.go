@@ -8,9 +8,31 @@ import (
 )
 
 var (
+	// APIKeysColumns holds the columns for the "api_keys" table.
+	APIKeysColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "description", Type: field.TypeString, Nullable: true},
+		{Name: "ip_addresses", Type: field.TypeJSON, Nullable: true},
+		{Name: "key", Type: field.TypeString},
+		{Name: "user_id", Type: field.TypeUUID},
+	}
+	// APIKeysTable holds the schema information for the "api_keys" table.
+	APIKeysTable = &schema.Table{
+		Name:       "api_keys",
+		Columns:    APIKeysColumns,
+		PrimaryKey: []*schema.Column{APIKeysColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "api_keys_users_user",
+				Columns:    []*schema.Column{APIKeysColumns[4]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+	}
 	// RolesColumns holds the columns for the "roles" table.
 	RolesColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeUUID},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
@@ -25,15 +47,14 @@ var (
 	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "uuid", Type: field.TypeUUID},
+		{Name: "id", Type: field.TypeUUID},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "email", Type: field.TypeString, Size: 32},
 		{Name: "password", Type: field.TypeString},
 		{Name: "name", Type: field.TypeString, Unique: true, Size: 32},
-		{Name: "role_id", Type: field.TypeInt},
+		{Name: "role_id", Type: field.TypeUUID},
 	}
 	// UsersTable holds the schema information for the "users" table.
 	UsersTable = &schema.Table{
@@ -43,7 +64,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "users_roles_role",
-				Columns:    []*schema.Column{UsersColumns[8]},
+				Columns:    []*schema.Column{UsersColumns[7]},
 				RefColumns: []*schema.Column{RolesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -51,11 +72,13 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		APIKeysTable,
 		RolesTable,
 		UsersTable,
 	}
 )
 
 func init() {
+	APIKeysTable.ForeignKeys[0].RefTable = UsersTable
 	UsersTable.ForeignKeys[0].RefTable = RolesTable
 }

@@ -4,11 +4,8 @@ import (
     "errors"
     "github.com/Encedeus/panel/config"
     "github.com/Encedeus/panel/dto"
-    "github.com/Encedeus/panel/services"
     "github.com/golang-jwt/jwt"
-    "github.com/google/uuid"
     "github.com/labstack/echo/v4"
-    "github.com/labstack/gommon/log"
     "strings"
     "time"
 )
@@ -18,12 +15,26 @@ const (
     AccessTokenExpireTime  = 15 * time.Minute
 )
 
+type AccountAPIKeyClaims struct {
+    jwt.StandardClaims
+    dto.AccountAPIKeyDTO
+}
+
+type TokenClaims struct {
+    jwt.StandardClaims
+    dto.TokenDTO
+}
+
 // GenerateAccessToken generates an access token containing the uuid of a user that expires in 15 minutes
 func GenerateAccessToken(userData dto.AccessTokenDTO) (string, error) {
-    userData.ExpiresAt = time.Now().Add(AccessTokenExpireTime).Unix()
-    userData.IssuedAt = time.Now().Unix()
+    tokenClaims := TokenClaims{
+        TokenDTO: dto.TokenDTO(userData),
+    }
 
-    accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, userData)
+    tokenClaims.ExpiresAt = time.Now().Add(AccessTokenExpireTime).Unix()
+    tokenClaims.IssuedAt = time.Now().Unix()
+
+    accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, tokenClaims)
     accessTokenString, err := accessToken.SignedString([]byte(config.Config.Auth.JWTSecretAccess))
     if err != nil {
         return "", err
@@ -32,13 +43,33 @@ func GenerateAccessToken(userData dto.AccessTokenDTO) (string, error) {
     return accessTokenString, nil
 }
 
+func GenerateAPIKey(keyData dto.AccountAPIKeyDTO) (string, error) {
+    keyClaims := AccountAPIKeyClaims{
+        AccountAPIKeyDTO: keyData,
+    }
+
+    keyClaims.IssuedAt = time.Now().Unix()
+
+    key := jwt.NewWithClaims(jwt.SigningMethodHS256, keyClaims)
+    keyString, err := key.SignedString([]byte(config.Config.Auth.JWTSecretAccess))
+    if err != nil {
+        return "", err
+    }
+
+    return keyString, nil
+}
+
 // GenerateRefreshToken generates a refresh token containing the uuid of a user that expires in a week
 func GenerateRefreshToken(userData dto.RefreshTokenDTO) (string, error) {
-    // generate a token containing the user's uuid
-    userData.ExpiresAt = time.Now().Add(RefreshTokenExpireTime).Unix()
-    userData.IssuedAt = time.Now().Unix()
+    refreshTokenClaims := TokenClaims{
+        TokenDTO: dto.TokenDTO(userData),
+    }
 
-    accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, userData)
+    // generate a token containing the user's uuid
+    refreshTokenClaims.ExpiresAt = time.Now().Add(RefreshTokenExpireTime).Unix()
+    refreshTokenClaims.IssuedAt = time.Now().Unix()
+
+    accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshTokenClaims)
     accessTokenString, err := accessToken.SignedString([]byte(config.Config.Auth.JWTSecretRefresh))
     if err != nil {
         return "", err
@@ -48,17 +79,17 @@ func GenerateRefreshToken(userData dto.RefreshTokenDTO) (string, error) {
 }
 
 // GetTokenPair returns an access and a refresh token
-func GetTokenPair(userData dto.AccessTokenDTO) (string, string, error) {
-    accessToken, err1 := GenerateAccessToken(userData)
-    refreshToken, err2 := GenerateRefreshToken(dto.RefreshTokenDTO{UserId: userData.UserId})
-
-    if err1 != nil {
-        log.Errorf("error generating access token %v", err1)
-        return "", "", err1
+func GetTokenPair(userData dto.TokenDTO) (string, string, error) {
+    accessToken, err := GenerateAccessToken(dto.AccessTokenDTO(userData))
+    if err != nil {
+        // log.Errorf("error generating access token %v", err1)
+        return "", "", err
     }
-    if err2 != nil {
-        log.Errorf("error generating refresh token %v", err2)
-        return "", "", err2
+
+    refreshToken, err := GenerateRefreshToken(dto.RefreshTokenDTO(userData))
+    if err != nil {
+        // log.Errorf("error generating refresh token %v", err2)
+        return "", "", err
     }
 
     return accessToken, refreshToken, nil
@@ -80,10 +111,10 @@ func GetRefreshTokenFromCookie(ctx echo.Context) (string, error) {
     return cookie.Value, nil
 }
 
-func ValidateAccessJWT(tokenString string) (bool, dto.AccessTokenDTO, error) {
+func ValidateAccessJWT(tokenString string) (bool, TokenClaims, error) {
     // parse the JWT and check the signing method
 
-    claims := dto.AccessTokenDTO{}
+    claims := TokenClaims{}
 
     _, err := jwt.ParseWithClaims(tokenString, &claims, func(token *jwt.Token) (interface{}, error) {
         if token.Method != jwt.SigningMethodHS256 {
@@ -96,17 +127,17 @@ func ValidateAccessJWT(tokenString string) (bool, dto.AccessTokenDTO, error) {
         return false, claims, err
     }
 
-    isUpdated, err := IsUserUpdated(claims.UserId, claims.IssuedAt)
-    if err != nil || isUpdated {
-        return false, claims, err
-    }
+    // isUpdated, err := services.IsUserUpdated(claims.UserId, claims.IssuedAt)
+    // if err != nil || isUpdated {
+    //     return false, claims, err
+    // }
 
     return true, claims, err
 }
-func ValidateRefreshJWT(tokenString string) (bool, dto.RefreshTokenDTO, error) {
+func ValidateRefreshJWT(tokenString string) (bool, TokenClaims, error) {
     // parse the JWT and check the signing method
 
-    claims := dto.RefreshTokenDTO{}
+    claims := TokenClaims{}
 
     _, err := jwt.ParseWithClaims(tokenString, &claims, func(token *jwt.Token) (interface{}, error) {
         if token.Method != jwt.SigningMethodHS256 {
@@ -119,23 +150,10 @@ func ValidateRefreshJWT(tokenString string) (bool, dto.RefreshTokenDTO, error) {
         return false, claims, err
     }
 
-    isUpdated, err := IsUserUpdated(claims.UserId, claims.IssuedAt)
-    if err != nil || isUpdated {
-        return false, claims, err
-    }
+    // isUpdated, err := services.IsUserUpdated(claims.UserId, claims.IssuedAt)
+    // if err != nil || isUpdated {
+    //     return false, claims, err
+    // }
 
     return true, claims, err
-}
-
-func IsUserUpdated(userId uuid.UUID, issuedAt int64) (bool, error) {
-    lastUpdate, err := services.GetLastUpdate(userId)
-    if err != nil {
-        return true, err
-    }
-
-    if lastUpdate > issuedAt {
-        return true, nil
-    }
-
-    return false, nil
 }

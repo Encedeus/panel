@@ -6,14 +6,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/Encedeus/panel/ent/predicate"
-	"github.com/Encedeus/panel/ent/role"
-	"github.com/Encedeus/panel/ent/user"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/Encedeus/panel/ent/predicate"
+	"github.com/Encedeus/panel/ent/role"
+	"github.com/Encedeus/panel/ent/user"
 	"github.com/google/uuid"
 )
 
@@ -27,20 +27,6 @@ type UserUpdate struct {
 // Where appends a list predicates to the UserUpdate builder.
 func (uu *UserUpdate) Where(ps ...predicate.User) *UserUpdate {
 	uu.mutation.Where(ps...)
-	return uu
-}
-
-// SetUUID sets the "uuid" field.
-func (uu *UserUpdate) SetUUID(u uuid.UUID) *UserUpdate {
-	uu.mutation.SetUUID(u)
-	return uu
-}
-
-// SetNillableUUID sets the "uuid" field if the given value is not nil.
-func (uu *UserUpdate) SetNillableUUID(u *uuid.UUID) *UserUpdate {
-	if u != nil {
-		uu.SetUUID(*u)
-	}
 	return uu
 }
 
@@ -103,8 +89,8 @@ func (uu *UserUpdate) SetName(s string) *UserUpdate {
 }
 
 // SetRoleID sets the "role_id" field.
-func (uu *UserUpdate) SetRoleID(i int) *UserUpdate {
-	uu.mutation.SetRoleID(i)
+func (uu *UserUpdate) SetRoleID(u uuid.UUID) *UserUpdate {
+	uu.mutation.SetRoleID(u)
 	return uu
 }
 
@@ -182,16 +168,13 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if err := uu.check(); err != nil {
 		return n, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(user.Table, user.Columns, sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(user.Table, user.Columns, sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID))
 	if ps := uu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
-	}
-	if value, ok := uu.mutation.UUID(); ok {
-		_spec.SetField(user.FieldUUID, field.TypeUUID, value)
 	}
 	if value, ok := uu.mutation.CreatedAt(); ok {
 		_spec.SetField(user.FieldCreatedAt, field.TypeTime, value)
@@ -222,7 +205,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{user.RoleColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -235,7 +218,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{user.RoleColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -261,20 +244,6 @@ type UserUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *UserMutation
-}
-
-// SetUUID sets the "uuid" field.
-func (uuo *UserUpdateOne) SetUUID(u uuid.UUID) *UserUpdateOne {
-	uuo.mutation.SetUUID(u)
-	return uuo
-}
-
-// SetNillableUUID sets the "uuid" field if the given value is not nil.
-func (uuo *UserUpdateOne) SetNillableUUID(u *uuid.UUID) *UserUpdateOne {
-	if u != nil {
-		uuo.SetUUID(*u)
-	}
-	return uuo
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -336,8 +305,8 @@ func (uuo *UserUpdateOne) SetName(s string) *UserUpdateOne {
 }
 
 // SetRoleID sets the "role_id" field.
-func (uuo *UserUpdateOne) SetRoleID(i int) *UserUpdateOne {
-	uuo.mutation.SetRoleID(i)
+func (uuo *UserUpdateOne) SetRoleID(u uuid.UUID) *UserUpdateOne {
+	uuo.mutation.SetRoleID(u)
 	return uuo
 }
 
@@ -428,7 +397,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 	if err := uuo.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(user.Table, user.Columns, sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(user.Table, user.Columns, sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID))
 	id, ok := uuo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "User.id" for update`)}
@@ -452,9 +421,6 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 				ps[i](selector)
 			}
 		}
-	}
-	if value, ok := uuo.mutation.UUID(); ok {
-		_spec.SetField(user.FieldUUID, field.TypeUUID, value)
 	}
 	if value, ok := uuo.mutation.CreatedAt(); ok {
 		_spec.SetField(user.FieldCreatedAt, field.TypeTime, value)
@@ -485,7 +451,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Columns: []string{user.RoleColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -498,7 +464,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Columns: []string{user.RoleColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

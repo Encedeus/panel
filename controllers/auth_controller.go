@@ -36,7 +36,7 @@ func userLoginHandler(ctx echo.Context) error {
     var (
         err          error
         passwordHash string
-        tokenData    dto.AccessTokenDTO
+        tokenData    dto.TokenDTO
     )
 
     // check which method was used for log in

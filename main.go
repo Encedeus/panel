@@ -1,15 +1,15 @@
 package main
 
 import (
-	"github.com/Encedeus/panel/config"
-	// "panel/module"
-	"github.com/Encedeus/panel/server"
-	"github.com/Encedeus/panel/service"
+    "github.com/Encedeus/panel/config"
+    // "panel/module"
+    "github.com/Encedeus/panel/server"
+    "github.com/Encedeus/panel/services"
 )
 
 func main() {
-	config.InitConfig()
-	service.InitDB()
+    config.InitConfig()
+    services.InitDB()
     // go module.Init()
     server.Init()
 }

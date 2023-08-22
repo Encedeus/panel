@@ -12,7 +12,7 @@
     let modalOpen = false;
 </script>
 
-<main class="p-6 flex flex-col items-center">
+<main class="p-10 flex flex-col items-center">
     <div class="flex min-[1860px]:flex-row flex-col gap-8 items-end justify-end">
         <div class="w-full h-full">
             <CardHeader size="lg" className="mb-5 self-start">

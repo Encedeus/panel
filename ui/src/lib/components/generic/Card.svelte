@@ -5,6 +5,7 @@
   export let width: "sm" | "md" | "lg" | "screen" = "sm";
   export let headerTextSize: "sm" | "md" | "lg" = "sm";
   export let fixedHeight = false;
+  export let fixedWidth = false;
 
   const headerHeights = new Map<string, string>([
       ["sm", "h-14"],
@@ -17,10 +18,10 @@
   ]);
 
   const widths = new Map<string, string>([
-      ["sm", ""],
-      ["md", "w-[40rem]"],
-      ["lg", "w-[48rem]"],
-      ["screen", "w-[97.5vw]"]
+      ["sm", `${!fixedWidth ? "min-w-[30rem]" : "w-[30rem]"}`],
+      ["md", `${!fixedWidth ? "min-[40rem]" : "w-[40rem]"}`],
+      ["lg", `${!fixedWidth ? "min-w-[48rem]" : "w-[48rem]"}`],
+      ["screen", `${!fixedWidth ? "min-[97.5vw]" : "w-[97.5vw]"}`]
   ]);
 
   const heights = new Map<string, string>([

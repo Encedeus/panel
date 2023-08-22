@@ -3,7 +3,6 @@
     import CpuIcon from "$lib/components/heroicons/CpuIcon.svelte";
     import BoxIcon from "$lib/components/heroicons/BoxIcon.svelte";
     import DriveIcon from "$lib/components/heroicons/DriveIcon.svelte";
-
     export let className = "";
 </script>
 

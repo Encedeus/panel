@@ -1,11 +1,17 @@
 <script lang="ts">
     import { page } from "$app/stores";
+    import { createEventDispatcher } from "svelte";
 
-    export let link: string | null = null;
+    export let link: string = "";
+
+    const dispatch = createEventDispatcher();
+    function onClick() {
+        dispatch("click");
+    }
 </script>
 
 <a href={link} class="hover:cursor-pointer">
-    <div on:click class="{$page.route.id?.includes(String(link)) ? 'rounded-full bg-indigo-600' : ''} p-2">
+    <div on:click={onClick} on:keypress={onClick} tabindex="0" role="button" class="{$page.route.id?.includes(link) && link ? 'rounded-full bg-indigo-600' : ''} p-2">
         <slot/>
     </div>
 </a>

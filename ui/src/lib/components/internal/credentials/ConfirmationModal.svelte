@@ -1,6 +1,6 @@
 <script lang="ts">
     import Button from "$lib/components/generic/Button.svelte";
-    import Modal from "$lib/components/generic/Modal.svelte";
+    import Modal from "$lib/components/generic/AlertModal.svelte";
     import { createEventDispatcher } from "svelte";
 
     export let open = false;
@@ -16,7 +16,7 @@
     }
 </script>
 
-<Modal {open}>
+<Modal on:close={onCancel} {open}>
     <span slot="title">Are you sure?</span>
     <span slot="description">
         {description}

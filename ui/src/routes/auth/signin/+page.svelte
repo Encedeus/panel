@@ -3,12 +3,12 @@
     import CardHeader from "$lib/components/generic/CardHeader.svelte";
     import AuthCard from "$lib/components/generic/AuthCard.svelte";
     import SmallArrowRight from "$lib/components/heroicons/SmallArrowRight.svelte";
-    import { api } from "../../../lib/services/api_service";
-    import { isEmailValid } from "../../../lib/services/validation_service";
+    import { api } from "$lib/services/api_service";
+    import { isEmailValid } from "$lib/services/validation_service";
     import Toast from "$lib/components/generic/Toast.svelte";
     import type { SignInUserError, SignInUserResponse } from "@encedeus/js-api";
     import Button from "$lib/components/generic/Button.svelte";
-    import { saveAccessToken } from "../../../lib/services/auth_service";
+    import { saveAccessToken } from "$lib/services/auth_service";
     import { goto } from "$app/navigation";
     import {
         BadRequestError, UnauthorisedError, ResourceNotFoundError,

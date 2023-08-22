@@ -1,7 +1,7 @@
 import type { Handle } from "@sveltejs/kit";
 
 export const handle = (async ({ event, resolve }) => {
-    event.locals.isUserSignedIn = event.cookies.get("encedeus_refreshToken") !== undefined;
+    (event.locals as any).isUserSignedIn = event.cookies.get("encedeus_refreshToken") !== undefined;
 
-    return await resolve(event);
+    return resolve(event);
 }) satisfies Handle;

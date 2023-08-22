@@ -5,9 +5,9 @@
     import SettingsIcon from "$lib/components/heroicons/SettingsIcon.svelte";
     import ServerIcon from "$lib/components/heroicons/ServerIcon.svelte";
     import DoorExitIcon from "$lib/components/heroicons/DoorExitIcon.svelte";
-    import DefaultUserIcon from "$lib/components/heroicons/DefaultUserIcon.svelte";
     import { signOut } from "$lib/services/auth_service";
     import { page } from "$app/stores";
+    import ProfilePicture from "$lib/components/generic/ProfilePicture.svelte";
 </script>
 
 <div class="flex flex-col grow-0">
@@ -23,8 +23,8 @@
             <NavItem on:click={signOut}>
                 <DoorExitIcon/>
             </NavItem>
-            <NavItem>
-                <DefaultUserIcon/>
+            <NavItem link="/dashboard/account/settings">
+                <ProfilePicture/>
             </NavItem>
         </div>
     </NavBar>
@@ -45,8 +45,6 @@
         </div>
     {/if}
 </div>
-
-
 
 <style>
     :global(body) {

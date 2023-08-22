@@ -12,7 +12,7 @@
   ]);
 
   const colors = new Map<string, string>([
-      ["indigo", "bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-900 "],
+      ["indigo", "bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 "],
       ["red", "bg-red-600 hover:bg-red-700 active:bg-red-800"],
   ]);
 </script>

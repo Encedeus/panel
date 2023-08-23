@@ -13,8 +13,6 @@ import (
     _ "github.com/lib/pq"
 )
 
-var Db *ent.Client
-
 func InitDB() *ent.Client {
     // Connect to database
 
@@ -47,7 +45,6 @@ func InitDB() *ent.Client {
     createSuperuserRole(db, ctx)
     createSuperuser(db, ctx)
 
-    Db = db
     return db
 }
 

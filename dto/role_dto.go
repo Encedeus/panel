@@ -15,6 +15,6 @@ type UpdateRoleDTO struct {
 type DeleteRoleDTO struct {
     ID uuid.UUID `json:"id"`
 }
-type GetRoleDTO struct {
+type FindRoleDTO struct {
     ID uuid.UUID `json:"id"`
 }

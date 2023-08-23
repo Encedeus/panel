@@ -9,8 +9,8 @@ import (
 )
 
 // GetUserAuthDataAndHashByUsername returns the user's uuid and hashed password provided the username of the user
-func GetUserAuthDataAndHashByUsername(username string) (string, dto.TokenDTO, error) {
-    userData, err := Db.User.Query().Where(user.Name(username)).Select("id", "password").First(context.Background())
+func GetUserAuthDataAndHashByUsername(ctx context.Context, db *ent.Client, username string) (string, dto.TokenDTO, error) {
+    userData, err := db.User.Query().Where(user.Name(username)).Select("id", "password").First(ctx)
 
     if err != nil {
         if !ent.IsNotFound(err) {
@@ -21,13 +21,13 @@ func GetUserAuthDataAndHashByUsername(username string) (string, dto.TokenDTO, er
     }
 
     return userData.Password, dto.TokenDTO{
-        UserId: userData.ID,
+        UserID: userData.ID,
     }, nil
 }
 
 // GetUserAuthDataAndHashByEmail returns the user's uuid and hashed password provided the email of the user
-func GetUserAuthDataAndHashByEmail(email string) (string, dto.TokenDTO, error) {
-    userData, err := Db.User.Query().Where(user.Email(email)).Select("id", "password").First(context.Background())
+func GetUserAuthDataAndHashByEmail(ctx context.Context, db *ent.Client, email string) (string, dto.TokenDTO, error) {
+    userData, err := db.User.Query().Where(user.Email(email)).Select("id", "password").First(ctx)
 
     if err != nil {
         if ent.IsNotFound(err) {
@@ -38,6 +38,6 @@ func GetUserAuthDataAndHashByEmail(email string) (string, dto.TokenDTO, error) {
     }
 
     return userData.Password, dto.TokenDTO{
-        UserId: userData.ID,
+        UserID: userData.ID,
     }, nil
 }

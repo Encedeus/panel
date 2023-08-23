@@ -2,14 +2,12 @@ package main
 
 import (
     "github.com/Encedeus/panel/config"
-    // "panel/module"
-    "github.com/Encedeus/panel/server"
-    "github.com/Encedeus/panel/services"
+    "github.com/Encedeus/panel/controllers"
 )
 
 func main() {
     config.InitConfig()
-    services.InitDB()
+    db := config.InitDB()
     // go module.Init()
-    server.Init()
+    controllers.StartDefaultServer(db)
 }

@@ -13,25 +13,33 @@ import (
     "time"
 )
 
-func init() {
-    addController(func(server *echo.Echo, db *ent.Client) {
-        usersEndpoint := server.Group("auth")
-        {
-            usersEndpoint.POST("/login", userLoginHandler)
-
-            usersEndpoint.Use(middleware.RefreshJWTAuth)
-
-            usersEndpoint.GET("/refresh", tokenRefreshHandler)
-
-            usersEndpoint.DELETE("/logout", logoutHandler)
-        }
-    })
+type AuthController struct {
+    Controller
 }
 
-func userLoginHandler(ctx echo.Context) error {
+func (ac AuthController) registerRoutes(srv *Server) {
+    authEndpoint := srv.Group("auth")
+    {
+        authEndpoint.POST("/login", func(c echo.Context) error {
+            return ac.handleUserSignIn(c, srv.DB)
+        })
+
+        authEndpoint.Use(middleware.RefreshJWTAuth)
+
+        authEndpoint.GET("/refresh", func(c echo.Context) error {
+            return ac.handleRefreshToken(c, srv.DB)
+        })
+        authEndpoint.DELETE("/logout", func(c echo.Context) error {
+            return ac.handleSignOut(c, srv.DB)
+        })
+    }
+}
+
+func (AuthController) handleUserSignIn(c echo.Context, db *ent.Client) error {
+    ctx := c.Request().Context()
     var loginInfo dto.UserLoginDTO
     // error safe because of the json syntax middleware
-    _ = ctx.Bind(&loginInfo)
+    _ = c.Bind(&loginInfo)
 
     var (
         err          error
@@ -41,11 +49,11 @@ func userLoginHandler(ctx echo.Context) error {
 
     // check which method was used for log in
     if loginInfo.Username != "" {
-        passwordHash, tokenData, err = services.GetUserAuthDataAndHashByUsername(loginInfo.Username)
+        passwordHash, tokenData, err = services.GetUserAuthDataAndHashByUsername(ctx, db, loginInfo.Username)
     } else if loginInfo.Email != "" {
-        passwordHash, tokenData, err = services.GetUserAuthDataAndHashByEmail(loginInfo.Email)
+        passwordHash, tokenData, err = services.GetUserAuthDataAndHashByEmail(ctx, db, loginInfo.Email)
     } else {
-        return ctx.JSON(http.StatusBadRequest, echo.Map{
+        return c.JSON(http.StatusBadRequest, echo.Map{
             "message": "either username or email must be specified",
         })
     }
@@ -53,14 +61,14 @@ func userLoginHandler(ctx echo.Context) error {
     // handle errors
     if err != nil {
         if ent.IsNotFound(err) {
-            return ctx.JSON(http.StatusNotFound, echo.Map{
+            return c.JSON(http.StatusNotFound, echo.Map{
                 "message": "user not found",
             })
         }
 
         log.Errorf("uncaught error querying user: %v", err)
 
-        return ctx.JSON(http.StatusInternalServerError, echo.Map{
+        return c.JSON(http.StatusInternalServerError, echo.Map{
             "message": "internal server error",
         })
     }
@@ -69,7 +77,7 @@ func userLoginHandler(ctx echo.Context) error {
     auth := hashing.VerifyHash(loginInfo.Password, passwordHash)
 
     if !auth {
-        return ctx.JSON(http.StatusUnauthorized, echo.Map{
+        return c.JSON(http.StatusUnauthorized, echo.Map{
             "message": "unauthorised",
         })
     }
@@ -78,7 +86,7 @@ func userLoginHandler(ctx echo.Context) error {
     accessToken, refreshToken, err := util.GetTokenPair(tokenData)
 
     // set refresh token cookie
-    ctx.SetCookie(&http.Cookie{
+    c.SetCookie(&http.Cookie{
         Name:     "encedeus_refreshToken",
         Value:    refreshToken,
         Secure:   true,
@@ -88,26 +96,26 @@ func userLoginHandler(ctx echo.Context) error {
         Path:     "/",
     })
 
-    return ctx.JSON(http.StatusCreated, echo.Map{
+    return c.JSON(http.StatusCreated, echo.Map{
         "accessToken": accessToken,
     })
 }
 
-func tokenRefreshHandler(ctx echo.Context) error {
+func (AuthController) handleRefreshToken(c echo.Context, _ *ent.Client) error {
     // error safe because of the RefreshJWTAuth middleware
-    token, _ := util.GetRefreshTokenFromCookie(ctx)
+    token, _ := util.GetRefreshTokenFromCookie(c)
     _, userData, _ := util.ValidateRefreshJWT(token)
 
     // generate access token
-    accessToken, _ := util.GenerateAccessToken(dto.AccessTokenDTO{UserId: userData.UserId})
+    accessToken, _ := util.GenerateAccessToken(dto.AccessTokenDTO{UserID: userData.UserID})
 
-    return ctx.JSON(http.StatusOK, echo.Map{
+    return c.JSON(http.StatusOK, echo.Map{
         "accessToken": accessToken,
     })
 }
 
-func logoutHandler(ctx echo.Context) error {
-    ctx.SetCookie(&http.Cookie{
+func (AuthController) handleSignOut(c echo.Context, _ *ent.Client) error {
+    c.SetCookie(&http.Cookie{
         Name:     "encedeus_refreshToken",
         HttpOnly: true,
         SameSite: http.SameSiteStrictMode,
@@ -116,5 +124,5 @@ func logoutHandler(ctx echo.Context) error {
         Path:     "/",
     })
 
-    return ctx.NoContent(http.StatusOK)
+    return c.NoContent(http.StatusOK)
 }

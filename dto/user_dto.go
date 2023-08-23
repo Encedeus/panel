@@ -20,9 +20,9 @@ type UpdateUserDTO struct {
 }
 
 /*type DeleteUserDTO struct {
-	UserId uuid.UUID `json:"id"`
+	UserID uuid.UUID `json:"id"`
 }*/
 
 /*type GetUserDTO struct {
-	UserId uuid.UUID `json:"id"`
+	UserID uuid.UUID `json:"id"`
 }*/

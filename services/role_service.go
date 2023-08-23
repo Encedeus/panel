@@ -10,17 +10,26 @@ import (
     "time"
 )
 
-func CreateRole(name string, permissions []string) (uuid.UUID, error) {
-    roleData, err := Db.Role.Create().
+/*func CreateRole(name string, permissions []string) (uuid.UUID, error) {
+    roleData, err := db.Role.Create().
         SetName(name).
         SetPermissions(permissions).
-        Save(context.Background())
+        Save(ctx)
+
+    return roleData.ID, err
+}*/
+
+func CreateRole(ctx context.Context, db *ent.Client, roleInfo dto.CreateRoleDTO) (uuid.UUID, error) {
+    roleData, err := db.Role.Create().
+        SetName(roleInfo.Name).
+        SetPermissions(roleInfo.Permissions).
+        Save(ctx)
 
     return roleData.ID, err
 }
 
-func UpdateRole(roleInfo dto.UpdateRoleDTO) error {
-    roleData, err := Db.Role.Get(context.Background(), roleInfo.ID)
+func UpdateRole(ctx context.Context, db *ent.Client, roleInfo dto.UpdateRoleDTO) error {
+    roleData, err := db.Role.Get(ctx, roleInfo.ID)
     if err != nil {
         return err
     }
@@ -30,14 +39,14 @@ func UpdateRole(roleInfo dto.UpdateRoleDTO) error {
     }
 
     if roleInfo.Name != "" {
-        _, err = roleData.Update().SetName(roleInfo.Name).Save(context.Background())
+        _, err = roleData.Update().SetName(roleInfo.Name).Save(ctx)
         if err != nil {
             return err
         }
     }
 
     if s := roleInfo.ID.String(); len(roleInfo.Permissions) != 0 && s != "" {
-        _, err = roleData.Update().SetPermissions(roleInfo.Permissions).Save(context.Background())
+        _, err = roleData.Update().SetPermissions(roleInfo.Permissions).Save(ctx)
         if err != nil {
             return err
         }
@@ -45,13 +54,13 @@ func UpdateRole(roleInfo dto.UpdateRoleDTO) error {
     return err
 }
 
-func DeleteRole(roleId uuid.UUID) error {
+func DeleteRole(ctx context.Context, db *ent.Client, roleId uuid.UUID) error {
 
     if s := roleId.String(); s == "" {
         return nil
     }
 
-    roleData, err := Db.Role.Get(context.Background(), roleId)
+    roleData, err := db.Role.Get(ctx, roleId)
     if err != nil {
         return err
     }
@@ -60,15 +69,15 @@ func DeleteRole(roleId uuid.UUID) error {
         return errors.New("already deleted")
     }
 
-    _, err = roleData.Update().SetDeletedAt(time.Now()).Save(context.Background())
+    _, err = roleData.Update().SetDeletedAt(time.Now()).Save(ctx)
     return err
 }
 
-func FindRole(roleId uuid.UUID) (*ent.Role, error) {
-    roleData, err := Db.Role.Query().
+func FindRole(ctx context.Context, db *ent.Client, roleId uuid.UUID) (*ent.Role, error) {
+    roleData, err := db.Role.Query().
         Where(role.IDEQ(roleId)).
         Select("name", "created_at", "updated_at", "deleted_at", "permissions").
-        First(context.Background())
+        First(ctx)
     if err != nil {
         return nil, err
     }
@@ -80,6 +89,6 @@ func FindRole(roleId uuid.UUID) (*ent.Role, error) {
     return roleData, err
 }
 
-func IsRoleDeleted(roleData *ent.Role) bool {
-    return roleData.DeletedAt.Unix() != -62135596800
+func IsRoleDeleted(role *ent.Role) bool {
+    return role.DeletedAt.Unix() != -62135596800
 }

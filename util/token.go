@@ -127,7 +127,7 @@ func ValidateAccessJWT(tokenString string) (bool, TokenClaims, error) {
         return false, claims, err
     }
 
-    // isUpdated, err := services.IsUserUpdated(claims.UserId, claims.IssuedAt)
+    // isUpdated, err := services.IsUserUpdated(claims.UserID, claims.IssuedAt)
     // if err != nil || isUpdated {
     //     return false, claims, err
     // }
@@ -150,7 +150,7 @@ func ValidateRefreshJWT(tokenString string) (bool, TokenClaims, error) {
         return false, claims, err
     }
 
-    // isUpdated, err := services.IsUserUpdated(claims.UserId, claims.IssuedAt)
+    // isUpdated, err := services.IsUserUpdated(claims.UserID, claims.IssuedAt)
     // if err != nil || isUpdated {
     //     return false, claims, err
     // }

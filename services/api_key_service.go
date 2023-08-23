@@ -10,7 +10,7 @@ import (
     "github.com/google/uuid"
 )
 
-func CreateAPIKey(ctx context.Context, db *ent.Client, keyData dto.AccountAPIKeyDTO) (apiKey *ent.ApiKey, err error) {
+func CreateAccountAPIKey(ctx context.Context, db *ent.Client, keyData dto.AccountAPIKeyDTO) (apiKey *ent.ApiKey, err error) {
     key, err := util.GenerateAPIKey(keyData)
     if err != nil {
         return nil, err
@@ -29,7 +29,7 @@ func CreateAPIKey(ctx context.Context, db *ent.Client, keyData dto.AccountAPIKey
     return apiKey, nil
 }
 
-func DeleteAPIKey(ctx context.Context, db *ent.Client, keyId uuid.UUID) (err error) {
+func DeleteAccountAPIKey(ctx context.Context, db *ent.Client, keyId uuid.UUID) (err error) {
     if s := keyId.String(); s == "" {
         return errors.New("missing API key")
     }
@@ -39,7 +39,7 @@ func DeleteAPIKey(ctx context.Context, db *ent.Client, keyId uuid.UUID) (err err
     return err
 }
 
-func FindAPIKeysByUserID(ctx context.Context, db *ent.Client, userId uuid.UUID) (apiKeys []*ent.ApiKey, err error) {
+func FindAccountAPIKeysByUserID(ctx context.Context, db *ent.Client, userId uuid.UUID) (apiKeys []*ent.ApiKey, err error) {
     apiKeys, err = db.ApiKey.Query().Where(apikey.UserIDEQ(userId)).All(ctx)
     if err != nil {
         return nil, err
@@ -48,7 +48,7 @@ func FindAPIKeysByUserID(ctx context.Context, db *ent.Client, userId uuid.UUID) 
     return apiKeys, nil
 }
 
-func FindAPIKeyByID(ctx context.Context, db *ent.Client, keyId uuid.UUID) (apiKey *ent.ApiKey, err error) {
+func FindAccountAPIKeyByID(ctx context.Context, db *ent.Client, keyId uuid.UUID) (apiKey *ent.ApiKey, err error) {
     apiKey, err = db.ApiKey.Get(ctx, keyId)
     if err != nil {
         return nil, err

@@ -1,10 +1,9 @@
-package services
+package config
 
 import (
     "context"
     "entgo.io/ent/dialect/sql"
     "fmt"
-    "github.com/Encedeus/panel/config"
     "github.com/Encedeus/panel/ent"
     "github.com/Encedeus/panel/ent/role"
     "github.com/Encedeus/panel/ent/user"
@@ -22,11 +21,11 @@ func InitDB() *ent.Client {
         "postgres",
         fmt.Sprintf(
             "host=%s port=%d user=%s dbname=%s password=%s sslmode=disable",
-            config.Config.DB.Host,
-            config.Config.DB.Port,
-            config.Config.DB.User,
-            config.Config.DB.DBName,
-            config.Config.DB.Password,
+            Config.DB.Host,
+            Config.DB.Port,
+            Config.DB.User,
+            Config.DB.DBName,
+            Config.DB.Password,
         ),
     )
 

@@ -73,6 +73,7 @@ func handleFindUser(c echo.Context, db *ent.Client) error {
     }
 
     return c.JSON(http.StatusOK, echo.Map{
+        "id":        userData.ID,
         "name":      userData.Name,
         "email":     userData.Email,
         "createdAt": userData.CreatedAt,

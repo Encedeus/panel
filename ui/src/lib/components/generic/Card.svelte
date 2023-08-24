@@ -25,9 +25,9 @@
   ]);
 
   const heights = new Map<string, string>([
-      ["sm", `${fixedHeight ? "max-h-[20rem]" : "min-h-[20rem]"}`],
-      ["md", `${fixedHeight ? "max-h-[27.5rem]" : "min-h-[27.5rem]"}`],
-      ["lg", `${fixedHeight ? "max-h-[36rem]" : "min-h-[36rem]"}`]
+      ["sm", `${fixedHeight ? "min-h-[20rem] max-h-[20rem]" : "min-h-[20rem]"}`],
+      ["md", `${fixedHeight ? "min-h-[27.5rem] max-h-[27.5rem]" : "min-h-[27.5rem]"}`],
+      ["lg", `${fixedHeight ? "min-h-[36rem] max-h-[36rem]" : "min-h-[36rem]"}`]
   ]);
 </script>
 

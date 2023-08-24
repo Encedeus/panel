@@ -3,7 +3,6 @@ package controllers
 import (
     "github.com/Encedeus/panel/dto"
     "github.com/Encedeus/panel/ent"
-    "github.com/Encedeus/panel/middleware"
     "github.com/Encedeus/panel/services"
     "github.com/google/uuid"
     "github.com/labstack/echo/v4"
@@ -15,25 +14,20 @@ type APIKeyController struct {
 }
 
 func (akc APIKeyController) registerRoutes(srv *Server) {
-    keyEndpoint := srv.Group("key")
+    keyEndpoint := srv.Group("key/account")
     {
-        accountEndpoint := keyEndpoint.Group("account")
-        {
-            accountEndpoint.Use(middleware.AccessJWTAuth)
-
-            accountEndpoint.POST("", func(c echo.Context) error {
-                return akc.handleCreateAccountAPIKey(c, srv.DB)
-            })
-            accountEndpoint.DELETE("/:id", func(c echo.Context) error {
-                return akc.handleDeleteAccountAPIKey(c, srv.DB)
-            })
-            accountEndpoint.GET("/:id", func(c echo.Context) error {
-                return akc.handleFindAccountAPIKeyByID(c, srv.DB)
-            })
-            accountEndpoint.GET("/:userId", func(c echo.Context) error {
-                return akc.handleFindAccountAPIKeysByUserId(c, srv.DB)
-            })
-        }
+        keyEndpoint.POST("", func(c echo.Context) error {
+            return akc.handleCreateAccountAPIKey(c, srv.DB)
+        })
+        keyEndpoint.DELETE("/:id", func(c echo.Context) error {
+            return akc.handleDeleteAccountAPIKey(c, srv.DB)
+        })
+        /*            accountEndpoint.GET("/:id", func(c echo.Context) error {
+                      return akc.handleFindAccountAPIKeyByID(c, srv.DB)
+                  })*/
+        keyEndpoint.GET("/:userId", func(c echo.Context) error {
+            return akc.handleFindAccountAPIKeysByUserId(c, srv.DB)
+        })
     }
 }
 
@@ -48,14 +42,16 @@ func (APIKeyController) handleCreateAccountAPIKey(c echo.Context, db *ent.Client
         })
     }
 
-    _, err = services.CreateAccountAPIKey(ctx, db, *apiKeyData)
+    apiKey, err := services.CreateAccountAPIKey(ctx, db, *apiKeyData)
     if err != nil {
         return c.JSON(http.StatusInternalServerError, echo.Map{
             "message": err.Error(),
         })
     }
 
-    return c.NoContent(http.StatusCreated)
+    return c.JSON(http.StatusCreated, echo.Map{
+        "data": apiKey,
+    })
 }
 
 func (APIKeyController) handleDeleteAccountAPIKey(c echo.Context, db *ent.Client) (err error) {
@@ -102,13 +98,24 @@ func (APIKeyController) handleFindAccountAPIKeysByUserId(c echo.Context, db *ent
 
     apiKeys, err := services.FindAccountAPIKeysByUserID(ctx, db, userId)
     if err != nil {
-        return c.JSON(http.StatusNotFound, echo.Map{
-            "message": "user not found",
+        if ent.IsNotFound(err) {
+            return c.JSON(http.StatusNotFound, echo.Map{
+                "message": "user not found",
+            })
+        }
+        if err.Error() == "already deleted" {
+            return c.JSON(http.StatusGone, echo.Map{
+                "message": "user already deleted",
+            })
+        }
+
+        return c.JSON(http.StatusInternalServerError, echo.Map{
+            "message": "internal server error",
         })
     }
 
     return c.JSON(http.StatusOK, echo.Map{
-        "data": apiKeys,
+        "keys": apiKeys,
     })
 }
 

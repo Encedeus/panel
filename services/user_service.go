@@ -132,7 +132,7 @@ func DeleteUser(ctx context.Context, db *ent.Client, userId uuid.UUID) error {
 func GetUser(ctx context.Context, db *ent.Client, userId uuid.UUID) (*ent.User, error) {
     userData, err := db.User.Query().
         Where(user.IDEQ(userId)).
-        Select("uuid", "name", "created_at", "updated_at", "deleted_at", "email", "role_id").
+        Select("id", "name", "created_at", "updated_at", "deleted_at", "email", "role_id").
         First(ctx)
     if err != nil {
         return nil, err

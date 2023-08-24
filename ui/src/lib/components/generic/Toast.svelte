@@ -26,6 +26,6 @@
     {@html icons.get(mode)}
   </span>
   <span class="ml-3.5 font-monti font-semibold text-sm">
-    <slot name="label"/>
+    <slot/>
   </span>
 </div>

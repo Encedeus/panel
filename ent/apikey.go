@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -19,6 +20,10 @@ type ApiKey struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
+	// CreatedAt holds the value of the "created_at" field.
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	// UpdatedAt holds the value of the "updated_at" field.
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	// Description holds the value of the "description" field.
 	Description string `json:"description,omitempty"`
 	// IPAddresses holds the value of the "ip_addresses" field.
@@ -64,6 +69,8 @@ func (*ApiKey) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case apikey.FieldDescription, apikey.FieldKey:
 			values[i] = new(sql.NullString)
+		case apikey.FieldCreatedAt, apikey.FieldUpdatedAt:
+			values[i] = new(sql.NullTime)
 		case apikey.FieldID, apikey.FieldUserID:
 			values[i] = new(uuid.UUID)
 		default:
@@ -86,6 +93,18 @@ func (ak *ApiKey) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
 				ak.ID = *value
+			}
+		case apikey.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field created_at", values[i])
+			} else if value.Valid {
+				ak.CreatedAt = value.Time
+			}
+		case apikey.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
+			} else if value.Valid {
+				ak.UpdatedAt = value.Time
 			}
 		case apikey.FieldDescription:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -154,6 +173,12 @@ func (ak *ApiKey) String() string {
 	var builder strings.Builder
 	builder.WriteString("ApiKey(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", ak.ID))
+	builder.WriteString("created_at=")
+	builder.WriteString(ak.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("updated_at=")
+	builder.WriteString(ak.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
 	builder.WriteString("description=")
 	builder.WriteString(ak.Description)
 	builder.WriteString(", ")

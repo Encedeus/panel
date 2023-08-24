@@ -1,12 +1,12 @@
-import { accessTokenStore } from "../store";
+import { accessTokenStore, userStore } from "../store";
 import { decodeJwt } from "jose";
-import { api } from "./api_service";
+import { api } from "./api";
 import {
     User,
 } from "@encedeus/js-api";
 import { goto } from "$app/navigation";
 
-export async function refreshAccessToken(): Promise<string> {
+export async function refreshAccessToken(): Promise<string | undefined> {
     const { accessToken, error } = await api.authService.refreshAccessToken();
     if (error) {
         await signOut();
@@ -19,7 +19,7 @@ export async function refreshAccessToken(): Promise<string> {
     return accessToken;
 }
 
-export async function getAccessToken(): Promise<string> {
+export async function getAccessToken(): Promise<string | undefined> {
     let accessToken = "";
     accessTokenStore.subscribe(token => (accessToken = token))();
     if (!accessToken) {
@@ -27,11 +27,12 @@ export async function getAccessToken(): Promise<string> {
     }
 
     const payload = decodeJwt(accessToken);
-    if (Date.now() >= payload.exp * 1000) {
+
+    if (Date.now() >= payload.exp! * 1000) {
         return await refreshAccessToken();
     }
 
-    return null;
+    return accessToken;
 }
 
 export async function isUserSignedIn(): Promise<boolean> {
@@ -39,18 +40,28 @@ export async function isUserSignedIn(): Promise<boolean> {
 }
 
 export async function getSignedInUser(): Promise<User> {
-    const accessToken = await getAccessToken();
-    if (!accessToken) {
-        return null;
+    let user = new User();
+    const unsubscribe = userStore.subscribe(v => user = v);
+    if (user) {
+        return user;
     }
 
-    const tokenPayload = decodeJwt(accessToken);
-    const resp = await api.usersService.findUserById(tokenPayload.userId as string);
-    if (resp.error) {
+    const accessToken = await getAccessToken();
+    if (!accessToken) {
         await signOut();
     }
 
-    return resp.user;
+    const tokenPayload = decodeJwt(accessToken!);
+    const userId = tokenPayload.userId as string;
+
+    const resp = await api.usersService.findUserById(userId);
+    if (resp.error) {
+        await signOut();
+    }
+    userStore.set(resp.user!);
+
+    unsubscribe();
+    return user;
 }
 
 export function saveAccessToken(accessToken: string) {
@@ -58,7 +69,7 @@ export function saveAccessToken(accessToken: string) {
     api.accessToken = accessToken;
 }
 
-export async function signOut() {
+export async function signOut(): Promise<void> {
     saveAccessToken("");
     await api.authService.signOut();
     await goto("/auth/signin");

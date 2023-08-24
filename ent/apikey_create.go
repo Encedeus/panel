@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -19,6 +20,34 @@ type ApiKeyCreate struct {
 	config
 	mutation *ApiKeyMutation
 	hooks    []Hook
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (akc *ApiKeyCreate) SetCreatedAt(t time.Time) *ApiKeyCreate {
+	akc.mutation.SetCreatedAt(t)
+	return akc
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (akc *ApiKeyCreate) SetNillableCreatedAt(t *time.Time) *ApiKeyCreate {
+	if t != nil {
+		akc.SetCreatedAt(*t)
+	}
+	return akc
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (akc *ApiKeyCreate) SetUpdatedAt(t time.Time) *ApiKeyCreate {
+	akc.mutation.SetUpdatedAt(t)
+	return akc
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (akc *ApiKeyCreate) SetNillableUpdatedAt(t *time.Time) *ApiKeyCreate {
+	if t != nil {
+		akc.SetUpdatedAt(*t)
+	}
+	return akc
 }
 
 // SetDescription sets the "description" field.
@@ -107,6 +136,14 @@ func (akc *ApiKeyCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (akc *ApiKeyCreate) defaults() {
+	if _, ok := akc.mutation.CreatedAt(); !ok {
+		v := apikey.DefaultCreatedAt()
+		akc.mutation.SetCreatedAt(v)
+	}
+	if _, ok := akc.mutation.UpdatedAt(); !ok {
+		v := apikey.DefaultUpdatedAt()
+		akc.mutation.SetUpdatedAt(v)
+	}
 	if _, ok := akc.mutation.ID(); !ok {
 		v := apikey.DefaultID()
 		akc.mutation.SetID(v)
@@ -115,6 +152,12 @@ func (akc *ApiKeyCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (akc *ApiKeyCreate) check() error {
+	if _, ok := akc.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "ApiKey.created_at"`)}
+	}
+	if _, ok := akc.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "ApiKey.updated_at"`)}
+	}
 	if _, ok := akc.mutation.Key(); !ok {
 		return &ValidationError{Name: "key", err: errors.New(`ent: missing required field "ApiKey.key"`)}
 	}
@@ -163,6 +206,14 @@ func (akc *ApiKeyCreate) createSpec() (*ApiKey, *sqlgraph.CreateSpec) {
 	if id, ok := akc.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
+	}
+	if value, ok := akc.mutation.CreatedAt(); ok {
+		_spec.SetField(apikey.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
+	}
+	if value, ok := akc.mutation.UpdatedAt(); ok {
+		_spec.SetField(apikey.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
 	}
 	if value, ok := akc.mutation.Description(); ok {
 		_spec.SetField(apikey.FieldDescription, field.TypeString, value)

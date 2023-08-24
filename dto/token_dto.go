@@ -14,5 +14,5 @@ type RefreshTokenDTO TokenDTO
 type AccountAPIKeyDTO struct {
     IPAddresses []string `json:"ipAddresses"`
     Description string   `json:"description"`
-    TokenDTO
+    AccessTokenDTO
 }

@@ -11,8 +11,10 @@ import (
 )
 
 const (
+    // RefreshTokenExpireTime 1 week
     RefreshTokenExpireTime = 168 * time.Hour
-    AccessTokenExpireTime  = 15 * time.Minute
+    // AccessTokenExpireTime 15 minutes
+    AccessTokenExpireTime = 15 * time.Minute
 )
 
 type AccountAPIKeyClaims struct {

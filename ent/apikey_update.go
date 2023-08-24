@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -27,6 +28,26 @@ type ApiKeyUpdate struct {
 // Where appends a list predicates to the ApiKeyUpdate builder.
 func (aku *ApiKeyUpdate) Where(ps ...predicate.ApiKey) *ApiKeyUpdate {
 	aku.mutation.Where(ps...)
+	return aku
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (aku *ApiKeyUpdate) SetCreatedAt(t time.Time) *ApiKeyUpdate {
+	aku.mutation.SetCreatedAt(t)
+	return aku
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (aku *ApiKeyUpdate) SetNillableCreatedAt(t *time.Time) *ApiKeyUpdate {
+	if t != nil {
+		aku.SetCreatedAt(*t)
+	}
+	return aku
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (aku *ApiKeyUpdate) SetUpdatedAt(t time.Time) *ApiKeyUpdate {
+	aku.mutation.SetUpdatedAt(t)
 	return aku
 }
 
@@ -98,6 +119,7 @@ func (aku *ApiKeyUpdate) ClearUser() *ApiKeyUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (aku *ApiKeyUpdate) Save(ctx context.Context) (int, error) {
+	aku.defaults()
 	return withHooks(ctx, aku.sqlSave, aku.mutation, aku.hooks)
 }
 
@@ -120,6 +142,14 @@ func (aku *ApiKeyUpdate) Exec(ctx context.Context) error {
 func (aku *ApiKeyUpdate) ExecX(ctx context.Context) {
 	if err := aku.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (aku *ApiKeyUpdate) defaults() {
+	if _, ok := aku.mutation.UpdatedAt(); !ok {
+		v := apikey.UpdateDefaultUpdatedAt()
+		aku.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -147,6 +177,12 @@ func (aku *ApiKeyUpdate) sqlSave(ctx context.Context) (n int, err error) {
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := aku.mutation.CreatedAt(); ok {
+		_spec.SetField(apikey.FieldCreatedAt, field.TypeTime, value)
+	}
+	if value, ok := aku.mutation.UpdatedAt(); ok {
+		_spec.SetField(apikey.FieldUpdatedAt, field.TypeTime, value)
 	}
 	if value, ok := aku.mutation.Description(); ok {
 		_spec.SetField(apikey.FieldDescription, field.TypeString, value)
@@ -215,6 +251,26 @@ type ApiKeyUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *ApiKeyMutation
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (akuo *ApiKeyUpdateOne) SetCreatedAt(t time.Time) *ApiKeyUpdateOne {
+	akuo.mutation.SetCreatedAt(t)
+	return akuo
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (akuo *ApiKeyUpdateOne) SetNillableCreatedAt(t *time.Time) *ApiKeyUpdateOne {
+	if t != nil {
+		akuo.SetCreatedAt(*t)
+	}
+	return akuo
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (akuo *ApiKeyUpdateOne) SetUpdatedAt(t time.Time) *ApiKeyUpdateOne {
+	akuo.mutation.SetUpdatedAt(t)
+	return akuo
 }
 
 // SetDescription sets the "description" field.
@@ -298,6 +354,7 @@ func (akuo *ApiKeyUpdateOne) Select(field string, fields ...string) *ApiKeyUpdat
 
 // Save executes the query and returns the updated ApiKey entity.
 func (akuo *ApiKeyUpdateOne) Save(ctx context.Context) (*ApiKey, error) {
+	akuo.defaults()
 	return withHooks(ctx, akuo.sqlSave, akuo.mutation, akuo.hooks)
 }
 
@@ -320,6 +377,14 @@ func (akuo *ApiKeyUpdateOne) Exec(ctx context.Context) error {
 func (akuo *ApiKeyUpdateOne) ExecX(ctx context.Context) {
 	if err := akuo.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (akuo *ApiKeyUpdateOne) defaults() {
+	if _, ok := akuo.mutation.UpdatedAt(); !ok {
+		v := apikey.UpdateDefaultUpdatedAt()
+		akuo.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -364,6 +429,12 @@ func (akuo *ApiKeyUpdateOne) sqlSave(ctx context.Context) (_node *ApiKey, err er
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := akuo.mutation.CreatedAt(); ok {
+		_spec.SetField(apikey.FieldCreatedAt, field.TypeTime, value)
+	}
+	if value, ok := akuo.mutation.UpdatedAt(); ok {
+		_spec.SetField(apikey.FieldUpdatedAt, field.TypeTime, value)
 	}
 	if value, ok := akuo.mutation.Description(); ok {
 		_spec.SetField(apikey.FieldDescription, field.TypeString, value)

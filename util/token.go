@@ -129,12 +129,39 @@ func ValidateAccessJWT(tokenString string) (bool, TokenClaims, error) {
         return false, claims, err
     }
 
-    // isUpdated, err := services.IsUserUpdated(claims.UserID, claims.IssuedAt)
+    // isUpdated, err := services.IsUserUpdated(ctx, db, claims.UserID, claims.IssuedAt)
     // if err != nil || isUpdated {
     //     return false, claims, err
     // }
 
     return true, claims, err
+}
+
+func ValidateAccountAPIKey(tokenString string) (bool, AccountAPIKeyClaims, error) {
+    // parse the JWT and check the signing method
+    claims := new(AccountAPIKeyClaims)
+
+    _, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+        if token.Method != jwt.SigningMethodHS256 {
+            return nil, errors.New("unexpected jwt signing method")
+        }
+        return []byte(config.Config.Auth.JWTSecretAccess), nil
+    })
+
+    if claims.Type != dto.TokenAccountAPIKey {
+        return false, *claims, ErrInvalidTokenType
+    }
+
+    if err != nil {
+        return false, *claims, err
+    }
+
+    // isUpdated, err := services.IsUserUpdated(ctx, db, claims.UserID, claims.IssuedAt)
+    // if err != nil || isUpdated {
+    //     return false, claims, err
+    // }
+
+    return true, *claims, err
 }
 func ValidateRefreshJWT(tokenString string) (bool, TokenClaims, error) {
     // parse the JWT and check the signing method

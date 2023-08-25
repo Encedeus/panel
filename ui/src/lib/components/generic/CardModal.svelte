@@ -19,19 +19,19 @@
 </script>
 
 {#if open}
-    <div role="button" tabindex="0" on:keydown={onClose} on:click={onClose} class="cursor-default absolute left-0 right-0 top-0 bottom-0 m-0 w-screen h-screen bg-slate-950 bg-opacity-40 flex justify-center">
-        <div class="{className}">
-            <Card {height} {headerHeight} {width} {headerTextSize} {fixedHeight} {fixedWidth}>
+    <div role="button" tabindex="0" on:keydown={onClose} on:click={onClose} class="cursor-default absolute left-0 right-0 top-0 bottom-0 m-0 w-screen h-screen bg-slate-950 bg-opacity-40">
+    </div>
+    <div class="absolute left-1/2 top-1/2 mr-[-50%] -translate-x-1/2 -translate-y-1/2 {className}">
+        <Card {height} {headerHeight} {width} {headerTextSize} {fixedHeight} {fixedWidth}>
                 <span slot="icon">
                     <slot name="icon"/>
                 </span>
-                <span slot="title">
+            <span slot="title">
                     <slot name="title"/>
                 </span>
-                <div slot="content" class="w-full h-full">
-                    <slot name="content"/>
-                </div>
-            </Card>
-        </div>
+            <div slot="content" class="w-full h-full">
+                <slot name="content"/>
+            </div>
+        </Card>
     </div>
 {/if}

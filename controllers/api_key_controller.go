@@ -50,7 +50,7 @@ func (APIKeyController) handleCreateAccountAPIKey(c echo.Context, db *ent.Client
     }
 
     return c.JSON(http.StatusCreated, echo.Map{
-        "data": apiKey,
+        "keys": []ent.ApiKey{*apiKey},
     })
 }
 
@@ -137,6 +137,6 @@ func (APIKeyController) handleFindAccountAPIKeyByID(c echo.Context, db *ent.Clie
     }
 
     return c.JSON(http.StatusOK, echo.Map{
-        "data": []ent.ApiKey{*apiKey},
+        "keys": []ent.ApiKey{*apiKey},
     })
 }

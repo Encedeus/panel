@@ -4,8 +4,16 @@ import (
     "github.com/google/uuid"
 )
 
+type TokenType string
+
+const (
+    TokenAccessToken   TokenType = "access_token"
+    TokenAccountAPIKey TokenType = "account_api_key"
+)
+
 type TokenDTO struct {
     UserID uuid.UUID `json:"userId"`
+    Type   TokenType `json:"type"`
 }
 
 type AccessTokenDTO TokenDTO

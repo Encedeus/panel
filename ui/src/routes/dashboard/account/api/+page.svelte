@@ -14,6 +14,7 @@
     import { AccountApiKey, HttpError } from "@encedeus/js-api";
     import { isIP } from "is-ip";
     import { onMount } from "svelte";
+    import CursorArrowRays from "$lib/components/heroicons/CursorArrowRays.svelte";
 
     let modalOpen = false;
 
@@ -26,16 +27,15 @@
 
     let apiKeys: AccountApiKey[] = [];
 
-    let deleteId = "";
+    let candidateForDeletion = "";
 
     onMount(async () => {
         const resp = await api.apiKeyService.findAccountApiKeysByUserId((await getSignedInUser()).id)
-        if (resp.error) {
+        if (resp.error || resp.keys === undefined) {
             error = "Failed fetching API keys";
         }
 
         apiKeys = resp.keys!;
-        console.log(apiKeys);
     });
 
 
@@ -45,7 +45,7 @@
             descriptionError = true;
             return false;
         }
-        if (keyDescription.length > 24) {
+        if (keyDescription.length > 28) {
             error = "Description is too long";
             descriptionError = true;
             return false;
@@ -77,12 +77,37 @@
             error = resp.error.message;
             return;
         }
+        if (!resp.key) {
+            error = "Something went wrong";
+            return;
+        }
 
-        key.setKey(resp.key!);
-        apiKeys = [...apiKeys, key];
+        key.setKey(resp.key.key);
+        key.setId(resp.key.id)
+        apiKeys = [key, ...apiKeys];
 
         keyDescription = "";
         allowedIpsBox = "";
+    }
+
+    async function deleteKey(keyId: string) {
+        const idx = apiKeys.findIndex(key => key.id === keyId);
+        apiKeys.splice(idx, 1);
+        apiKeys = apiKeys;
+
+        const resp = await api.apiKeyService.deleteAccountApiKey(keyId);
+        if (resp.error) {
+            error = "Failed deleting API key";
+        }
+    }
+
+    async function onDelete() {
+        modalOpen = false;
+        if (!candidateForDeletion) {
+            error = "Something went wrong";
+            return;
+        }
+        await deleteKey(candidateForDeletion);
     }
 
     function clearInput() {
@@ -91,21 +116,6 @@
             descriptionError = false;
             ipError = false;
         }
-    }
-
-    async function deleteKey() {
-        for (let i = 0; i < apiKeys.length; i++) {
-            if (apiKeys[i].id === deleteId) {
-                apiKeys = apiKeys.splice(i, 1);
-            }
-        }
-
-        const resp = await api.apiKeyService.deleteAccountApiKey(deleteId);
-        if (resp.error) {
-            error = "Failed deleting API key";
-        }
-
-        deleteId = "";
     }
 </script>
 
@@ -138,28 +148,31 @@
                 </div>
             </Card>
         </div>
-        <div>
-            <Card fixedHeight={true} height="md" width="lg">
+        <div class="w-full h-full">
+            <Card className="w-full h-full" fixedHeight={true} height="md" width="lg">
                 <span class="text-sm" slot="title">
                     API Keys
                 </span>
                 <KeyIcon slot="icon"/>
-                <div class="flex flex-col items-center justify-center h-full gap-4 p-8" slot="content">
-                    {#each apiKeys as key}
-                        <KeyTab className="flex-grow w-full" id={key.id} key={key.key}
-                                name={key.description} on:delete={(event) => {
-                                    modalOpen = true;
-                                    deleteId = event.detail.keyId;
-                               }}/>
-                    {/each}
+                <div class="w-full h-full flex flex-col items-center justify-center gap-4 p-8" slot="content">
+                    {#if apiKeys && apiKeys.length > 0}
+                        {#each apiKeys as key}
+                            <KeyTab className="flex-grow w-full h-full" id={key.id} key={key.key}
+                                    name={key.description}
+                                    on:delete={() => { modalOpen = true; candidateForDeletion = key.id; console.log(key.id) }}/>
+                        {/each}
+                    {:else}
+                        <CursorArrowRays width={240} height={240}/>
+                        <span class="text-indigo-600 text-lg">Nothing here yet. Create a new API key to see something!</span>
+                    {/if}
                 </div>
             </Card>
         </div>
     </div>
-    <ConfirmationModal description="This step will permanently delete the selected API key." on:cancel={() => {
-       modalOpen = false;
-       deleteId = "";
-    }} on:proceed={async () => await deleteKey()} open={modalOpen}/>
+    <ConfirmationModal bind:open={modalOpen}
+                       description="This step will permanently delete the selected API key."
+                       on:cancel={() => { modalOpen = false; candidateForDeletion = ""; }}
+                       on:proceed={async () => await onDelete()}/>
 </main>
 
 {#if error !== undefined}

@@ -2,6 +2,7 @@ package services
 
 import (
     "context"
+    "entgo.io/ent/dialect/sql"
     "errors"
     "github.com/Encedeus/panel/dto"
     "github.com/Encedeus/panel/ent"
@@ -40,7 +41,7 @@ func DeleteAccountAPIKey(ctx context.Context, db *ent.Client, keyId uuid.UUID) (
 }
 
 func FindAccountAPIKeysByUserID(ctx context.Context, db *ent.Client, userId uuid.UUID) (apiKeys []*ent.ApiKey, err error) {
-    apiKeys, err = db.ApiKey.Query().Where(apikey.UserIDEQ(userId)).All(ctx)
+    apiKeys, err = db.ApiKey.Query().Where(apikey.UserIDEQ(userId)).Order(apikey.ByCreatedAt(sql.OrderDesc())).All(ctx)
     if err != nil {
         return nil, err
     }

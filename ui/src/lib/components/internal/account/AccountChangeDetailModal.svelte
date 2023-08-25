@@ -21,7 +21,7 @@
             <Input label="New {subject}" placeholder="Enter New {subject}" size="xl"/>
             <Input label="Confirm New {subject}" placeholder="Enter New {subject}" size="xl"/>
         </div>
-        <div class="flex mt-4 mb-12 justify-center">
+        <div class="flex mt-6 mb-12 justify-center">
             <Button size="md">Save</Button>
         </div>
     </div>

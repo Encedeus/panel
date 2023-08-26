@@ -21,7 +21,8 @@
     let keyDescription = "";
     let allowedIpsBox = "";
 
-    let error: string | undefined | null = undefined;
+    let notification: string | undefined | null = undefined;
+    let notificationMode: "error" | "ok" = "error";
     let descriptionError = false;
     let ipError = false;
 
@@ -29,31 +30,34 @@
 
     let candidateForDeletion = "";
 
+    let toast: HTMLElement;
+
     onMount(async () => {
         const resp = await api.apiKeyService.findAccountApiKeysByUserId((await getSignedInUser()).id)
-        if (resp.error || resp.keys === undefined) {
-            error = "Failed fetching API keys";
+        if (!resp || resp.error || !resp.keys) {
+            errorNotification("Failed fetching API keys");
+            return;
         }
 
-        apiKeys = resp.keys!;
+        apiKeys = resp.keys;
     });
 
 
     function validateInput(): boolean {
         if (!keyDescription) {
-            error = "No description provided";
+            errorNotification("No description provided");
             descriptionError = true;
             return false;
         }
         if (keyDescription.length > 28) {
-            error = "Description is too long";
+            errorNotification("Description is too long");
             descriptionError = true;
             return false;
         }
 
         for (const ip of allowedIpsBox.trim().split("\n")) {
             if (!isIP(ip) && ip) {
-                error = "Invalid IP address"
+                errorNotification("Invalid IP address");
                 ipError = true;
                 return false;
             }
@@ -63,6 +67,10 @@
     }
 
     async function createKey() {
+        if (notification) {
+            notification = "";
+        }
+
         if (!validateInput()) {
             return;
         }
@@ -74,17 +82,23 @@
 
         const resp = await api.apiKeyService.createAccountApiKey(key);
         if (resp.error) {
-            error = resp.error.message;
+            notification = resp.error.message;
             return;
         }
         if (!resp.key) {
-            error = "Something went wrong";
+            errorNotification("Something went wrong");
             return;
         }
 
         key.setKey(resp.key.key);
         key.setId(resp.key.id)
         apiKeys = [key, ...apiKeys];
+
+        notification = "Created an API key";
+        notificationMode = "ok";
+        setTimeout(() => {
+            notification = "";
+        }, 2000);
 
         keyDescription = "";
         allowedIpsBox = "";
@@ -97,25 +111,30 @@
 
         const resp = await api.apiKeyService.deleteAccountApiKey(keyId);
         if (resp.error) {
-            error = "Failed deleting API key";
+            errorNotification("Failed deleting API key");
         }
     }
 
     async function onDelete() {
         modalOpen = false;
         if (!candidateForDeletion) {
-            error = "Something went wrong";
+            errorNotification("Something went wrong");
             return;
         }
         await deleteKey(candidateForDeletion);
     }
 
     function clearInput() {
-        if (error) {
-            error = null;
+        if (notification) {
+            notification = null;
             descriptionError = false;
             ipError = false;
         }
+    }
+
+    function errorNotification(notify: string) {
+        notification = notify;
+        notificationMode = "error";
     }
 </script>
 
@@ -175,10 +194,10 @@
                        on:proceed={async () => await onDelete()}/>
 </main>
 
-{#if error !== undefined}
-    <aside class="absolute left-10 {error ? 'come-up-animation' : 'come-down-animation'}">
-        <Toast mode="error" size="md">
-            {error}
+{#if notification !== undefined}
+    <aside class="absolute left-10 {notification ? 'come-up-animation' : 'come-down-animation'}">
+        <Toast bind:this={toast} mode={notificationMode} size="md">
+            {notification}
         </Toast>
     </aside>
 {/if}

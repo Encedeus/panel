@@ -109,6 +109,12 @@ func handleCreateUser(c echo.Context, db *ent.Client) error {
     resp, err := services.CreateUser(ctx, db, createReq)
     // error checking
     if err != nil {
+        if services.IsValidationError(err) {
+            return c.JSON(http.StatusBadRequest, echo.Map{
+                "message": err.Error(),
+            })
+        }
+
         if ent.IsNotFound(err) {
             return c.JSON(http.StatusNotFound, echo.Map{
                 "message": "role not found",
@@ -173,14 +179,9 @@ func handleUpdateUser(c echo.Context, db *ent.Client) error {
                 "message": "user not found",
             })
         }
-        if ent.IsValidationError(err) {
+        if ent.IsValidationError(err) || ent.IsConstraintError(err) || services.IsValidationError(err) {
             return c.JSON(http.StatusBadRequest, echo.Map{
-                "message": "validation error",
-            })
-        }
-        if ent.IsConstraintError(err) {
-            return c.JSON(http.StatusBadRequest, echo.Map{
-                "message": "constraint error",
+                "message": "validate error",
             })
         }
         if err.Error() == "user deleted" {
@@ -190,7 +191,6 @@ func handleUpdateUser(c echo.Context, db *ent.Client) error {
         }
 
         log.Errorf("uncaught error updating user: %v", err)
-
         return c.JSON(http.StatusInternalServerError, echo.Map{
             "message": "internal server error",
         })
@@ -205,7 +205,7 @@ func handleSetPfp(c echo.Context, db *ent.Client) error {
     userId := c.FormValue("uuid")
     file, err := c.FormFile("file")
 
-    // validation request
+    // validate request
     if err != nil || userId == "" {
         return c.JSON(http.StatusBadRequest, echo.Map{"message": "bad request"})
     }

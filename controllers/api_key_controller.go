@@ -53,6 +53,12 @@ func (APIKeyController) handleCreateAccountAPIKey(c echo.Context, db *ent.Client
 
     resp, err := services.CreateAccountAPIKey(ctx, db, createReq)
     if err != nil {
+        if services.IsValidationError(err) {
+            return c.JSON(http.StatusBadRequest, echo.Map{
+                "message": err.Error(),
+            })
+        }
+
         return c.JSON(http.StatusInternalServerError, echo.Map{
             "message": err.Error(),
         })

@@ -28,7 +28,7 @@ func RefreshJWTAuth(next echo.HandlerFunc) echo.HandlerFunc {
             })
         }
 
-        // extract and validation JWT
+        // extract and validate JWT
         token := cookie.Value
         isValid, refreshToken, err := util.ValidateRefreshJWT(token)
 

@@ -109,7 +109,7 @@ func (RoleController) handleCreateRole(c echo.Context, db *ent.Client) error {
         }
         if ent.IsValidationError(err) {
             return c.JSON(http.StatusBadRequest, echo.Map{
-                "message": "validation error",
+                "message": "validate error",
             })
         }
         if ent.IsConstraintError(err) {
@@ -163,7 +163,7 @@ func (RoleController) handleUpdateRole(c echo.Context, db *ent.Client) error {
         }
         if ent.IsValidationError(err) {
             return c.JSON(http.StatusBadRequest, echo.Map{
-                "message": "validation error",
+                "message": "validate error",
             })
         }
         if ent.IsConstraintError(err) {

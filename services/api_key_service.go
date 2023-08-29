@@ -9,12 +9,23 @@ import (
     "github.com/Encedeus/panel/proto"
     protoapi "github.com/Encedeus/panel/proto/go"
     "github.com/Encedeus/panel/util"
+    "github.com/Encedeus/panel/validate"
     "github.com/google/uuid"
     "google.golang.org/protobuf/types/known/timestamppb"
     "strings"
 )
 
 func CreateAccountAPIKey(ctx context.Context, db *ent.Client, req *protoapi.AccountAPIKeyCreateRequest) (resp *protoapi.AccountAPIKeyCreateResponse, err error) {
+    if !validate.IsAPIKeyDescription(req.Description) {
+        return nil, ErrInvalidAPIKeyDescription
+    }
+    if !validate.IsUserId(ctx, db, req.UserId) {
+        return nil, ErrInvalidUserId
+    }
+    if !validate.IsIPAddressList(req.IpAddresses) {
+        return nil, ErrInvalidIPAddress
+    }
+
     key, err := util.GenerateAPIKey(proto.ProtoAccountAPIKeyCreateRequestToToken(req))
     if err != nil {
         return nil, err

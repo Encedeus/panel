@@ -12,15 +12,6 @@ import (
     "time"
 )
 
-/*func CreateRole(name string, permissions []string) (uuid.UUID, error) {
-    roleData, err := db.Role.Create().
-        SetName(name).
-        SetPermissions(permissions).
-        Save(ctx)
-
-    return roleData.ID, err
-}*/
-
 func CreateRole(ctx context.Context, db *ent.Client, req *protoapi.RoleCreateRequest) (*protoapi.RoleCreateResponse, error) {
     roleData, err := db.Role.Create().
         SetName(req.Name).

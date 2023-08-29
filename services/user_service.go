@@ -9,69 +9,23 @@ import (
     "github.com/Encedeus/panel/hashing"
     "github.com/Encedeus/panel/proto"
     protoapi "github.com/Encedeus/panel/proto/go"
+    "github.com/Encedeus/panel/validate"
     "github.com/google/uuid"
     "golang.org/x/exp/slices"
     "time"
 )
 
-/*func CreateUserRoleId(ctx context.Context, db *ent.Client, name string, email string, passwordHash string, roleId uuid.UUID) (*uuid.UUID, error) {
-
-    roleData, err := db.Role.Get(ctx, roleId)
-
-    if err != nil {
-        return nil, err
-    }
-
-    return CreateUser(ctx, db, name, email, passwordHash, roleData)
-}
-
-func CreateUserRoleName(ctx context.Context, db *ent.Client, name string, email string, passwordHash string, roleName string) (*uuid.UUID, error) {
-    roleData, err := db.Role.Query().Where(role.Name(roleName)).First(ctx)
-
-    if err != nil {
-        return nil, err
-    }
-
-    return CreateUser(ctx, db, name, email, passwordHash, roleData)
-}
-
-func CreateUser(ctx context.Context, db *ent.Client, name string, email string, passwordHash string, role *ent.Role) (*uuid.UUID, error) {
-    userData, err := db.User.Create().
-        SetName(name).
-        SetEmail(email).
-        SetPassword(passwordHash).
-        SetRole(role).
-        Save(ctx)
-
-    if err != nil {
-        return nil, err
-    }
-
-    return &userData.ID, err
-}*/
-
-/*func CreateUserRoleId(ctx context.Context, db *ent.Client, name string, email string, passwordHash string, roleId uuid.UUID) (*uuid.UUID, error) {
-
-    roleData, err := db.Role.Get(ctx, roleId)
-
-    if err != nil {
-        return nil, err
-    }
-
-    return CreateUser(ctx, db, name, email, passwordHash, roleData)
-}
-
-func CreateUserRoleName(ctx context.Context, db *ent.Client, name string, email string, passwordHash string, roleName string) (*uuid.UUID, error) {
-    roleData, err := db.Role.Query().Where(role.Name(roleName)).First(ctx)
-
-    if err != nil {
-        return nil, err
-    }
-
-    return CreateUser(ctx, db, name, email, passwordHash, roleData)
-}*/
-
 func CreateUser(ctx context.Context, db *ent.Client, req *protoapi.UserCreateRequest) (*protoapi.UserCreateResponse, error) {
+    if !validate.IsUsername(req.Name) {
+        return nil, ErrInvalidUsername
+    }
+    if !validate.IsEmail(req.Email) {
+        return nil, ErrInvalidEmail
+    }
+    if !validate.IsPassword(req.Password) {
+        return nil, ErrInvalidPassword
+    }
+
     roleId, err := uuid.Parse(req.RoleId.Value)
     if err != nil {
         r, err := db.Role.Query().Where(role.NameEQ(req.RoleName)).First(ctx)
@@ -121,6 +75,16 @@ func DoesUserHavePermission(ctx context.Context, db *ent.Client, permission stri
 
 // UpdateUser updates the user given an updateInfo dto
 func UpdateUser(ctx context.Context, db *ent.Client, req *protoapi.UserUpdateRequest) (*protoapi.UserUpdateResponse, error) {
+    if !validate.IsEmail(req.Email) {
+        return nil, ErrInvalidEmail
+    }
+    if !validate.IsPassword(req.Password) {
+        return nil, ErrInvalidPassword
+    }
+    if !validate.IsUsername(req.Name) {
+        return nil, ErrInvalidUserId
+    }
+
     userData, err := db.User.Query().Where(user.IDEQ(proto.ProtoUUIDToUUID(req.UserId))).First(ctx)
 
     if err != nil {

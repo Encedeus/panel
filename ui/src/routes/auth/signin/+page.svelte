@@ -4,19 +4,12 @@
     import AuthCard from "$lib/components/generic/AuthCard.svelte";
     import SmallArrowRight from "$lib/components/heroicons/SmallArrowRight.svelte";
     import { api } from "$lib/services/api";
-    import { isEmailValid } from "$lib/services/validation_service";
     import Toast from "$lib/components/generic/Toast.svelte";
-    import type { SignInUserResponse } from "@encedeus/js-api";
+    import type { HttpError, SignInUserResponse } from "@encedeus/js-api";
+    import { isBadRequestError, isWrongEmailOrUsernameError, isWrongPasswordError } from "@encedeus/js-api";
     import Button from "$lib/components/generic/Button.svelte";
     import { saveAccessToken } from "$lib/services/auth_service";
     import { goto } from "$app/navigation";
-    import type { HttpError } from "@encedeus/js-api";
-    import {
-        isBadRequestError,
-        isUserNotFoundError,
-        isWrongEmailOrUsernameError,
-        isWrongPasswordError
-    } from "@encedeus/js-api";
 
     let uid = "";
     let password = "";
@@ -26,7 +19,7 @@
     let uidError = false;
 
     async function signIn() {
-        const { error, accessToken } = await sendAuthenticationRequest(uid, password);
+        const {error, accessToken} = await sendAuthenticationRequest(uid, password);
         checkForErrors(error);
         if (error) {
             return;
@@ -36,20 +29,10 @@
     }
 
     async function sendAuthenticationRequest(uid: string, password: string): Promise<SignInUserResponse> {
-        let resp: SignInUserResponse;
-        if (isEmailValid(uid)) {
-            resp = await api.authService.signInUser({
-                email: uid,
-                password: password,
-            });
-        } else {
-            resp = await api.authService.signInUser({
-                username: uid,
-                password: password,
-            });
-        }
-
-        return resp;
+        return await api.authService.signInUser({
+            uid,
+            password,
+        });
     }
 
     function checkForErrors(error: HttpError | null | undefined) {
@@ -90,10 +73,10 @@
                 Sign In
             </CardHeader>
             <div class="flex flex-col gap-5" slot="inputs">
-                <Input error={uidError} bind:value={uid} label="Username/E-Mail" on:input={clearError}
+                <Input bind:value={uid} error={uidError} label="Username/E-Mail" on:input={clearError}
                        placeholder="Enter Username or E-Mail"
                        size="lg"/>
-                <Input error={passwordError} bind:value={password} label="Password" on:input={clearError}
+                <Input bind:value={password} error={passwordError} label="Password" on:input={clearError}
                        placeholder="Enter Password" size="lg"
                        type="password"/>
             </div>

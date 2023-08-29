@@ -3,10 +3,11 @@ package controllers
 import (
     "fmt"
     "github.com/Encedeus/panel/config"
-    "github.com/Encedeus/panel/dto"
     "github.com/Encedeus/panel/ent"
     "github.com/Encedeus/panel/hashing"
     "github.com/Encedeus/panel/middleware"
+    "github.com/Encedeus/panel/proto"
+    protoapi "github.com/Encedeus/panel/proto/go"
     "github.com/Encedeus/panel/services"
     "github.com/google/uuid"
     "github.com/labstack/echo/v4"
@@ -26,7 +27,9 @@ func (uc UserController) registerRoutes(srv *Server) {
     {
         userEndpoint.Static("/pfp", config.Config.CDN.Directory)
 
-        userEndpoint.Use(middleware.AccessJWTAuth)
+        userEndpoint.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+            return middleware.AccessJWTAuth(srv.DB, next)
+        })
 
         userEndpoint.GET("/:id", func(c echo.Context) error {
             return handleFindUser(c, srv.DB)
@@ -55,7 +58,9 @@ func handleFindUser(c echo.Context, db *ent.Client) error {
         return c.JSON(http.StatusBadRequest, echo.Map{"message": "bad request"})
     }
 
-    userData, err := services.GetUser(ctx, db, userId)
+    resp, err := services.FindOneUser(ctx, db, &protoapi.UserFindOneRequest{
+        UserId: proto.UUIDToProtoUUID(userId),
+    })
 
     if err != nil {
         if ent.IsNotFound(err) {
@@ -72,14 +77,7 @@ func handleFindUser(c echo.Context, db *ent.Client) error {
         })
     }
 
-    return c.JSON(http.StatusOK, echo.Map{
-        "id":        userData.ID,
-        "name":      userData.Name,
-        "email":     userData.Email,
-        "createdAt": userData.CreatedAt,
-        "updatedAt": userData.UpdatedAt,
-        "roleId":    userData.RoleID,
-    })
+    return proto.MarshalControllerProtoResponseToJSON(&c, http.StatusOK, resp)
 }
 
 func handleCreateUser(c echo.Context, db *ent.Client) error {
@@ -93,32 +91,22 @@ func handleCreateUser(c echo.Context, db *ent.Client) error {
         })
     }
 
-    userInfo := dto.CreateUserDTO{}
-    c.Bind(&userInfo)
-
-    // check if all the fields are provided
-
-    if strings.TrimSpace(userInfo.Name) == "" || strings.TrimSpace(userInfo.Password) == "" || strings.TrimSpace(userInfo.Email) == "" {
+    createReq := new(protoapi.UserCreateRequest)
+    err := c.Bind(createReq)
+    if err != nil {
         return c.JSON(http.StatusBadRequest, echo.Map{
             "message": "bad request",
         })
     }
 
-    var (
-        err    error
-        userId *uuid.UUID
-    )
-    // check which method was used for role assignment
-    if userInfo.RoleName != "" {
-        userId, err = services.CreateUserRoleName(ctx, db, userInfo.Name, userInfo.Email, hashing.HashPassword(userInfo.Password), userInfo.RoleName)
-    } else if userInfo.RoleId.String() == "" {
-        userId, err = services.CreateUserRoleId(ctx, db, userInfo.Name, userInfo.Email, hashing.HashPassword(userInfo.Password), userInfo.RoleId)
-    } else {
+    // check if all the fields are provided
+    if strings.TrimSpace(createReq.Name) == "" || strings.TrimSpace(createReq.Password) == "" || strings.TrimSpace(createReq.Email) == "" || (strings.TrimSpace(createReq.RoleName) == "" && strings.TrimSpace(createReq.RoleId.Value) == "") {
         return c.JSON(http.StatusBadRequest, echo.Map{
-            "message": "either role name or id must be specified",
+            "message": "bad request",
         })
     }
 
+    resp, err := services.CreateUser(ctx, db, createReq)
     // error checking
     if err != nil {
         if ent.IsNotFound(err) {
@@ -141,7 +129,7 @@ func handleCreateUser(c echo.Context, db *ent.Client) error {
         })
     }
 
-    return c.JSON(http.StatusCreated, echo.Map{"uuid": userId.String()})
+    return proto.MarshalControllerProtoResponseToJSON(&c, http.StatusOK, resp)
 }
 
 func handleUpdateUser(c echo.Context, db *ent.Client) error {
@@ -155,22 +143,26 @@ func handleUpdateUser(c echo.Context, db *ent.Client) error {
         })
     }
 
-    updateInfo := dto.UpdateUserDTO{}
-    _ = c.Bind(&updateInfo)
-
-    // check if no fields are provided
-    if (updateInfo.Name == "" && updateInfo.Email == "" && updateInfo.Password == "" && updateInfo.RoleName == "" && updateInfo.RoleId.String() == "") || updateInfo.UserId.ID() == 0 {
+    updateReq := new(protoapi.UserUpdateRequest)
+    err := c.Bind(updateReq)
+    if err != nil {
         return c.JSON(http.StatusBadRequest, echo.Map{
             "message": "bad request",
         })
     }
 
-    updateInfo.Password = hashing.HashPassword(updateInfo.Password)
-    err := services.UpdateUser(ctx, db, updateInfo)
+    // check if no fields are provided
+    if (updateReq.Name == "" && updateReq.Email == "" && updateReq.Password == "" && updateReq.RoleName == "" && updateReq.RoleId.Value == "") || updateReq.UserId.Value == "" {
+        return c.JSON(http.StatusBadRequest, echo.Map{
+            "message": "bad request",
+        })
+    }
+
+    updateReq.Password = hashing.HashPassword(updateReq.Password)
+    resp, err := services.UpdateUser(ctx, db, updateReq)
 
     // error checking
     if err != nil {
-
         if ent.IsNotFound(err) {
             if strings.Contains(err.Error(), "role") {
                 return c.JSON(http.StatusNotFound, echo.Map{
@@ -204,7 +196,7 @@ func handleUpdateUser(c echo.Context, db *ent.Client) error {
         })
     }
 
-    return c.NoContent(http.StatusOK)
+    return proto.MarshalControllerProtoResponseToJSON(&c, http.StatusOK, resp)
 }
 
 func handleSetPfp(c echo.Context, db *ent.Client) error {
@@ -213,7 +205,7 @@ func handleSetPfp(c echo.Context, db *ent.Client) error {
     userId := c.FormValue("uuid")
     file, err := c.FormFile("file")
 
-    // validate request
+    // validation request
     if err != nil || userId == "" {
         return c.JSON(http.StatusBadRequest, echo.Map{"message": "bad request"})
     }
@@ -262,7 +254,9 @@ func handleDeleteUser(c echo.Context, db *ent.Client) error {
         return c.JSON(http.StatusBadRequest, echo.Map{"message": "bad request"})
     }
 
-    err = services.DeleteUser(ctx, db, userId)
+    _, err = services.DeleteUser(ctx, db, &protoapi.UserDeleteRequest{
+        UserId: proto.UUIDToProtoUUID(userId),
+    })
 
     // error checking
     if err != nil {

@@ -11,10 +11,16 @@
     import { api } from "$lib/services/api";
     import { getSignedInUser } from "$lib/services/auth_service";
     import Toast from "$lib/components/generic/Toast.svelte";
-    import { AccountApiKey, HttpError } from "@encedeus/js-api";
     import { isIP } from "is-ip";
     import { onMount } from "svelte";
     import CursorArrowRays from "$lib/components/heroicons/CursorArrowRays.svelte";
+    import {
+        AccountAPIKey,
+        AccountAPIKeyDeleteRequest,
+        AccountAPIKeyFindManyByUserRequest,
+        UUID,
+        AccountAPIKeyCreateRequest
+    } from "@encedeus/js-api";
 
     let modalOpen = false;
 
@@ -26,20 +32,27 @@
     let descriptionError = false;
     let ipError = false;
 
-    let apiKeys: AccountApiKey[] = [];
+    let apiKeys: AccountAPIKey[] = [];
 
     let candidateForDeletion = "";
 
     let toast: HTMLElement;
 
     onMount(async () => {
-        const resp = await api.apiKeyService.findAccountApiKeysByUserId((await getSignedInUser()).id)
-        if (!resp || resp.error || !resp.keys) {
+        const {
+            response,
+            error
+        } = await api.apiKeyService.findAccountApiKeysByUserId(AccountAPIKeyFindManyByUserRequest.create({
+            userId: (await getSignedInUser()).id,
+        }));
+        if (!response || error) {
             errorNotification("Failed fetching API keys");
             return;
         }
 
-        apiKeys = resp.keys;
+        if (response.accountApiKeys) {
+            apiKeys = response.accountApiKeys;
+        }
     });
 
 
@@ -75,44 +88,49 @@
             return;
         }
 
-        const key = new AccountApiKey();
-        key.setDescription(keyDescription);
-        key.setAllowedIps(allowedIpsBox.trim().split("\n"));
-        key.setUserId((await getSignedInUser()).id);
+        const key = AccountAPIKey.create();
+        key.description = keyDescription;
+        key.ipAddresses = allowedIpsBox.trim().split("\n");
+        key.userId = UUID.create((await getSignedInUser()).id);
 
-        const resp = await api.apiKeyService.createAccountApiKey(key);
-        if (resp.error) {
-            notification = resp.error.message;
+        const { error, response } = await api.apiKeyService.createAccountApiKey(AccountAPIKeyCreateRequest.create({
+            ipAddresses: key.ipAddresses,
+            description: key.description,
+            userId: key.userId,
+        }));
+        if (error) {
+            notification = error.message;
             return;
         }
-        if (!resp.key) {
+        if (!response) {
             errorNotification("Something went wrong");
             return;
         }
 
-        key.setKey(resp.key.key);
-        key.setId(resp.key.id)
+        key.key = response?.accountApiKey?.key;
+        key.id = response?.accountApiKey?.id;
         apiKeys = [key, ...apiKeys];
 
-        notification = "Created an API key";
-        notificationMode = "ok";
-        setTimeout(() => {
-            notification = "";
-        }, 2000);
+        okNotification("Created an API key");
 
         keyDescription = "";
         allowedIpsBox = "";
     }
 
-    async function deleteKey(keyId: string) {
-        const idx = apiKeys.findIndex(key => key.id === keyId);
+    async function deleteKey(keyId: UUID) {
+        const idx = apiKeys.findIndex(key => key.id?.value === keyId.value);
         apiKeys.splice(idx, 1);
         apiKeys = apiKeys;
 
-        const resp = await api.apiKeyService.deleteAccountApiKey(keyId);
+        const resp = await api.apiKeyService.deleteAccountApiKey(AccountAPIKeyDeleteRequest.create({
+            id: UUID.create(keyId),
+        }));
         if (resp.error) {
             errorNotification("Failed deleting API key");
+            return;
         }
+
+        okNotification("Deleted an API key")
     }
 
     async function onDelete() {
@@ -135,6 +153,17 @@
     function errorNotification(notify: string) {
         notification = notify;
         notificationMode = "error";
+        setTimeout(() => {
+            notification = "";
+        }, 2000);
+    }
+
+    function okNotification(notify: string) {
+        notification = notify;
+        notificationMode = "ok";
+        setTimeout(() => {
+            notification = "";
+        }, 2000);
     }
 </script>
 

@@ -1,10 +1,10 @@
 package module
 
 import (
-	"os"
-	"sync"
+    "os"
+    "sync"
 
-	"github.com/second-state/WasmEdge-go/wasmedge"
+    "github.com/second-state/WasmEdge-go/wasmedge"
 )
 
 // func InitWasmtime() {
@@ -15,7 +15,7 @@ import (
 //
 //     engine := wasmtime.NewEngine()
 //
-uu//     module, err := wasmtime.NewModuleFromFile(engine, "/mnt/h/Programming/Web/Workspace/Projects/Encedeus/panel/module_test/go/main.wasm")
+//     module, err := wasmtime.NewModuleFromFile(engine, "/mnt/h/Programming/Web/Workspace/Projects/Encedeus/panel/module_test/go/main.wasm")
 //     check(err)
 //
 //     linker := wasmtime.NewLinker(engine)
@@ -66,55 +66,55 @@ uu//     module, err := wasmtime.NewModuleFromFile(engine, "/mnt/h/Programming/W
 // }
 
 func Init() {
-	// wasmedge.SetLogErrorLevel()
+    // wasmedge.SetLogErrorLevel()
 
-	// bytes, err := os.ReadFile("/mnt/h/Programming/Web/Workspace/Projects/Encedeus/wasmedge-quickjs/wasmedge_quickjs.wasm")
-	// if err != nil {
-	//     panic(err)
-	// }
-	//
-	// _, err = vm.RunWasmBuffer(bytes, "_start")
-	// if err != nil {
-	//     panic(err)
-	// }
+    // bytes, err := os.ReadFile("/mnt/h/Programming/Web/Workspace/Projects/Encedeus/wasmedge-quickjs/wasmedge_quickjs.wasm")
+    // if err != nil {
+    //     panic(err)
+    // }
+    //
+    // _, err = vm.RunWasmBuffer(bytes, "_start")
+    // if err != nil {
+    //     panic(err)
+    // }
 
-	var wg sync.WaitGroup
-	wg.Add(2)
-	go func() {
-		defer wg.Done()
-		conf := wasmedge.NewConfigure(wasmedge.REFERENCE_TYPES)
-		conf.AddConfig(wasmedge.WASI)
-		vm := wasmedge.NewVMWithConfig(conf)
-		wasi := vm.GetImportModule(wasmedge.WASI)
-		wasi.InitWasi(
-			os.Args[1:],
-			os.Environ(),
-			[]string{".:."},
-		)
+    var wg sync.WaitGroup
+    wg.Add(2)
+    go func() {
+        defer wg.Done()
+        conf := wasmedge.NewConfigure(wasmedge.REFERENCE_TYPES)
+        conf.AddConfig(wasmedge.WASI)
+        vm := wasmedge.NewVMWithConfig(conf)
+        wasi := vm.GetImportModule(wasmedge.WASI)
+        wasi.InitWasi(
+            os.Args[1:],
+            os.Environ(),
+            []string{".:."},
+        )
 
-		defer vm.Release()
-		defer conf.Release()
+        defer vm.Release()
+        defer conf.Release()
 
-		vm.RunWasmFile("/mnt/h/Programming/Web/Workspace/Projects/Encedeus/test/js/main.wasm", "_start")
-	}()
+        vm.RunWasmFile("/mnt/h/Programming/Web/Workspace/Projects/Encedeus/test/js/main.wasm", "_start")
+    }()
 
-	go func() {
-		defer wg.Done()
-		conf := wasmedge.NewConfigure(wasmedge.REFERENCE_TYPES)
-		conf.AddConfig(wasmedge.WASI)
-		vm := wasmedge.NewVMWithConfig(conf)
-		wasi := vm.GetImportModule(wasmedge.WASI)
-		wasi.InitWasi(
-			os.Args[1:],
-			os.Environ(),
-			[]string{".:."},
-		)
+    go func() {
+        defer wg.Done()
+        conf := wasmedge.NewConfigure(wasmedge.REFERENCE_TYPES)
+        conf.AddConfig(wasmedge.WASI)
+        vm := wasmedge.NewVMWithConfig(conf)
+        wasi := vm.GetImportModule(wasmedge.WASI)
+        wasi.InitWasi(
+            os.Args[1:],
+            os.Environ(),
+            []string{".:."},
+        )
 
-		defer vm.Release()
-		defer conf.Release()
+        defer vm.Release()
+        defer conf.Release()
 
-		vm.RunWasmFile("/mnt/h/Programming/Web/Workspace/Projects/Encedeus/test/go/main.wasm", "_start")
-	}()
+        vm.RunWasmFile("/mnt/h/Programming/Web/Workspace/Projects/Encedeus/test/go/main.wasm", "_start")
+    }()
 
-	wg.Wait()
+    wg.Wait()
 }

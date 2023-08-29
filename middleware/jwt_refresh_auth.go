@@ -10,7 +10,7 @@ import (
 )
 
 func ContextWithIDFromRefresh(ctx context.Context, refreshToken util.TokenClaims) context.Context {
-    return context.WithValue(ctx, contextKey(1), refreshToken.UserID.String())
+    return context.WithValue(ctx, contextKey(1), refreshToken.Token.UserId.Value)
 }
 
 func IDFromRefreshContext(ctx context.Context) (uuid.UUID, error) {
@@ -24,17 +24,17 @@ func RefreshJWTAuth(next echo.HandlerFunc) echo.HandlerFunc {
         cookie, err := c.Request().Cookie("encedeus_refreshToken")
         if err != nil || strings.TrimSpace(cookie.Value) == "" {
             return c.JSON(http.StatusUnauthorized, echo.Map{
-                "message": "unauthorised",
+                "message": "unauthorised1",
             })
         }
 
-        // extract and validate JWT
+        // extract and validation JWT
         token := cookie.Value
         isValid, refreshToken, err := util.ValidateRefreshJWT(token)
 
         if !isValid || err != nil {
             return c.JSON(http.StatusUnauthorized, echo.Map{
-                "message": "unauthorised",
+                "message": "unauthorised2",
             })
         }
 

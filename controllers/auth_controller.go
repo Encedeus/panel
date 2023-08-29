@@ -1,15 +1,17 @@
 package controllers
 
 import (
-    "github.com/Encedeus/panel/dto"
     "github.com/Encedeus/panel/ent"
     "github.com/Encedeus/panel/hashing"
     "github.com/Encedeus/panel/middleware"
+    protoapi "github.com/Encedeus/panel/proto/go"
     "github.com/Encedeus/panel/services"
     "github.com/Encedeus/panel/util"
     "github.com/labstack/echo/v4"
     "github.com/labstack/gommon/log"
     "net/http"
+    "net/mail"
+    "strings"
     "time"
 )
 
@@ -20,7 +22,7 @@ type AuthController struct {
 func (ac AuthController) registerRoutes(srv *Server) {
     authEndpoint := srv.Group("auth")
     {
-        authEndpoint.POST("/login", func(c echo.Context) error {
+        authEndpoint.POST("/signin", func(c echo.Context) error {
             return ac.handleUserSignIn(c, srv.DB)
         })
 
@@ -29,7 +31,7 @@ func (ac AuthController) registerRoutes(srv *Server) {
         authEndpoint.GET("/refresh", func(c echo.Context) error {
             return ac.handleRefreshToken(c, srv.DB)
         })
-        authEndpoint.DELETE("/logout", func(c echo.Context) error {
+        authEndpoint.DELETE("/signout", func(c echo.Context) error {
             return ac.handleSignOut(c, srv.DB)
         })
     }
@@ -37,21 +39,25 @@ func (ac AuthController) registerRoutes(srv *Server) {
 
 func (AuthController) handleUserSignIn(c echo.Context, db *ent.Client) error {
     ctx := c.Request().Context()
-    var loginInfo dto.UserLoginDTO
+    signInReq := new(protoapi.UserSignInRequest)
     // error safe because of the json syntax middleware
-    _ = c.Bind(&loginInfo)
+    err := c.Bind(signInReq)
+    if err != nil {
+        return c.JSON(http.StatusBadRequest, echo.Map{
+            "message": err.Error(),
+        })
+    }
 
     var (
-        err          error
         passwordHash string
-        tokenData    dto.TokenDTO
+        tokenData    *protoapi.Token
     )
 
     // check which method was used for log in
-    if loginInfo.Username != "" {
-        passwordHash, tokenData, err = services.GetUserAuthDataAndHashByUsername(ctx, db, loginInfo.Username)
-    } else if loginInfo.Email != "" {
-        passwordHash, tokenData, err = services.GetUserAuthDataAndHashByEmail(ctx, db, loginInfo.Email)
+    if _, err := mail.ParseAddress(signInReq.Uid); err != nil {
+        passwordHash, tokenData, err = services.GetUserAuthDataAndHashByUsername(ctx, db, signInReq.Uid)
+    } else if strings.TrimSpace(signInReq.Uid) != "" {
+        passwordHash, tokenData, err = services.GetUserAuthDataAndHashByEmail(ctx, db, signInReq.Uid)
     } else {
         return c.JSON(http.StatusBadRequest, echo.Map{
             "message": "either username or email must be specified",
@@ -74,7 +80,7 @@ func (AuthController) handleUserSignIn(c echo.Context, db *ent.Client) error {
     }
 
     // check if the password hash is a match
-    auth := hashing.VerifyHash(loginInfo.Password, passwordHash)
+    auth := hashing.VerifyHash(signInReq.Password, passwordHash)
 
     if !auth {
         return c.JSON(http.StatusUnauthorized, echo.Map{
@@ -107,7 +113,12 @@ func (AuthController) handleRefreshToken(c echo.Context, _ *ent.Client) error {
     _, userData, _ := util.ValidateRefreshJWT(token)
 
     // generate access token
-    accessToken, _ := util.GenerateAccessToken(dto.AccessTokenDTO{UserID: userData.UserID})
+    accessToken, _ := util.GenerateAccessToken(&protoapi.AccessToken{
+        Token: &protoapi.Token{
+            UserId: userData.Token.UserId,
+            Type:   protoapi.TokenType_ACCESS_TOKEN,
+        },
+    })
 
     return c.JSON(http.StatusOK, echo.Map{
         "accessToken": accessToken,

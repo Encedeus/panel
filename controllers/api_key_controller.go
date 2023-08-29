@@ -1,11 +1,13 @@
 package controllers
 
 import (
-    "github.com/Encedeus/panel/dto"
     "github.com/Encedeus/panel/ent"
+    "github.com/Encedeus/panel/proto"
+    protoapi "github.com/Encedeus/panel/proto/go"
     "github.com/Encedeus/panel/services"
     "github.com/google/uuid"
     "github.com/labstack/echo/v4"
+    "google.golang.org/protobuf/encoding/protojson"
     "net/http"
 )
 
@@ -16,6 +18,10 @@ type APIKeyController struct {
 func (akc APIKeyController) registerRoutes(srv *Server) {
     keyEndpoint := srv.Group("key/account")
     {
+        /*        keyEndpoint.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+                  return middleware.AccessJWTAuth(srv.DB, next)
+              })*/
+
         keyEndpoint.POST("", func(c echo.Context) error {
             return akc.handleCreateAccountAPIKey(c, srv.DB)
         })
@@ -34,24 +40,25 @@ func (akc APIKeyController) registerRoutes(srv *Server) {
 func (APIKeyController) handleCreateAccountAPIKey(c echo.Context, db *ent.Client) (err error) {
     ctx := c.Request().Context()
 
-    apiKeyData := new(dto.AccountAPIKeyDTO)
-    err = c.Bind(apiKeyData)
+    createReq := new(protoapi.AccountAPIKeyCreateRequest)
+
+    body := make([]byte, c.Request().ContentLength)
+    _, err = c.Request().Body.Read(body)
+    err = protojson.Unmarshal(body, createReq)
     if err != nil {
         return c.JSON(http.StatusBadRequest, echo.Map{
             "message": err.Error(),
         })
     }
 
-    apiKey, err := services.CreateAccountAPIKey(ctx, db, *apiKeyData)
+    resp, err := services.CreateAccountAPIKey(ctx, db, createReq)
     if err != nil {
         return c.JSON(http.StatusInternalServerError, echo.Map{
             "message": err.Error(),
         })
     }
 
-    return c.JSON(http.StatusCreated, echo.Map{
-        "keys": []ent.ApiKey{*apiKey},
-    })
+    return proto.MarshalControllerProtoResponseToJSON(&c, http.StatusCreated, resp)
 }
 
 func (APIKeyController) handleDeleteAccountAPIKey(c echo.Context, db *ent.Client) (err error) {
@@ -64,7 +71,9 @@ func (APIKeyController) handleDeleteAccountAPIKey(c echo.Context, db *ent.Client
         })
     }
 
-    err = services.DeleteAccountAPIKey(ctx, db, id)
+    _, err = services.DeleteAccountAPIKey(ctx, db, &protoapi.AccountAPIKeyDeleteRequest{
+        Id: proto.UUIDToProtoUUID(id),
+    })
     if err != nil {
         if ent.IsNotFound(err) {
             return c.JSON(http.StatusNotFound, echo.Map{
@@ -96,7 +105,9 @@ func (APIKeyController) handleFindAccountAPIKeysByUserId(c echo.Context, db *ent
         })
     }
 
-    apiKeys, err := services.FindAccountAPIKeysByUserID(ctx, db, userId)
+    resp, err := services.FindAccountAPIKeysByUserID(ctx, db, &protoapi.AccountAPIkeyFindManyByUserRequest{
+        UserId: proto.UUIDToProtoUUID(userId),
+    })
     if err != nil {
         if ent.IsNotFound(err) {
             return c.JSON(http.StatusNotFound, echo.Map{
@@ -114,9 +125,7 @@ func (APIKeyController) handleFindAccountAPIKeysByUserId(c echo.Context, db *ent
         })
     }
 
-    return c.JSON(http.StatusOK, echo.Map{
-        "keys": apiKeys,
-    })
+    return proto.MarshalControllerProtoResponseToJSON(&c, http.StatusOK, resp)
 }
 
 func (APIKeyController) handleFindAccountAPIKeyByID(c echo.Context, db *ent.Client) (err error) {
@@ -129,14 +138,14 @@ func (APIKeyController) handleFindAccountAPIKeyByID(c echo.Context, db *ent.Clie
         })
     }
 
-    apiKey, err := services.FindAccountAPIKeyByID(ctx, db, id)
+    resp, err := services.FindAccountAPIKeyByID(ctx, db, &protoapi.AccountAPIKeyFindOneRequest{
+        Id: proto.UUIDToProtoUUID(id),
+    })
     if err != nil {
         return c.JSON(http.StatusNotFound, echo.Map{
             "message": "api key not found",
         })
     }
 
-    return c.JSON(http.StatusOK, echo.Map{
-        "keys": []ent.ApiKey{*apiKey},
-    })
+    return proto.MarshalControllerProtoResponseToJSON(&c, http.StatusOK, resp)
 }

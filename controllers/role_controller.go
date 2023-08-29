@@ -1,9 +1,10 @@
 package controllers
 
 import (
-    "github.com/Encedeus/panel/dto"
     "github.com/Encedeus/panel/ent"
     "github.com/Encedeus/panel/middleware"
+    "github.com/Encedeus/panel/proto"
+    protoapi "github.com/Encedeus/panel/proto/go"
     "github.com/Encedeus/panel/services"
     "github.com/google/uuid"
     "github.com/labstack/echo/v4"
@@ -18,7 +19,9 @@ type RoleController struct {
 func (rc RoleController) registerRoutes(srv *Server) {
     roleEndpoint := srv.Group("role")
     {
-        roleEndpoint.Use(middleware.AccessJWTAuth)
+        roleEndpoint.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+            return middleware.AccessJWTAuth(srv.DB, next)
+        })
 
         roleEndpoint.GET("/:id", func(c echo.Context) error {
             return rc.handleFindRole(c, srv.DB)
@@ -45,8 +48,9 @@ func (RoleController) handleFindRole(c echo.Context, db *ent.Client) error {
         })
     }
 
-    roleData, err := services.FindRole(ctx, db, id)
-
+    resp, err := services.FindRole(ctx, db, &protoapi.RoleFindOneRequest{
+        Id: proto.UUIDToProtoUUID(id),
+    })
     if err != nil {
         if ent.IsNotFound(err) {
             return c.JSON(http.StatusNotFound, echo.Map{
@@ -67,12 +71,7 @@ func (RoleController) handleFindRole(c echo.Context, db *ent.Client) error {
         })
     }
 
-    return c.JSON(http.StatusOK, echo.Map{
-        "name":        roleData.Name,
-        "permissions": roleData.Permissions,
-        "createdAt":   roleData.CreatedAt,
-        "updatedAt":   roleData.UpdatedAt,
-    })
+    return proto.MarshalControllerProtoResponseToJSON(&c, http.StatusOK, resp)
 }
 
 func (RoleController) handleCreateRole(c echo.Context, db *ent.Client) error {
@@ -86,18 +85,22 @@ func (RoleController) handleCreateRole(c echo.Context, db *ent.Client) error {
         })
     }
 
-    roleInfo := dto.CreateRoleDTO{}
-    c.Bind(&roleInfo)
-
-    // check if name is specified
-    if roleInfo.Name == "" || len(roleInfo.Permissions) == 0 {
+    createReq := new(protoapi.RoleCreateRequest)
+    err := c.Bind(createReq)
+    if err != nil {
         return c.JSON(http.StatusBadRequest, echo.Map{
             "message": "bad request",
         })
     }
 
-    roleId, err := services.CreateRole(ctx, db, roleInfo)
+    // check if name is specified
+    if createReq.Name == "" || len(createReq.Permissions) == 0 {
+        return c.JSON(http.StatusBadRequest, echo.Map{
+            "message": "bad request",
+        })
+    }
 
+    resp, err := services.CreateRole(ctx, db, createReq)
     if err != nil {
         if ent.IsNotFound(err) {
             return c.JSON(http.StatusNotFound, echo.Map{
@@ -122,7 +125,7 @@ func (RoleController) handleCreateRole(c echo.Context, db *ent.Client) error {
         })
     }
 
-    return c.JSON(http.StatusOK, echo.Map{"id": roleId})
+    return proto.MarshalControllerProtoResponseToJSON(&c, http.StatusOK, resp)
 }
 
 func (RoleController) handleUpdateRole(c echo.Context, db *ent.Client) error {
@@ -135,17 +138,22 @@ func (RoleController) handleUpdateRole(c echo.Context, db *ent.Client) error {
         })
     }
 
-    roleInfo := dto.UpdateRoleDTO{}
-    _ = c.Bind(&roleInfo)
-
-    // check if all fields are provided
-    if (roleInfo.Name == "" && len(roleInfo.Permissions) == 0) || roleInfo.ID.String() == "" {
+    updateReq := new(protoapi.RoleUpdateRequest)
+    err := c.Bind(updateReq)
+    if err != nil {
         return c.JSON(http.StatusBadRequest, echo.Map{
             "message": "bad request",
         })
     }
 
-    err := services.UpdateRole(ctx, db, roleInfo)
+    // check if all fields are provided
+    if (updateReq.Name == "" && len(updateReq.Permissions) == 0) || updateReq.Id.Value == "" {
+        return c.JSON(http.StatusBadRequest, echo.Map{
+            "message": "bad request",
+        })
+    }
+
+    resp, err := services.UpdateRole(ctx, db, updateReq)
 
     if err != nil {
         if ent.IsNotFound(err) {
@@ -169,14 +177,14 @@ func (RoleController) handleUpdateRole(c echo.Context, db *ent.Client) error {
             })
         }
 
-        log.Errorf("uncaught error updating role: %v", err)
+        log.Errorf("uncaught error updating role: %e", err)
 
         return c.JSON(http.StatusInternalServerError, echo.Map{
             "message": "internal server error",
         })
     }
 
-    return c.NoContent(http.StatusOK)
+    return proto.MarshalControllerProtoResponseToJSON(&c, http.StatusOK, resp)
 }
 
 func (RoleController) handleDeleteRole(c echo.Context, db *ent.Client) error {
@@ -196,7 +204,9 @@ func (RoleController) handleDeleteRole(c echo.Context, db *ent.Client) error {
         })
     }
 
-    err = services.DeleteRole(ctx, db, id)
+    _, err = services.DeleteRole(ctx, db, &protoapi.RoleDeleteRequest{
+        Id: proto.UUIDToProtoUUID(id),
+    })
     if err != nil {
         if ent.IsNotFound(err) {
             return c.JSON(http.StatusNotFound, echo.Map{

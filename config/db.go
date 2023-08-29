@@ -78,18 +78,22 @@ func createSuperuser(db *ent.Client, ctx context.Context) {
 func createSuperuserRole(db *ent.Client, ctx context.Context) {
     exists, err := db.Role.Query().Where(role.Name("superuser")).Exist(ctx)
 
+    if err != nil {
+        log.Fatalf("failed creating superuser role: %e", err)
+        return
+    }
+
     if exists {
         return
     }
 
-    if err == nil && !exists {
-        _, err := db.Role.Create().
-            SetName("superuser").
-            SetPermissions([]string{"*"}).
-            Save(ctx)
-        log.Error(err)
+    _, err = db.Role.Create().
+        SetName("superuser").
+        SetPermissions([]string{"*"}).
+        Save(ctx)
+
+    if err != nil {
+        log.Fatalf("failed creating superuser role: %e", err)
         return
     }
-
-    log.Error("failed to create superuser")
 }

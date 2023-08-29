@@ -3,16 +3,18 @@ package services
 import (
     "context"
     "errors"
-    "github.com/Encedeus/panel/dto"
     "github.com/Encedeus/panel/ent"
     "github.com/Encedeus/panel/ent/role"
     "github.com/Encedeus/panel/ent/user"
+    "github.com/Encedeus/panel/hashing"
+    "github.com/Encedeus/panel/proto"
+    protoapi "github.com/Encedeus/panel/proto/go"
     "github.com/google/uuid"
     "golang.org/x/exp/slices"
     "time"
 )
 
-func CreateUserRoleId(ctx context.Context, db *ent.Client, name string, email string, passwordHash string, roleId uuid.UUID) (*uuid.UUID, error) {
+/*func CreateUserRoleId(ctx context.Context, db *ent.Client, name string, email string, passwordHash string, roleId uuid.UUID) (*uuid.UUID, error) {
 
     roleData, err := db.Role.Get(ctx, roleId)
 
@@ -46,6 +48,56 @@ func CreateUser(ctx context.Context, db *ent.Client, name string, email string, 
     }
 
     return &userData.ID, err
+}*/
+
+/*func CreateUserRoleId(ctx context.Context, db *ent.Client, name string, email string, passwordHash string, roleId uuid.UUID) (*uuid.UUID, error) {
+
+    roleData, err := db.Role.Get(ctx, roleId)
+
+    if err != nil {
+        return nil, err
+    }
+
+    return CreateUser(ctx, db, name, email, passwordHash, roleData)
+}
+
+func CreateUserRoleName(ctx context.Context, db *ent.Client, name string, email string, passwordHash string, roleName string) (*uuid.UUID, error) {
+    roleData, err := db.Role.Query().Where(role.Name(roleName)).First(ctx)
+
+    if err != nil {
+        return nil, err
+    }
+
+    return CreateUser(ctx, db, name, email, passwordHash, roleData)
+}*/
+
+func CreateUser(ctx context.Context, db *ent.Client, req *protoapi.UserCreateRequest) (*protoapi.UserCreateResponse, error) {
+    roleId, err := uuid.Parse(req.RoleId.Value)
+    if err != nil {
+        r, err := db.Role.Query().Where(role.NameEQ(req.RoleName)).First(ctx)
+        if err != nil {
+            return nil, err
+        }
+
+        roleId = r.ID
+    }
+
+    userData, err := db.User.Create().
+        SetName(req.Name).
+        SetEmail(req.Email).
+        SetPassword(hashing.HashPassword(req.Password)).
+        SetRoleID(roleId).
+        Save(ctx)
+
+    if err != nil {
+        return nil, err
+    }
+
+    resp := &protoapi.UserCreateResponse{
+        User: proto.EntUserEntityToProtoUser(userData),
+    }
+
+    return resp, nil
 }
 
 // DoesUserHavePermission checks if user's role have a permission
@@ -68,70 +120,81 @@ func DoesUserHavePermission(ctx context.Context, db *ent.Client, permission stri
 }
 
 // UpdateUser updates the user given an updateInfo dto
-func UpdateUser(ctx context.Context, db *ent.Client, updateInfo dto.UpdateUserDTO) error {
-    userData, err := db.User.Query().Where(user.IDEQ(updateInfo.UserId)).First(ctx)
+func UpdateUser(ctx context.Context, db *ent.Client, req *protoapi.UserUpdateRequest) (*protoapi.UserUpdateResponse, error) {
+    userData, err := db.User.Query().Where(user.IDEQ(proto.ProtoUUIDToUUID(req.UserId))).First(ctx)
 
     if err != nil {
-        return err
+        return nil, err
     }
 
     if IsUserDeleted(userData) {
-        return errors.New("user deleted")
+        return nil, errors.New("user deleted")
     }
 
-    if updateInfo.Name != "" {
-        _, err = userData.Update().SetName(updateInfo.Name).Save(ctx)
+    if req.Name != "" {
+        _, err = userData.Update().SetName(req.Name).Save(ctx)
     }
 
-    if updateInfo.Password != "" {
-        _, err = userData.Update().SetPassword(updateInfo.Password).Save(ctx)
+    if req.Password != "" {
+        _, err = userData.Update().SetPassword(req.Password).Save(ctx)
     }
 
-    if updateInfo.Email != "" {
-        _, err = userData.Update().SetEmail(updateInfo.Email).Save(ctx)
+    if req.Email != "" {
+        _, err = userData.Update().SetEmail(req.Email).Save(ctx)
     }
 
-    if updateInfo.RoleName != "" {
-        roleData, roleErr := db.Role.Query().Where(role.Name(updateInfo.RoleName)).First(ctx)
+    if req.RoleName != "" {
+        roleData, roleErr := db.Role.Query().Where(role.Name(req.RoleName)).First(ctx)
         if roleErr != nil {
-            return roleErr
+            return nil, roleErr
         }
         _, err = userData.Update().SetRole(roleData).Save(ctx)
 
     }
 
-    if s := updateInfo.RoleId.String(); s != "" {
-        roleData, roleErr := db.Role.Query().Where(role.ID(updateInfo.RoleId)).First(ctx)
+    if s := req.RoleId.Value; s != "" {
+        roleData, roleErr := db.Role.Query().Where(role.ID(proto.ProtoUUIDToUUID(req.RoleId))).First(ctx)
         if roleErr != nil {
-            return roleErr
+            return nil, roleErr
         }
         _, err = userData.Update().SetRole(roleData).Save(ctx)
     }
 
-    return err
+    currUser, err := db.User.Get(ctx, proto.ProtoUUIDToUUID(req.UserId))
+    if err != nil {
+        return nil, err
+    }
+
+    resp := &protoapi.UserUpdateResponse{
+        User: proto.EntUserEntityToProtoUser(currUser),
+    }
+
+    return resp, nil
 }
 
-func DeleteUser(ctx context.Context, db *ent.Client, userId uuid.UUID) error {
-    userData, err := db.User.Query().Where(user.IDEQ(userId)).First(ctx)
+func DeleteUser(ctx context.Context, db *ent.Client, req *protoapi.UserDeleteRequest) (*protoapi.UserDeleteResponse, error) {
+    userData, err := db.User.Query().Where(user.IDEQ(uuid.MustParse(req.UserId.Value))).First(ctx)
     if err != nil {
-        return err
+        return nil, err
     }
 
     if IsUserDeleted(userData) {
-        return errors.New("already deleted")
+        return nil, errors.New("already deleted")
     }
 
     userData, err = userData.Update().SetDeletedAt(time.Now()).Save(ctx)
     if err != nil {
-        return err
+        return nil, err
     }
 
-    return err
+    resp := &protoapi.UserDeleteResponse{}
+
+    return resp, err
 }
 
-func GetUser(ctx context.Context, db *ent.Client, userId uuid.UUID) (*ent.User, error) {
+func FindOneUser(ctx context.Context, db *ent.Client, req *protoapi.UserFindOneRequest) (*protoapi.UserFindOneResponse, error) {
     userData, err := db.User.Query().
-        Where(user.IDEQ(userId)).
+        Where(user.IDEQ(proto.ProtoUUIDToUUID(req.UserId))).
         Select("id", "name", "created_at", "updated_at", "deleted_at", "email", "role_id").
         First(ctx)
     if err != nil {
@@ -142,7 +205,11 @@ func GetUser(ctx context.Context, db *ent.Client, userId uuid.UUID) (*ent.User, 
         return nil, errors.New("user deleted")
     }
 
-    return userData, err
+    resp := &protoapi.UserFindOneResponse{
+        User: proto.EntUserEntityToProtoUser(userData),
+    }
+
+    return resp, err
 }
 
 func DoesUserWithUUIDExist(ctx context.Context, db *ent.Client, userId uuid.UUID) bool {

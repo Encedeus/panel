@@ -3,16 +3,18 @@ package middleware
 import (
     "context"
     "errors"
+    "github.com/Encedeus/panel/ent"
+    "github.com/Encedeus/panel/ent/apikey"
     "github.com/Encedeus/panel/util"
     "github.com/google/uuid"
     "github.com/labstack/echo/v4"
-    "golang.org/x/exp/slices"
     "net/http"
+    "slices"
     "strings"
 )
 
 func ContextWithIDFromAccess(ctx context.Context, accessToken util.TokenClaims) context.Context {
-    return context.WithValue(ctx, contextKey(2), accessToken.UserID.String())
+    return context.WithValue(ctx, contextKey(2), accessToken.Token.UserId.Value)
 }
 
 func IDFromAccessContext(ctx context.Context) (uuid.UUID, error) {
@@ -20,43 +22,48 @@ func IDFromAccessContext(ctx context.Context) (uuid.UUID, error) {
 }
 
 // AccessJWTAuth serves as a middleware for authorization via the access token
-func AccessJWTAuth(next echo.HandlerFunc) echo.HandlerFunc {
+func AccessJWTAuth(db *ent.Client, next echo.HandlerFunc) echo.HandlerFunc {
     return func(c echo.Context) error {
         // check if the header is empty
-        if c.Request().Header.Get("Authorization") == "" {
+        if strings.TrimSpace(c.Request().Header.Get("Authorization")) == "" {
             return c.JSON(http.StatusUnauthorized, echo.Map{
                 "message": "unauthorised",
             })
         }
 
+        ctx := c.Request().Context()
         token := util.GetTokenFromHeader(c)
 
         isValid, apiKey, err := util.ValidateAccountAPIKey(token)
+        if err != nil && !errors.Is(err, util.ErrInvalidTokenType) {
+            return c.JSON(http.StatusUnauthorized, echo.Map{
+                "message": "unauthorised1",
+            })
+        }
         if isValid {
-            ip := strings.Split(c.Request().RemoteAddr, ":")[0]
-            if !slices.Contains(apiKey.IPAddresses, ip) {
+            _, err := db.ApiKey.Query().Where(apikey.KeyEQ(token)).First(ctx)
+            if err != nil {
                 return c.JSON(http.StatusUnauthorized, echo.Map{
-                    "message": "unauthorised",
+                    "message": "unauthorised2",
                 })
             }
-        }
-        if err != nil {
-            if !errors.Is(err, util.ErrInvalidTokenType) {
+
+            ip := strings.Split(c.Request().RemoteAddr, ":")[0]
+            if apiKey.IpAddresses != nil && len(apiKey.IpAddresses[0]) > 0 && !slices.Contains(apiKey.IpAddresses, ip) {
                 return c.JSON(http.StatusUnauthorized, echo.Map{
-                    "message": "unauthorised",
+                    "message": "unauthorised3",
                 })
             }
         }
 
-        // extract and validate JWT
         isValid, accessToken, err := util.ValidateAccessJWT(token)
-        if !isValid || err != nil {
+        if err != nil && !errors.Is(err, util.ErrInvalidTokenType) {
             return c.JSON(http.StatusUnauthorized, echo.Map{
-                "message": "unauthorised",
+                "message": "unauthorised4",
             })
         }
 
-        c.SetRequest(c.Request().WithContext(ContextWithIDFromAccess(c.Request().Context(), accessToken)))
+        c.SetRequest(c.Request().WithContext(ContextWithIDFromAccess(ctx, accessToken)))
 
         return next(c)
     }

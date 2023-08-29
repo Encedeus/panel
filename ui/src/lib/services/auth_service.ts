@@ -1,22 +1,22 @@
 import { accessTokenStore, userStore } from "../store";
 import { decodeJwt } from "jose";
 import { api } from "./api";
-import {
-    User,
-} from "@encedeus/js-api";
 import { goto } from "$app/navigation";
+import { User, UUID, UserFindOneRequest } from "@encedeus/js-api";
 
 export async function refreshAccessToken(): Promise<string | undefined> {
-    const { accessToken, error } = await api.authService.refreshAccessToken();
+    const { response, error } = await api.authService.refreshAccessToken();
     if (error) {
         await signOut();
         return;
     }
 
-    if (accessToken) {
-        saveAccessToken(accessToken);
+    if (response?.accessToken) {
+        saveAccessToken(response.accessToken);
+        return response.accessToken;
     }
-    return accessToken;
+
+    return;
 }
 
 export async function getAccessToken(): Promise<string | undefined> {
@@ -40,7 +40,7 @@ export async function isUserSignedIn(): Promise<boolean> {
 }
 
 export async function getSignedInUser(): Promise<User> {
-    let user = new User();
+    let user = User.create();
     const unsubscribe = userStore.subscribe(v => user = v);
     if (user) {
         return user;
@@ -51,14 +51,19 @@ export async function getSignedInUser(): Promise<User> {
         await signOut();
     }
 
+    console.log(accessToken);
     const tokenPayload = decodeJwt(accessToken!);
-    const userId = tokenPayload.userId as string;
+    const userId = UUID.create({
+        value: (tokenPayload.user_id as any).value as string,
+    });
 
-    const resp = await api.usersService.findUserById(userId);
-    if (resp.error) {
+    const { response, error } = await api.usersService.findUserById(UserFindOneRequest.create({
+        userId,
+    }));
+    if (error) {
         await signOut();
     }
-    userStore.set(resp.user!);
+    userStore.set(response?.user!);
 
     unsubscribe();
     return user;

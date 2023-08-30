@@ -5,7 +5,7 @@ import (
     "errors"
     "github.com/Encedeus/panel/ent"
     "github.com/Encedeus/panel/ent/apikey"
-    "github.com/Encedeus/panel/util"
+    "github.com/Encedeus/panel/services"
     "github.com/google/uuid"
     "github.com/labstack/echo/v4"
     "net/http"
@@ -13,7 +13,7 @@ import (
     "strings"
 )
 
-func ContextWithIDFromAccess(ctx context.Context, accessToken util.TokenClaims) context.Context {
+func ContextWithIDFromAccess(ctx context.Context, accessToken services.TokenClaims) context.Context {
     return context.WithValue(ctx, contextKey(2), accessToken.Token.UserId.Value)
 }
 
@@ -32,10 +32,10 @@ func AccessJWTAuth(db *ent.Client, next echo.HandlerFunc) echo.HandlerFunc {
         }
 
         ctx := c.Request().Context()
-        token := util.GetTokenFromHeader(c)
+        token := services.GetTokenFromHeader(c)
 
-        isValid, apiKey, err := util.ValidateAccountAPIKey(token)
-        if err != nil && !errors.Is(err, util.ErrInvalidTokenType) {
+        isValid, apiKey, err := services.ValidateAccountAPIKey(token)
+        if err != nil && !errors.Is(err, services.ErrInvalidTokenType) {
             return c.JSON(http.StatusUnauthorized, echo.Map{
                 "message": "unauthorised1",
             })
@@ -56,8 +56,8 @@ func AccessJWTAuth(db *ent.Client, next echo.HandlerFunc) echo.HandlerFunc {
             }
         }
 
-        isValid, accessToken, err := util.ValidateAccessJWT(token)
-        if err != nil && !errors.Is(err, util.ErrInvalidTokenType) {
+        isValid, accessToken, err := services.ValidateAccessJWT(token)
+        if err != nil && !errors.Is(err, services.ErrInvalidTokenType) {
             return c.JSON(http.StatusUnauthorized, echo.Map{
                 "message": "unauthorised4",
             })

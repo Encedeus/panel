@@ -8,7 +8,6 @@ import (
     "github.com/Encedeus/panel/ent/apikey"
     "github.com/Encedeus/panel/proto"
     protoapi "github.com/Encedeus/panel/proto/go"
-    "github.com/Encedeus/panel/util"
     "github.com/Encedeus/panel/validate"
     "github.com/google/uuid"
     "google.golang.org/protobuf/types/known/timestamppb"
@@ -26,7 +25,7 @@ func CreateAccountAPIKey(ctx context.Context, db *ent.Client, req *protoapi.Acco
         return nil, ErrInvalidIPAddress
     }
 
-    key, err := util.GenerateAPIKey(proto.ProtoAccountAPIKeyCreateRequestToToken(req))
+    key, err := GenerateAPIKey(proto.ProtoAccountAPIKeyCreateRequestToToken(req))
     if err != nil {
         return nil, err
     }

@@ -2,14 +2,14 @@ package middleware
 
 import (
     "context"
-    "github.com/Encedeus/panel/util"
+    "github.com/Encedeus/panel/services"
     "github.com/google/uuid"
     "github.com/labstack/echo/v4"
     "net/http"
     "strings"
 )
 
-func ContextWithIDFromRefresh(ctx context.Context, refreshToken util.TokenClaims) context.Context {
+func ContextWithIDFromRefresh(ctx context.Context, refreshToken services.TokenClaims) context.Context {
     return context.WithValue(ctx, contextKey(1), refreshToken.Token.UserId.Value)
 }
 
@@ -30,7 +30,7 @@ func RefreshJWTAuth(next echo.HandlerFunc) echo.HandlerFunc {
 
         // extract and validate JWT
         token := cookie.Value
-        isValid, refreshToken, err := util.ValidateRefreshJWT(token)
+        isValid, refreshToken, err := services.ValidateRefreshJWT(token)
 
         if !isValid || err != nil {
             return c.JSON(http.StatusUnauthorized, echo.Map{

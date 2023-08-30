@@ -36,4 +36,5 @@ var (
     ErrInvalidRoleID            = NewValidationError("invalid role id")
     ErrInvalidRoleName          = NewValidationError("invalid role name")
     ErrInvalidPassword          = NewValidationError("invalid password")
+    ErrInvalidPermission        = NewValidationError("invalid permission")
 )

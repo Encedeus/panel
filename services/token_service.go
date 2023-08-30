@@ -1,11 +1,10 @@
-package util
+package services
 
 import (
     "errors"
     "github.com/Encedeus/panel/config"
     "github.com/Encedeus/panel/proto"
     protoapi "github.com/Encedeus/panel/proto/go"
-    "github.com/Encedeus/panel/services"
     "github.com/golang-jwt/jwt"
     "github.com/labstack/echo/v4"
     "strings"
@@ -138,7 +137,7 @@ func ValidateAccessJWT(tokenString string) (bool, TokenClaims, error) {
     })
 
     if claims.Token.Type != protoapi.TokenType_ACCESS_TOKEN {
-        return false, TokenClaims{}, services.ErrInvalidTokenType
+        return false, TokenClaims{}, ErrInvalidTokenType
     }
 
     if err != nil {
@@ -171,14 +170,14 @@ func ValidateAccountAPIKey(tokenString string) (bool, AccountAPIKeyClaims, error
         }
 
         if _, ok := token.Claims.(AccountAPIKeyClaims); !ok {
-            return nil, services.ErrInvalidTokenType
+            return nil, ErrInvalidTokenType
         }
 
         return []byte(config.Config.Auth.JWTSecretAccess), nil
     })
 
     if _, ok := token.Claims.(AccountAPIKeyClaims); !ok {
-        return false, AccountAPIKeyClaims{}, services.ErrInvalidTokenType
+        return false, AccountAPIKeyClaims{}, ErrInvalidTokenType
     }
 
     if err != nil {

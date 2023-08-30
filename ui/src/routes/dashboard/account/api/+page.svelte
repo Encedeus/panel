@@ -67,6 +67,11 @@
             descriptionError = true;
             return false;
         }
+        if (keyDescription.length < 3) {
+            errorNotification("Description is too short");
+            descriptionError = true;
+            return false;
+        }
 
         for (const ip of allowedIpsBox.trim().split("\n")) {
             if (!isIP(ip) && ip) {
@@ -144,18 +149,20 @@
 
     function clearInput() {
         if (notification) {
-            notification = null;
+            notification = "";
             descriptionError = false;
             ipError = false;
         }
     }
 
-    function errorNotification(notify: string) {
+    function errorNotification(notify: string, timeout?: boolean) {
         notification = notify;
         notificationMode = "error";
-        setTimeout(() => {
-            notification = "";
-        }, 2000);
+        if (timeout) {
+            setTimeout(() => {
+                notification = "";
+            }, 2000);
+        }
     }
 
     function okNotification(notify: string) {

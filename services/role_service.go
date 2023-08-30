@@ -7,12 +7,20 @@ import (
     "github.com/Encedeus/panel/ent/role"
     "github.com/Encedeus/panel/proto"
     protoapi "github.com/Encedeus/panel/proto/go"
+    "github.com/Encedeus/panel/validate"
     "google.golang.org/protobuf/types/known/timestamppb"
     "strings"
     "time"
 )
 
 func CreateRole(ctx context.Context, db *ent.Client, req *protoapi.RoleCreateRequest) (*protoapi.RoleCreateResponse, error) {
+    if !validate.IsRoleName(ctx, db, req.Name) {
+        return nil, ErrInvalidRoleName
+    }
+    if !validate.IsPermissionList(req.Permissions) {
+        return nil, ErrInvalidPermission
+    }
+
     roleData, err := db.Role.Create().
         SetName(req.Name).
         SetPermissions(req.Permissions).
@@ -33,6 +41,16 @@ func CreateRole(ctx context.Context, db *ent.Client, req *protoapi.RoleCreateReq
 }
 
 func UpdateRole(ctx context.Context, db *ent.Client, req *protoapi.RoleUpdateRequest) (*protoapi.RoleUpdateResponse, error) {
+    if !validate.IsRoleName(ctx, db, req.Name) {
+        return nil, ErrInvalidRoleName
+    }
+    if !validate.IsRoleID(ctx, db, req.Id) {
+        return nil, ErrInvalidRoleID
+    }
+    if !validate.IsPermissionList(req.Permissions) {
+        return nil, ErrInvalidPermission
+    }
+
     roleData, err := db.Role.Get(ctx, proto.ProtoUUIDToUUID(req.Id))
     if err != nil {
         return nil, err
@@ -76,7 +94,6 @@ func UpdateRole(ctx context.Context, db *ent.Client, req *protoapi.RoleUpdateReq
 }
 
 func DeleteRole(ctx context.Context, db *ent.Client, req *protoapi.RoleDeleteRequest) (*protoapi.RoleDeleteResponse, error) {
-
     if s := req.Id.Value; strings.TrimSpace(s) == "" {
         return nil, nil
     }
@@ -103,7 +120,6 @@ func DeleteRole(ctx context.Context, db *ent.Client, req *protoapi.RoleDeleteReq
 func FindRole(ctx context.Context, db *ent.Client, req *protoapi.RoleFindOneRequest) (*protoapi.RoleFindOneResponse, error) {
     roleData, err := db.Role.Query().
         Where(role.IDEQ(proto.ProtoUUIDToUUID(req.Id))).
-        Select("name", "created_at", "updated_at", "deleted_at", "permissions").
         First(ctx)
     if err != nil {
         return nil, err

@@ -6,7 +6,6 @@ import (
     "github.com/Encedeus/panel/middleware"
     protoapi "github.com/Encedeus/panel/proto/go"
     "github.com/Encedeus/panel/services"
-    "github.com/Encedeus/panel/util"
     "github.com/labstack/echo/v4"
     "github.com/labstack/gommon/log"
     "net/http"
@@ -89,14 +88,14 @@ func (AuthController) handleUserSignIn(c echo.Context, db *ent.Client) error {
     }
 
     // generate access and refresh tokens
-    accessToken, refreshToken, err := util.GetTokenPair(tokenData)
+    accessToken, refreshToken, err := services.GetTokenPair(tokenData)
 
     // set refresh token cookie
     c.SetCookie(&http.Cookie{
         Name:     "encedeus_refreshToken",
         Value:    refreshToken,
         Secure:   true,
-        Expires:  time.Now().Add(util.RefreshTokenExpireTime),
+        Expires:  time.Now().Add(services.RefreshTokenExpireTime),
         SameSite: http.SameSiteStrictMode,
         HttpOnly: true,
         Path:     "/",
@@ -109,11 +108,11 @@ func (AuthController) handleUserSignIn(c echo.Context, db *ent.Client) error {
 
 func (AuthController) handleRefreshToken(c echo.Context, _ *ent.Client) error {
     // error safe because of the RefreshJWTAuth middleware
-    token, _ := util.GetRefreshTokenFromCookie(c)
-    _, userData, _ := util.ValidateRefreshJWT(token)
+    token, _ := services.GetRefreshTokenFromCookie(c)
+    _, userData, _ := services.ValidateRefreshJWT(token)
 
     // generate access token
-    accessToken, _ := util.GenerateAccessToken(&protoapi.AccessToken{
+    accessToken, _ := services.GenerateAccessToken(&protoapi.AccessToken{
         Token: &protoapi.Token{
             UserId: userData.Token.UserId,
             Type:   protoapi.TokenType_ACCESS_TOKEN,

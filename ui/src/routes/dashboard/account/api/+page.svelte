@@ -203,13 +203,13 @@
                 </div>
             </Card>
         </div>
-        <div class="w-full h-full">
-            <Card className="w-full h-full" fixedHeight={true} height="md" width="lg">
+        <div>
+            <Card fixedHeight={true} height="md" width="lg">
                 <span class="text-sm" slot="title">
                     API Keys
                 </span>
                 <KeyIcon slot="icon"/>
-                <div class="w-full h-full flex flex-col items-center justify-center gap-4 p-8" slot="content">
+                <div class="flex flex-col items-center justify-center gap-4 p-8" slot="content">
                     {#if apiKeys && apiKeys.length > 0}
                         {#each apiKeys as key}
                             <KeyTab className="flex-grow w-full h-full" id={key.id} key={key.key}

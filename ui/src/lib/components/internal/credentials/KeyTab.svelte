@@ -51,9 +51,9 @@
         </div>
     </div>
     <div class="flex items-center gap-6">
-        <div class="flex-col justify-center items-center">
-            <div class="absolute left-2/3 -translate-y-5">
-                <div bind:this={notification} class="flex flex-col gap-0 justify-center items-center top-24">
+        <div class="flex-col justify-center items-center relative">
+            <div class="absolute left-[46.875%] -translate-y-6">
+                <div bind:this={notification} class="flex flex-col gap-0 justify-center items-center">
                     <div class="absolute w-40 h-6 bg-indigo-500 rounded-md text-xs text-white font-semibold flex justify-center items-center">
                         <span>Copied to clipboard</span>
                     </div>
@@ -63,7 +63,7 @@
             </div>
             <span class="rounded-xl bg-indigo-950 text-white text-sm py-1.5 px-7 cursor-pointer flex"
                   on:click={copyKeyToClipboard} on:keydown={copyKeyToClipboard} role="button"
-                  tabindex="0">{key?.slice(0, 24) + "..."}</span>
+                  tabindex="0">{key?.slice(0, 24)}...</span>
         </div>
         <span class="hover:cursor-pointer" on:click={onDelete} on:keydown={onDelete} role="button" tabindex="0">
             <TrashCanIcon height={34} width={34}/>

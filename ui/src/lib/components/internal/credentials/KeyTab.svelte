@@ -32,6 +32,7 @@
     }
 
     const dispatch = createEventDispatcher();
+
     function onDelete() {
         dispatch("delete", {
             keyId: id,
@@ -39,7 +40,7 @@
     }
 </script>
 
-<div class="flex items-center justify-between py-4 px-6 bg-indigo-900 rounded-xl {className}">
+<div class="flex items-center justify-between h-[4.5rem] px-6 bg-indigo-900 rounded-xl {className}">
     <div class="flex items-center justify-center gap-3">
         <KeyIcon height={34} width={34}/>
         <div class="flex flex-col items-start justify-center">
@@ -51,14 +52,16 @@
     </div>
     <div class="flex items-center gap-6">
         <div class="flex-col justify-center items-center">
-            <div bind:this={notification} class="flex flex-col gap-0 justify-center items-center absolute top-20 left-[59.4%]">
-                <div class="w-40 h-6 bg-indigo-500 rounded-md text-xs text-white font-semibold flex justify-center items-center">
-                    <span>Copied to clipboard</span>
-                </div>
-                <span class="relative w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-b-8 border-b-indigo-500 rotate-180">
+            <div class="absolute left-2/3 -translate-y-5">
+                <div bind:this={notification} class="flex flex-col gap-0 justify-center items-center top-24">
+                    <div class="absolute w-40 h-6 bg-indigo-500 rounded-md text-xs text-white font-semibold flex justify-center items-center">
+                        <span>Copied to clipboard</span>
+                    </div>
+                    <span class="relative w-0 h-0 top-4 border-l-8 border-l-transparent border-r-8 border-r-transparent border-b-8 border-b-indigo-500 rotate-180">
                 </span>
+                </div>
             </div>
-            <span class="rounded-xl bg-indigo-950 text-white text-sm py-1.5 px-7 cursor-pointer"
+            <span class="rounded-xl bg-indigo-950 text-white text-sm py-1.5 px-7 cursor-pointer flex"
                   on:click={copyKeyToClipboard} on:keydown={copyKeyToClipboard} role="button"
                   tabindex="0">{key?.slice(0, 24) + "..."}</span>
         </div>

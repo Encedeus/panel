@@ -40,7 +40,7 @@ export async function isUserSignedIn(): Promise<boolean> {
 }
 
 export async function getSignedInUser(): Promise<User> {
-    let user = User.create();
+    let user: User | undefined = User.create();
     const unsubscribe = userStore.subscribe(v => user = v);
     if (user) {
         return user;
@@ -76,6 +76,7 @@ export function saveAccessToken(accessToken: string) {
 
 export async function signOut(): Promise<void> {
     saveAccessToken("");
+    userStore.set(undefined);
     await api.authService.signOut();
     await goto("/auth/signin");
 }

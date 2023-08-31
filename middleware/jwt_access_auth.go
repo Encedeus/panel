@@ -2,9 +2,9 @@ package middleware
 
 import (
     "context"
-    "errors"
     "github.com/Encedeus/panel/ent"
     "github.com/Encedeus/panel/ent/apikey"
+    protoapi "github.com/Encedeus/panel/proto/go"
     "github.com/Encedeus/panel/services"
     "github.com/google/uuid"
     "github.com/labstack/echo/v4"
@@ -34,37 +34,33 @@ func AccessJWTAuth(db *ent.Client, next echo.HandlerFunc) echo.HandlerFunc {
         ctx := c.Request().Context()
         token := services.GetTokenFromHeader(c)
 
-        isValid, apiKey, err := services.ValidateAccountAPIKey(token)
-        if err != nil && !errors.Is(err, services.ErrInvalidTokenType) {
-            return c.JSON(http.StatusUnauthorized, echo.Map{
-                "message": "unauthorised",
-            })
-        }
+        isValid, apiKey, _ := services.ValidateAccessJWT(token)
         if isValid {
-            _, err := db.ApiKey.Query().Where(apikey.KeyEQ(token)).First(ctx)
-            if err != nil {
-                return c.JSON(http.StatusUnauthorized, echo.Map{
-                    "message": "unauthorised",
-                })
+            if apiKey.Type == protoapi.TokenType_ACCOUNT_API_KEY {
+                keyData, err := db.ApiKey.Query().Where(apikey.KeyEQ(token)).First(ctx)
+                if err != nil {
+                    return c.JSON(http.StatusUnauthorized, echo.Map{
+                        "message": "unauthorised",
+                    })
+                }
+
+                ip := strings.Split(c.Request().RemoteAddr, ":")[0]
+                if keyData.IPAddresses != nil && len(strings.TrimSpace(keyData.IPAddresses[0])) > 0 && !slices.Contains(keyData.IPAddresses, ip) {
+                    return c.JSON(http.StatusForbidden, echo.Map{
+                        "message": "access from this IP address not allowed",
+                    })
+                }
             }
 
-            ip := strings.Split(c.Request().RemoteAddr, ":")[0]
-            if apiKey.IpAddresses != nil && len(apiKey.IpAddresses[0]) > 0 && !slices.Contains(apiKey.IpAddresses, ip) {
-                return c.JSON(http.StatusUnauthorized, echo.Map{
-                    "message": "unauthorised",
-                })
-            }
+            c.SetRequest(c.Request().WithContext(ContextWithIDFromAccess(ctx, services.TokenClaims{
+                Token: apiKey,
+            })))
+
+            return next(c)
         }
 
-        isValid, accessToken, err := services.ValidateAccessJWT(token)
-        if err != nil && !errors.Is(err, services.ErrInvalidTokenType) {
-            return c.JSON(http.StatusUnauthorized, echo.Map{
-                "message": "unauthorised",
-            })
-        }
-
-        c.SetRequest(c.Request().WithContext(ContextWithIDFromAccess(ctx, accessToken)))
-
-        return next(c)
+        return c.JSON(http.StatusUnauthorized, echo.Map{
+            "message": "unauthorised",
+        })
     }
 }

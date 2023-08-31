@@ -2,8 +2,6 @@
     import Button from "$lib/components/generic/Button.svelte";
     import Modal from "$lib/components/generic/AlertModal.svelte";
     import { createEventDispatcher } from "svelte";
-    import { api } from "$lib/services/api";
-    import type { AccountApiKey } from "@encedeus/js-api";
 
     export let open = false;
     export let description = "";

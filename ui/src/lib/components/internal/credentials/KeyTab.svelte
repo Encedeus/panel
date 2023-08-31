@@ -54,7 +54,7 @@
                         <span>Copied to clipboard</span>
                     </div>
                     <span class="relative w-0 h-0 top-4 border-l-8 border-l-transparent border-r-8 border-r-transparent border-b-8 border-b-indigo-500 rotate-180">
-                </span>
+                    </span>
                 </div>
             </div>
             <span class="rounded-xl bg-indigo-950 text-white text-sm py-1.5 px-7 cursor-pointer flex"

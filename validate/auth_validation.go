@@ -47,9 +47,9 @@ func IsEmail(email string) bool {
 }
 
 func IsPassword(password string) bool {
-    if len(password) > 64 || len(password) < 8 {
-        return false
-    }
+    // if len(password) > 64 || len(password) < 8 {
+    //     return false
+    // }
 
     p := bluemonday.StrictPolicy()
     if s := p.Sanitize(password); s != password {

@@ -317,6 +317,11 @@ func handleChangePassword(c echo.Context, db *ent.Client) error {
 
     _, err = services.ChangeUserPassword(ctx, db, req)
     if err != nil {
+        if errors.Is(err, services.ErrOldPasswordDoesNotMatch) {
+            return c.JSON(http.StatusForbidden, echo.Map{
+                "message": services.ErrOldPasswordDoesNotMatch.Error(),
+            })
+        }
         if services.IsValidationError(err) {
             return c.JSON(http.StatusBadRequest, echo.Map{
                 "message": err.Error(),

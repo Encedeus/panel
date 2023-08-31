@@ -2,7 +2,10 @@ package validate
 
 import (
     "github.com/microcosm-cc/bluemonday"
+    "net/http"
     "net/mail"
+    "strings"
+    "time"
 )
 
 func IsUsername(username string) bool {
@@ -20,8 +23,27 @@ func IsUsername(username string) bool {
 
 func IsEmail(email string) bool {
     _, err := mail.ParseAddress(email)
+    if err != nil {
+        return false
+    }
 
-    return err == nil
+    domain := strings.Split(email, "@")[1]
+    cli := http.Client{
+        Timeout: 5 * time.Second,
+    }
+
+    ch := make(chan error, 1)
+    defer close(ch)
+    go func() {
+        _, err = cli.Get("http://" + domain)
+        ch <- err
+    }()
+
+    if <-ch != nil {
+        return false
+    }
+
+    return true
 }
 
 func IsPassword(password string) bool {

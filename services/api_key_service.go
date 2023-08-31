@@ -71,13 +71,13 @@ func DeleteAccountAPIKey(ctx context.Context, db *ent.Client, req *protoapi.Acco
     return resp, nil
 }
 
-func FindAccountAPIKeysByUserID(ctx context.Context, db *ent.Client, req *protoapi.AccountAPIkeyFindManyByUserRequest) (resp *protoapi.AccountAPIkeyFindManyResponse, err error) {
+func FindAccountAPIKeysByUserID(ctx context.Context, db *ent.Client, req *protoapi.AccountAPIKeyFindManyByUserRequest) (resp *protoapi.AccountAPIKeyFindManyResponse, err error) {
     apiKeys, err := db.ApiKey.Query().Where(apikey.UserIDEQ(proto.ProtoUUIDToUUID(req.UserId))).Order(apikey.ByCreatedAt(sql.OrderDesc())).All(ctx)
     if err != nil {
         return nil, err
     }
 
-    resp = &protoapi.AccountAPIkeyFindManyResponse{}
+    resp = &protoapi.AccountAPIKeyFindManyResponse{}
     resp.AccountApiKeys = make([]*protoapi.AccountAPIKey, len(apiKeys))
     for i, apiKey := range apiKeys {
         resp.AccountApiKeys[i] = proto.EntAccountAPIKeyToProtoKey(apiKey)

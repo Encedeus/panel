@@ -2,10 +2,6 @@
     import KeyIcon from "$lib/components/heroicons/KeyIcon.svelte";
     import TrashCanIcon from "$lib/components/heroicons/TrashCanIcon.svelte";
     import { createEventDispatcher, onMount } from "svelte";
-    import ConfirmationModal from "$lib/components/internal/credentials/ConfirmationModal.svelte";
-    import { api } from "$lib/services/api";
-    import type { AccountApiKey } from "@encedeus/js-api";
-    import type { SvelteHTMLElements } from "svelte/elements";
 
     export let name: string;
     export let key: string;
@@ -40,7 +36,7 @@
     }
 </script>
 
-<div class="flex items-center justify-between h-[4.5rem] px-6 bg-indigo-900 rounded-xl {className}">
+<div class="flex items-center justify-between py-5 px-6 bg-indigo-900 rounded-xl {className}">
     <div class="flex items-center justify-center gap-3">
         <KeyIcon height={34} width={34}/>
         <div class="flex flex-col items-start justify-center">

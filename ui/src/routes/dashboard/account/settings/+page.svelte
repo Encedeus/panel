@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
     import Card from "$lib/components/generic/Card.svelte";
     import KeyIcon from "$lib/components/heroicons/KeyIcon.svelte";
     import CardHeader from "$lib/components/generic/CardHeader.svelte";
@@ -9,10 +9,19 @@
     import IdIcon from "$lib/components/heroicons/IdIcon.svelte";
     import MailIcon from "$lib/components/heroicons/MailIcon.svelte";
     import AccountChangeDetailModal from "$lib/components/internal/account/AccountChangeDetailModal.svelte";
+    import { onMount } from "svelte";
+    import { getSignedInUser } from "$lib/services/auth_service.js";
+    import type { User } from "@encedeus/js-api";
 
     let changePasswordModalOpen = false;
     let changeUsernameModalOpen = false;
     let changeEmailModalOpen = false;
+
+    let user: User;
+
+    onMount(async () => {
+        user = await getSignedInUser();
+    });
 </script>
 
 <main class="p-10 flex flex-col items-center">
@@ -27,13 +36,13 @@
                 </span>
                 <AccountIcon height={26} slot="icon" width={26}/>
                 <div class="w-full h-full flex flex-col gap-3 items-center justify-between py-5 px-6" slot="content">
-                    <AccountDetailTab on:change={() => changeUsernameModalOpen = true} label="Username" value="OptimusePrime">
+                    <AccountDetailTab on:change={() => changeUsernameModalOpen = true} label="Username" value={user?.name}>
                         <IdIcon height={32} slot="icon" width={32}/>
                     </AccountDetailTab>
-                    <AccountDetailTab on:change={() => changeEmailModalOpen = true} label="E-Mail" value="optimuseprime@optimuseprime.com">
+                    <AccountDetailTab on:change={() => changeEmailModalOpen = true} label="E-Mail" value={user?.email}>
                         <MailIcon height={32} slot="icon" width={32}/>
                     </AccountDetailTab>
-                    <AccountDetailTab on:change={() => changePasswordModalOpen = true} label="Password" value={new Array("1245678910".length).fill("*").join("")}>
+                    <AccountDetailTab on:change={() => changePasswordModalOpen = true} label="Password" value={new Array(12).fill("*").join("")}>
                         <KeyIcon height={32} slot="icon" width={32}/>
                     </AccountDetailTab>
                 </div>

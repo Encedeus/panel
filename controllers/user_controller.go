@@ -1,6 +1,7 @@
 package controllers
 
 import (
+    "errors"
     "fmt"
     "github.com/Encedeus/panel/config"
     "github.com/Encedeus/panel/ent"
@@ -12,6 +13,7 @@ import (
     "github.com/google/uuid"
     "github.com/labstack/echo/v4"
     "github.com/labstack/gommon/log"
+    "google.golang.org/protobuf/encoding/protojson"
     "io"
     "net/http"
     "os"
@@ -247,7 +249,7 @@ func handleSetPfp(c echo.Context, db *ent.Client) error {
 
 func handleDeleteUser(c echo.Context, db *ent.Client) error {
     ctx := c.Request().Context()
-    authUUID, _ := middleware.IDFromRefreshContext(ctx)
+    authUUID, _ := middleware.IDFromAccessContext(ctx)
 
     // check permissions
     if !services.DoesUserHavePermission(ctx, db, "delete_user", authUUID) {
@@ -292,12 +294,128 @@ func handleDeleteUser(c echo.Context, db *ent.Client) error {
 
 func handleChangePassword(c echo.Context, db *ent.Client) error {
     ctx := c.Request().Context()
+    authUUID, _ := middleware.IDFromAccessContext(ctx)
+
+    // TODO: add ability for an application API key to change any user's information
+
+    bytes := make([]byte, c.Request().ContentLength)
+    _, err := c.Request().Body.Read(bytes)
+    if err != nil {
+        return c.JSON(http.StatusBadRequest, echo.Map{
+            "message": "bad request",
+        })
+    }
+
+    req := new(protoapi.UserChangePasswordRequest)
+    err = protojson.Unmarshal(bytes, req)
+    if err != nil {
+        return c.JSON(http.StatusBadRequest, echo.Map{
+            "message": err.Error(),
+        })
+    }
+    req.UserId = proto.UUIDToProtoUUID(authUUID)
+
+    _, err = services.ChangeUserPassword(ctx, db, req)
+    if err != nil {
+        if services.IsValidationError(err) {
+            return c.JSON(http.StatusBadRequest, echo.Map{
+                "message": err.Error(),
+            })
+        }
+        if errors.Is(err, services.ErrUserNotFound) {
+            return c.JSON(http.StatusNotFound, echo.Map{
+                "message": err.Error(),
+            })
+        }
+
+        log.Errorf("uncaught error changing password: %v", err)
+
+        return c.JSON(http.StatusInternalServerError, echo.Map{
+            "message": "internal server error",
+        })
+    }
+
+    return c.NoContent(http.StatusOK)
 }
 
 func handleChangeEmail(c echo.Context, db *ent.Client) error {
     ctx := c.Request().Context()
+    authUUID, _ := middleware.IDFromAccessContext(ctx)
+
+    // TODO: add ability for an application API key to change any user's information
+
+    bytes := make([]byte, c.Request().ContentLength)
+    _, err := c.Request().Body.Read(bytes)
+    if err != nil {
+        return c.JSON(http.StatusBadRequest, echo.Map{
+            "message": "bad request",
+        })
+    }
+
+    req := new(protoapi.UserChangeEmailRequest)
+    err = protojson.Unmarshal(bytes, req)
+    if err != nil {
+        return c.JSON(http.StatusBadRequest, echo.Map{
+            "message": err.Error(),
+        })
+    }
+    req.UserId = proto.UUIDToProtoUUID(authUUID)
+
+    _, err = services.ChangeUserEmail(ctx, db, req)
+    if err != nil {
+        if services.IsValidationError(err) {
+            return c.JSON(http.StatusBadRequest, echo.Map{
+                "message": err.Error(),
+            })
+        }
+
+        log.Errorf("uncaught error changing email: %v", err)
+
+        return c.JSON(http.StatusInternalServerError, echo.Map{
+            "message": "internal server error",
+        })
+    }
+
+    return c.NoContent(http.StatusOK)
 }
 
 func handleChangeUsername(c echo.Context, db *ent.Client) error {
     ctx := c.Request().Context()
+    authUUID, _ := middleware.IDFromAccessContext(ctx)
+
+    // TODO: add ability for an application API key to change any user's information
+
+    bytes := make([]byte, c.Request().ContentLength)
+    _, err := c.Request().Body.Read(bytes)
+    if err != nil {
+        return c.JSON(http.StatusBadRequest, echo.Map{
+            "message": "bad request",
+        })
+    }
+
+    req := new(protoapi.UserChangeUsernameRequest)
+    err = protojson.Unmarshal(bytes, req)
+    if err != nil {
+        return c.JSON(http.StatusBadRequest, echo.Map{
+            "message": err.Error(),
+        })
+    }
+    req.UserId = proto.UUIDToProtoUUID(authUUID)
+
+    _, err = services.ChangeUsername(ctx, db, req)
+    if err != nil {
+        if services.IsValidationError(err) {
+            return c.JSON(http.StatusBadRequest, echo.Map{
+                "message": err.Error(),
+            })
+        }
+
+        log.Errorf("uncaught error changing username: %v", err)
+
+        return c.JSON(http.StatusInternalServerError, echo.Map{
+            "message": "internal server error",
+        })
+    }
+
+    return c.NoContent(http.StatusOK)
 }

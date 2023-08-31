@@ -37,21 +37,21 @@ func AccessJWTAuth(db *ent.Client, next echo.HandlerFunc) echo.HandlerFunc {
         isValid, apiKey, err := services.ValidateAccountAPIKey(token)
         if err != nil && !errors.Is(err, services.ErrInvalidTokenType) {
             return c.JSON(http.StatusUnauthorized, echo.Map{
-                "message": "unauthorised1",
+                "message": "unauthorised",
             })
         }
         if isValid {
             _, err := db.ApiKey.Query().Where(apikey.KeyEQ(token)).First(ctx)
             if err != nil {
                 return c.JSON(http.StatusUnauthorized, echo.Map{
-                    "message": "unauthorised2",
+                    "message": "unauthorised",
                 })
             }
 
             ip := strings.Split(c.Request().RemoteAddr, ":")[0]
             if apiKey.IpAddresses != nil && len(apiKey.IpAddresses[0]) > 0 && !slices.Contains(apiKey.IpAddresses, ip) {
                 return c.JSON(http.StatusUnauthorized, echo.Map{
-                    "message": "unauthorised3",
+                    "message": "unauthorised",
                 })
             }
         }
@@ -59,7 +59,7 @@ func AccessJWTAuth(db *ent.Client, next echo.HandlerFunc) echo.HandlerFunc {
         isValid, accessToken, err := services.ValidateAccessJWT(token)
         if err != nil && !errors.Is(err, services.ErrInvalidTokenType) {
             return c.JSON(http.StatusUnauthorized, echo.Map{
-                "message": "unauthorised4",
+                "message": "unauthorised",
             })
         }
 

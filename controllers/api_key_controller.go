@@ -111,7 +111,7 @@ func (APIKeyController) handleFindAccountAPIKeysByUserId(c echo.Context, db *ent
         })
     }
 
-    resp, err := services.FindAccountAPIKeysByUserID(ctx, db, &protoapi.AccountAPIkeyFindManyByUserRequest{
+    resp, err := services.FindAccountAPIKeysByUserID(ctx, db, &protoapi.AccountAPIKeyFindManyByUserRequest{
         UserId: proto.UUIDToProtoUUID(userId),
     })
     if err != nil {

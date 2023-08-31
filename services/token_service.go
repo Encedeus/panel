@@ -129,12 +129,16 @@ func ValidateAccessJWT(tokenString string) (bool, TokenClaims, error) {
         return false, claims, nil
     }
 
-    _, err := jwt.ParseWithClaims(tokenString, &claims, func(token *jwt.Token) (interface{}, error) {
+    token, err := jwt.ParseWithClaims(tokenString, &claims, func(token *jwt.Token) (interface{}, error) {
         if token.Method != jwt.SigningMethodHS256 {
             return nil, errors.New("unexpected jwt signing method")
         }
         return []byte(config.Config.Auth.JWTSecretAccess), nil
     })
+
+    if _, ok := token.Claims.(TokenClaims); !ok {
+        return false, TokenClaims{}, ErrInvalidTokenType
+    }
 
     if claims.Token.Type != protoapi.TokenType_ACCESS_TOKEN {
         return false, TokenClaims{}, ErrInvalidTokenType

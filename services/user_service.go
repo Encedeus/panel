@@ -12,6 +12,7 @@ import (
     "github.com/Encedeus/panel/validate"
     "github.com/google/uuid"
     "golang.org/x/exp/slices"
+    "strings"
     "time"
 )
 
@@ -42,10 +43,6 @@ func CreateUser(ctx context.Context, db *ent.Client, req *protoapi.UserCreateReq
         SetPassword(hashing.HashPassword(req.Password)).
         SetRoleID(roleId).
         Save(ctx)
-
-    if err != nil {
-        return nil, err
-    }
 
     resp := &protoapi.UserCreateResponse{
         User: proto.EntUserEntityToProtoUser(userData),
@@ -216,7 +213,92 @@ func IsUserUpdated(ctx context.Context, db *ent.Client, userId uuid.UUID, issued
 }
 
 func ChangeUsername(ctx context.Context, db *ent.Client, req *protoapi.UserChangeUsernameRequest) (*protoapi.UserChangeUsernameResponse, error) {
-    if !validate.IsUsername(req.NewUsername) {
+    if !validate.IsUsername(req.NewUsername) || !validate.IsUsername(req.OldUsername) {
         return nil, ErrInvalidUsername
     }
+    if !validate.IsUserId(ctx, db, req.UserId) {
+        return nil, ErrInvalidUserId
+    }
+
+    userData, err := db.User.Query().Where(user.IDEQ(proto.ProtoUUIDToUUID(req.UserId))).Select(user.FieldName).First(ctx)
+    if err != nil {
+        if ent.IsNotFound(err) {
+            return nil, ErrUserNotFound
+        }
+
+        return nil, err
+    }
+    if userData.Name != strings.TrimSpace(req.OldUsername) {
+        return nil, ErrOldUsernameDoesNotMatch
+    }
+    if userData.Name == strings.TrimSpace(req.NewUsername) {
+        return nil, ErrNewUsernameEqualsOld
+    }
+
+    _, err = userData.Update().SetName(req.NewUsername).Save(ctx)
+    if err != nil {
+        return nil, err
+    }
+
+    resp := &protoapi.UserChangeUsernameResponse{}
+
+    return resp, nil
+}
+
+func ChangeUserPassword(ctx context.Context, db *ent.Client, req *protoapi.UserChangePasswordRequest) (*protoapi.UserChangePasswordResponse, error) {
+    if !validate.IsPassword(req.NewPassword) || !validate.IsPassword(req.OldPassword) {
+        return nil, ErrInvalidPassword
+    }
+    if !validate.IsUserId(ctx, db, req.UserId) {
+        return nil, ErrInvalidUserId
+    }
+
+    userData, err := db.User.Query().Where(user.IDEQ(proto.ProtoUUIDToUUID(req.UserId))).Select(user.FieldPassword).First(ctx)
+    if err != nil {
+        return nil, err
+    }
+    if !hashing.VerifyHash(req.OldPassword, userData.Password) {
+        return nil, ErrOldPasswordDoesNotMatch
+    }
+    if userData.Password == hashing.HashPassword(req.NewPassword) {
+        return nil, ErrNewPasswordEqualsOld
+    }
+
+    _, err = userData.Update().SetPassword(hashing.HashPassword(req.NewPassword)).Save(ctx)
+    if err != nil {
+        return nil, err
+    }
+
+    resp := &protoapi.UserChangePasswordResponse{}
+
+    return resp, nil
+}
+
+func ChangeUserEmail(ctx context.Context, db *ent.Client, req *protoapi.UserChangeEmailRequest) (*protoapi.UserChangeEmailResponse, error) {
+    if !validate.IsEmail(req.NewEmail) || !validate.IsEmail(req.OldEmail) {
+        return nil, ErrInvalidEmail
+    }
+    if !validate.IsUserId(ctx, db, req.UserId) {
+        return nil, ErrInvalidUserId
+    }
+
+    userData, err := db.User.Query().Where(user.IDEQ(proto.ProtoUUIDToUUID(req.UserId))).Select(user.FieldEmail).First(ctx)
+    if err != nil {
+        return nil, err
+    }
+    if userData.Email != strings.TrimSpace(req.OldEmail) {
+        return nil, ErrOldEmailDoesNotMatch
+    }
+    if userData.Email == strings.TrimSpace(req.NewEmail) {
+        return nil, ErrNewEmailEqualsOld
+    }
+
+    _, err = userData.Update().SetEmail(req.NewEmail).Save(ctx)
+    if err != nil {
+        return nil, err
+    }
+
+    resp := &protoapi.UserChangeEmailResponse{}
+
+    return resp, nil
 }

@@ -46,6 +46,15 @@ func (uc UserController) registerRoutes(srv *Server) {
         userEndpoint.DELETE("/:id", func(c echo.Context) error {
             return handleDeleteUser(c, srv.DB)
         })
+        userEndpoint.PATCH("/:id/changePassword", func(c echo.Context) error {
+            return handleChangePassword(c, srv.DB)
+        })
+        userEndpoint.PATCH("/:id/changeUsername", func(c echo.Context) error {
+            return handleChangeUsername(c, srv.DB)
+        })
+        userEndpoint.PATCH("/:id/changeEmail", func(c echo.Context) error {
+            return handleChangeEmail(c, srv.DB)
+        })
     }
 }
 
@@ -279,4 +288,16 @@ func handleDeleteUser(c echo.Context, db *ent.Client) error {
     }
 
     return c.NoContent(http.StatusOK)
+}
+
+func handleChangePassword(c echo.Context, db *ent.Client) error {
+    ctx := c.Request().Context()
+}
+
+func handleChangeEmail(c echo.Context, db *ent.Client) error {
+    ctx := c.Request().Context()
+}
+
+func handleChangeUsername(c echo.Context, db *ent.Client) error {
+    ctx := c.Request().Context()
 }

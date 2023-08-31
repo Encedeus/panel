@@ -508,6 +508,285 @@ func (x *UserFindManyResponse) GetUsers() []*User {
 	return nil
 }
 
+type UserChangePasswordRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	OldPassword string `protobuf:"bytes,1,opt,name=old_password,json=oldPassword,proto3" json:"old_password,omitempty"`
+	NewPassword string `protobuf:"bytes,2,opt,name=new_password,json=newPassword,proto3" json:"new_password,omitempty"`
+}
+
+func (x *UserChangePasswordRequest) Reset() {
+	*x = UserChangePasswordRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_user_api_proto_msgTypes[9]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *UserChangePasswordRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserChangePasswordRequest) ProtoMessage() {}
+
+func (x *UserChangePasswordRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_user_api_proto_msgTypes[9]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserChangePasswordRequest.ProtoReflect.Descriptor instead.
+func (*UserChangePasswordRequest) Descriptor() ([]byte, []int) {
+	return file_user_api_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *UserChangePasswordRequest) GetOldPassword() string {
+	if x != nil {
+		return x.OldPassword
+	}
+	return ""
+}
+
+func (x *UserChangePasswordRequest) GetNewPassword() string {
+	if x != nil {
+		return x.NewPassword
+	}
+	return ""
+}
+
+type UserChangePasswordResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *UserChangePasswordResponse) Reset() {
+	*x = UserChangePasswordResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_user_api_proto_msgTypes[10]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *UserChangePasswordResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserChangePasswordResponse) ProtoMessage() {}
+
+func (x *UserChangePasswordResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_user_api_proto_msgTypes[10]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserChangePasswordResponse.ProtoReflect.Descriptor instead.
+func (*UserChangePasswordResponse) Descriptor() ([]byte, []int) {
+	return file_user_api_proto_rawDescGZIP(), []int{10}
+}
+
+type UserChangeUsernameRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	OldUsername string `protobuf:"bytes,1,opt,name=old_username,json=oldUsername,proto3" json:"old_username,omitempty"`
+	NewUsername string `protobuf:"bytes,2,opt,name=new_username,json=newUsername,proto3" json:"new_username,omitempty"`
+}
+
+func (x *UserChangeUsernameRequest) Reset() {
+	*x = UserChangeUsernameRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_user_api_proto_msgTypes[11]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *UserChangeUsernameRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserChangeUsernameRequest) ProtoMessage() {}
+
+func (x *UserChangeUsernameRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_user_api_proto_msgTypes[11]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserChangeUsernameRequest.ProtoReflect.Descriptor instead.
+func (*UserChangeUsernameRequest) Descriptor() ([]byte, []int) {
+	return file_user_api_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *UserChangeUsernameRequest) GetOldUsername() string {
+	if x != nil {
+		return x.OldUsername
+	}
+	return ""
+}
+
+func (x *UserChangeUsernameRequest) GetNewUsername() string {
+	if x != nil {
+		return x.NewUsername
+	}
+	return ""
+}
+
+type UserChangeUsernameResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *UserChangeUsernameResponse) Reset() {
+	*x = UserChangeUsernameResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_user_api_proto_msgTypes[12]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *UserChangeUsernameResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserChangeUsernameResponse) ProtoMessage() {}
+
+func (x *UserChangeUsernameResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_user_api_proto_msgTypes[12]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserChangeUsernameResponse.ProtoReflect.Descriptor instead.
+func (*UserChangeUsernameResponse) Descriptor() ([]byte, []int) {
+	return file_user_api_proto_rawDescGZIP(), []int{12}
+}
+
+type UserChangeEmailRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	OldEmail string `protobuf:"bytes,1,opt,name=old_email,json=oldEmail,proto3" json:"old_email,omitempty"`
+	NewEmail string `protobuf:"bytes,2,opt,name=new_email,json=newEmail,proto3" json:"new_email,omitempty"`
+}
+
+func (x *UserChangeEmailRequest) Reset() {
+	*x = UserChangeEmailRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_user_api_proto_msgTypes[13]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *UserChangeEmailRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserChangeEmailRequest) ProtoMessage() {}
+
+func (x *UserChangeEmailRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_user_api_proto_msgTypes[13]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserChangeEmailRequest.ProtoReflect.Descriptor instead.
+func (*UserChangeEmailRequest) Descriptor() ([]byte, []int) {
+	return file_user_api_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *UserChangeEmailRequest) GetOldEmail() string {
+	if x != nil {
+		return x.OldEmail
+	}
+	return ""
+}
+
+func (x *UserChangeEmailRequest) GetNewEmail() string {
+	if x != nil {
+		return x.NewEmail
+	}
+	return ""
+}
+
+type UserChangeEmailResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *UserChangeEmailResponse) Reset() {
+	*x = UserChangeEmailResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_user_api_proto_msgTypes[14]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *UserChangeEmailResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserChangeEmailResponse) ProtoMessage() {}
+
+func (x *UserChangeEmailResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_user_api_proto_msgTypes[14]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserChangeEmailResponse.ProtoReflect.Descriptor instead.
+func (*UserChangeEmailResponse) Descriptor() ([]byte, []int) {
+	return file_user_api_proto_rawDescGZIP(), []int{14}
+}
+
 var File_user_api_proto protoreflect.FileDescriptor
 
 var file_user_api_proto_rawDesc = []byte{
@@ -555,9 +834,32 @@ var file_user_api_proto_rawDesc = []byte{
 	0x75, 0x73, 0x65, 0x72, 0x22, 0x33, 0x0a, 0x14, 0x55, 0x73, 0x65, 0x72, 0x46, 0x69, 0x6e, 0x64,
 	0x4d, 0x61, 0x6e, 0x79, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x1b, 0x0a, 0x05,
 	0x75, 0x73, 0x65, 0x72, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x05, 0x2e, 0x55, 0x73,
-	0x65, 0x72, 0x52, 0x05, 0x75, 0x73, 0x65, 0x72, 0x73, 0x42, 0x0f, 0x5a, 0x0d, 0x2e, 0x2f, 0x67,
-	0x6f, 0x3b, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x61, 0x70, 0x69, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74,
-	0x6f, 0x33,
+	0x65, 0x72, 0x52, 0x05, 0x75, 0x73, 0x65, 0x72, 0x73, 0x22, 0x61, 0x0a, 0x19, 0x55, 0x73, 0x65,
+	0x72, 0x43, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x50, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x52,
+	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x21, 0x0a, 0x0c, 0x6f, 0x6c, 0x64, 0x5f, 0x70, 0x61,
+	0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0b, 0x6f, 0x6c,
+	0x64, 0x50, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x12, 0x21, 0x0a, 0x0c, 0x6e, 0x65, 0x77,
+	0x5f, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52,
+	0x0b, 0x6e, 0x65, 0x77, 0x50, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x22, 0x1c, 0x0a, 0x1a,
+	0x55, 0x73, 0x65, 0x72, 0x43, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x50, 0x61, 0x73, 0x73, 0x77, 0x6f,
+	0x72, 0x64, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x61, 0x0a, 0x19, 0x55, 0x73,
+	0x65, 0x72, 0x43, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x55, 0x73, 0x65, 0x72, 0x6e, 0x61, 0x6d, 0x65,
+	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x21, 0x0a, 0x0c, 0x6f, 0x6c, 0x64, 0x5f, 0x75,
+	0x73, 0x65, 0x72, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0b, 0x6f,
+	0x6c, 0x64, 0x55, 0x73, 0x65, 0x72, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x21, 0x0a, 0x0c, 0x6e, 0x65,
+	0x77, 0x5f, 0x75, 0x73, 0x65, 0x72, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09,
+	0x52, 0x0b, 0x6e, 0x65, 0x77, 0x55, 0x73, 0x65, 0x72, 0x6e, 0x61, 0x6d, 0x65, 0x22, 0x1c, 0x0a,
+	0x1a, 0x55, 0x73, 0x65, 0x72, 0x43, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x55, 0x73, 0x65, 0x72, 0x6e,
+	0x61, 0x6d, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x52, 0x0a, 0x16, 0x55,
+	0x73, 0x65, 0x72, 0x43, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x45, 0x6d, 0x61, 0x69, 0x6c, 0x52, 0x65,
+	0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x1b, 0x0a, 0x09, 0x6f, 0x6c, 0x64, 0x5f, 0x65, 0x6d, 0x61,
+	0x69, 0x6c, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x6f, 0x6c, 0x64, 0x45, 0x6d, 0x61,
+	0x69, 0x6c, 0x12, 0x1b, 0x0a, 0x09, 0x6e, 0x65, 0x77, 0x5f, 0x65, 0x6d, 0x61, 0x69, 0x6c, 0x18,
+	0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x6e, 0x65, 0x77, 0x45, 0x6d, 0x61, 0x69, 0x6c, 0x22,
+	0x19, 0x0a, 0x17, 0x55, 0x73, 0x65, 0x72, 0x43, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x45, 0x6d, 0x61,
+	0x69, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x42, 0x0f, 0x5a, 0x0d, 0x2e, 0x2f,
+	0x67, 0x6f, 0x3b, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x61, 0x70, 0x69, 0x62, 0x06, 0x70, 0x72, 0x6f,
+	0x74, 0x6f, 0x33,
 }
 
 var (
@@ -572,30 +874,36 @@ func file_user_api_proto_rawDescGZIP() []byte {
 	return file_user_api_proto_rawDescData
 }
 
-var file_user_api_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_user_api_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_user_api_proto_goTypes = []interface{}{
-	(*UserCreateRequest)(nil),    // 0: UserCreateRequest
-	(*UserCreateResponse)(nil),   // 1: UserCreateResponse
-	(*UserUpdateRequest)(nil),    // 2: UserUpdateRequest
-	(*UserUpdateResponse)(nil),   // 3: UserUpdateResponse
-	(*UserDeleteRequest)(nil),    // 4: UserDeleteRequest
-	(*UserDeleteResponse)(nil),   // 5: UserDeleteResponse
-	(*UserFindOneRequest)(nil),   // 6: UserFindOneRequest
-	(*UserFindOneResponse)(nil),  // 7: UserFindOneResponse
-	(*UserFindManyResponse)(nil), // 8: UserFindManyResponse
-	(*UUID)(nil),                 // 9: UUID
-	(*User)(nil),                 // 10: User
+	(*UserCreateRequest)(nil),          // 0: UserCreateRequest
+	(*UserCreateResponse)(nil),         // 1: UserCreateResponse
+	(*UserUpdateRequest)(nil),          // 2: UserUpdateRequest
+	(*UserUpdateResponse)(nil),         // 3: UserUpdateResponse
+	(*UserDeleteRequest)(nil),          // 4: UserDeleteRequest
+	(*UserDeleteResponse)(nil),         // 5: UserDeleteResponse
+	(*UserFindOneRequest)(nil),         // 6: UserFindOneRequest
+	(*UserFindOneResponse)(nil),        // 7: UserFindOneResponse
+	(*UserFindManyResponse)(nil),       // 8: UserFindManyResponse
+	(*UserChangePasswordRequest)(nil),  // 9: UserChangePasswordRequest
+	(*UserChangePasswordResponse)(nil), // 10: UserChangePasswordResponse
+	(*UserChangeUsernameRequest)(nil),  // 11: UserChangeUsernameRequest
+	(*UserChangeUsernameResponse)(nil), // 12: UserChangeUsernameResponse
+	(*UserChangeEmailRequest)(nil),     // 13: UserChangeEmailRequest
+	(*UserChangeEmailResponse)(nil),    // 14: UserChangeEmailResponse
+	(*UUID)(nil),                       // 15: UUID
+	(*User)(nil),                       // 16: User
 }
 var file_user_api_proto_depIdxs = []int32{
-	9,  // 0: UserCreateRequest.role_id:type_name -> UUID
-	10, // 1: UserCreateResponse.user:type_name -> User
-	9,  // 2: UserUpdateRequest.user_id:type_name -> UUID
-	9,  // 3: UserUpdateRequest.role_id:type_name -> UUID
-	10, // 4: UserUpdateResponse.user:type_name -> User
-	9,  // 5: UserDeleteRequest.user_id:type_name -> UUID
-	9,  // 6: UserFindOneRequest.user_id:type_name -> UUID
-	10, // 7: UserFindOneResponse.user:type_name -> User
-	10, // 8: UserFindManyResponse.users:type_name -> User
+	15, // 0: UserCreateRequest.role_id:type_name -> UUID
+	16, // 1: UserCreateResponse.user:type_name -> User
+	15, // 2: UserUpdateRequest.user_id:type_name -> UUID
+	15, // 3: UserUpdateRequest.role_id:type_name -> UUID
+	16, // 4: UserUpdateResponse.user:type_name -> User
+	15, // 5: UserDeleteRequest.user_id:type_name -> UUID
+	15, // 6: UserFindOneRequest.user_id:type_name -> UUID
+	16, // 7: UserFindOneResponse.user:type_name -> User
+	16, // 8: UserFindManyResponse.users:type_name -> User
 	9,  // [9:9] is the sub-list for method output_type
 	9,  // [9:9] is the sub-list for method input_type
 	9,  // [9:9] is the sub-list for extension type_name
@@ -719,6 +1027,78 @@ func file_user_api_proto_init() {
 				return nil
 			}
 		}
+		file_user_api_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*UserChangePasswordRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_user_api_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*UserChangePasswordResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_user_api_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*UserChangeUsernameRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_user_api_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*UserChangeUsernameResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_user_api_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*UserChangeEmailRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_user_api_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*UserChangeEmailResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -726,7 +1106,7 @@ func file_user_api_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_user_api_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   9,
+			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

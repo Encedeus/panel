@@ -88,7 +88,7 @@ type AccountAPIKeyCreateResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	AccountApiKey *AccountAPIKey `protobuf:"bytes,2,opt,name=account_api_key,json=accountApiKey,proto3" json:"account_api_key,omitempty"`
+	AccountApiKey *AccountAPIKey `protobuf:"bytes,1,opt,name=account_api_key,json=accountApiKey,proto3" json:"account_api_key,omitempty"`
 }
 
 func (x *AccountAPIKeyCreateResponse) Reset() {
@@ -267,7 +267,7 @@ type AccountAPIKeyFindOneResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	AccountApiKey *AccountAPIKey `protobuf:"bytes,2,opt,name=account_api_key,json=accountApiKey,proto3" json:"account_api_key,omitempty"`
+	AccountApiKey *AccountAPIKey `protobuf:"bytes,1,opt,name=account_api_key,json=accountApiKey,proto3" json:"account_api_key,omitempty"`
 }
 
 func (x *AccountAPIKeyFindOneResponse) Reset() {
@@ -309,7 +309,7 @@ func (x *AccountAPIKeyFindOneResponse) GetAccountApiKey() *AccountAPIKey {
 	return nil
 }
 
-type AccountAPIkeyFindManyByUserRequest struct {
+type AccountAPIKeyFindManyByUserRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
@@ -317,8 +317,8 @@ type AccountAPIkeyFindManyByUserRequest struct {
 	UserId *UUID `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 }
 
-func (x *AccountAPIkeyFindManyByUserRequest) Reset() {
-	*x = AccountAPIkeyFindManyByUserRequest{}
+func (x *AccountAPIKeyFindManyByUserRequest) Reset() {
+	*x = AccountAPIKeyFindManyByUserRequest{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_api_key_api_proto_msgTypes[6]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -326,13 +326,13 @@ func (x *AccountAPIkeyFindManyByUserRequest) Reset() {
 	}
 }
 
-func (x *AccountAPIkeyFindManyByUserRequest) String() string {
+func (x *AccountAPIKeyFindManyByUserRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*AccountAPIkeyFindManyByUserRequest) ProtoMessage() {}
+func (*AccountAPIKeyFindManyByUserRequest) ProtoMessage() {}
 
-func (x *AccountAPIkeyFindManyByUserRequest) ProtoReflect() protoreflect.Message {
+func (x *AccountAPIKeyFindManyByUserRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_api_key_api_proto_msgTypes[6]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -344,28 +344,28 @@ func (x *AccountAPIkeyFindManyByUserRequest) ProtoReflect() protoreflect.Message
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use AccountAPIkeyFindManyByUserRequest.ProtoReflect.Descriptor instead.
-func (*AccountAPIkeyFindManyByUserRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use AccountAPIKeyFindManyByUserRequest.ProtoReflect.Descriptor instead.
+func (*AccountAPIKeyFindManyByUserRequest) Descriptor() ([]byte, []int) {
 	return file_api_key_api_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *AccountAPIkeyFindManyByUserRequest) GetUserId() *UUID {
+func (x *AccountAPIKeyFindManyByUserRequest) GetUserId() *UUID {
 	if x != nil {
 		return x.UserId
 	}
 	return nil
 }
 
-type AccountAPIkeyFindManyResponse struct {
+type AccountAPIKeyFindManyResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	AccountApiKeys []*AccountAPIKey `protobuf:"bytes,2,rep,name=account_api_keys,json=accountApiKeys,proto3" json:"account_api_keys,omitempty"`
+	AccountApiKeys []*AccountAPIKey `protobuf:"bytes,1,rep,name=account_api_keys,json=accountApiKeys,proto3" json:"account_api_keys,omitempty"`
 }
 
-func (x *AccountAPIkeyFindManyResponse) Reset() {
-	*x = AccountAPIkeyFindManyResponse{}
+func (x *AccountAPIKeyFindManyResponse) Reset() {
+	*x = AccountAPIKeyFindManyResponse{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_api_key_api_proto_msgTypes[7]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -373,13 +373,13 @@ func (x *AccountAPIkeyFindManyResponse) Reset() {
 	}
 }
 
-func (x *AccountAPIkeyFindManyResponse) String() string {
+func (x *AccountAPIKeyFindManyResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*AccountAPIkeyFindManyResponse) ProtoMessage() {}
+func (*AccountAPIKeyFindManyResponse) ProtoMessage() {}
 
-func (x *AccountAPIkeyFindManyResponse) ProtoReflect() protoreflect.Message {
+func (x *AccountAPIKeyFindManyResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_api_key_api_proto_msgTypes[7]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -391,12 +391,12 @@ func (x *AccountAPIkeyFindManyResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use AccountAPIkeyFindManyResponse.ProtoReflect.Descriptor instead.
-func (*AccountAPIkeyFindManyResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use AccountAPIKeyFindManyResponse.ProtoReflect.Descriptor instead.
+func (*AccountAPIKeyFindManyResponse) Descriptor() ([]byte, []int) {
 	return file_api_key_api_proto_rawDescGZIP(), []int{7}
 }
 
-func (x *AccountAPIkeyFindManyResponse) GetAccountApiKeys() []*AccountAPIKey {
+func (x *AccountAPIKeyFindManyResponse) GetAccountApiKeys() []*AccountAPIKey {
 	if x != nil {
 		return x.AccountApiKeys
 	}
@@ -420,7 +420,7 @@ var file_api_key_api_proto_rawDesc = []byte{
 	0x73, 0x73, 0x65, 0x73, 0x22, 0x55, 0x0a, 0x1b, 0x41, 0x63, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x41,
 	0x50, 0x49, 0x4b, 0x65, 0x79, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f,
 	0x6e, 0x73, 0x65, 0x12, 0x36, 0x0a, 0x0f, 0x61, 0x63, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x5f, 0x61,
-	0x70, 0x69, 0x5f, 0x6b, 0x65, 0x79, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0e, 0x2e, 0x41,
+	0x70, 0x69, 0x5f, 0x6b, 0x65, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0e, 0x2e, 0x41,
 	0x63, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x41, 0x50, 0x49, 0x4b, 0x65, 0x79, 0x52, 0x0d, 0x61, 0x63,
 	0x63, 0x6f, 0x75, 0x6e, 0x74, 0x41, 0x70, 0x69, 0x4b, 0x65, 0x79, 0x22, 0x33, 0x0a, 0x1a, 0x41,
 	0x63, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x41, 0x50, 0x49, 0x4b, 0x65, 0x79, 0x44, 0x65, 0x6c, 0x65,
@@ -434,17 +434,17 @@ var file_api_key_api_proto_rawDesc = []byte{
 	0x44, 0x52, 0x02, 0x69, 0x64, 0x22, 0x56, 0x0a, 0x1c, 0x41, 0x63, 0x63, 0x6f, 0x75, 0x6e, 0x74,
 	0x41, 0x50, 0x49, 0x4b, 0x65, 0x79, 0x46, 0x69, 0x6e, 0x64, 0x4f, 0x6e, 0x65, 0x52, 0x65, 0x73,
 	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x36, 0x0a, 0x0f, 0x61, 0x63, 0x63, 0x6f, 0x75, 0x6e, 0x74,
-	0x5f, 0x61, 0x70, 0x69, 0x5f, 0x6b, 0x65, 0x79, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0e,
+	0x5f, 0x61, 0x70, 0x69, 0x5f, 0x6b, 0x65, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0e,
 	0x2e, 0x41, 0x63, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x41, 0x50, 0x49, 0x4b, 0x65, 0x79, 0x52, 0x0d,
 	0x61, 0x63, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x41, 0x70, 0x69, 0x4b, 0x65, 0x79, 0x22, 0x44, 0x0a,
-	0x22, 0x41, 0x63, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x41, 0x50, 0x49, 0x6b, 0x65, 0x79, 0x46, 0x69,
+	0x22, 0x41, 0x63, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x41, 0x50, 0x49, 0x4b, 0x65, 0x79, 0x46, 0x69,
 	0x6e, 0x64, 0x4d, 0x61, 0x6e, 0x79, 0x42, 0x79, 0x55, 0x73, 0x65, 0x72, 0x52, 0x65, 0x71, 0x75,
 	0x65, 0x73, 0x74, 0x12, 0x1e, 0x0a, 0x07, 0x75, 0x73, 0x65, 0x72, 0x5f, 0x69, 0x64, 0x18, 0x01,
 	0x20, 0x01, 0x28, 0x0b, 0x32, 0x05, 0x2e, 0x55, 0x55, 0x49, 0x44, 0x52, 0x06, 0x75, 0x73, 0x65,
 	0x72, 0x49, 0x64, 0x22, 0x59, 0x0a, 0x1d, 0x41, 0x63, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x41, 0x50,
-	0x49, 0x6b, 0x65, 0x79, 0x46, 0x69, 0x6e, 0x64, 0x4d, 0x61, 0x6e, 0x79, 0x52, 0x65, 0x73, 0x70,
+	0x49, 0x4b, 0x65, 0x79, 0x46, 0x69, 0x6e, 0x64, 0x4d, 0x61, 0x6e, 0x79, 0x52, 0x65, 0x73, 0x70,
 	0x6f, 0x6e, 0x73, 0x65, 0x12, 0x38, 0x0a, 0x10, 0x61, 0x63, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x5f,
-	0x61, 0x70, 0x69, 0x5f, 0x6b, 0x65, 0x79, 0x73, 0x18, 0x02, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x0e,
+	0x61, 0x70, 0x69, 0x5f, 0x6b, 0x65, 0x79, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x0e,
 	0x2e, 0x41, 0x63, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x41, 0x50, 0x49, 0x4b, 0x65, 0x79, 0x52, 0x0e,
 	0x61, 0x63, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x41, 0x70, 0x69, 0x4b, 0x65, 0x79, 0x73, 0x42, 0x0f,
 	0x5a, 0x0d, 0x2e, 0x2f, 0x67, 0x6f, 0x3b, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x61, 0x70, 0x69, 0x62,
@@ -471,8 +471,8 @@ var file_api_key_api_proto_goTypes = []interface{}{
 	(*AccountAPIKeyDeleteResponse)(nil),        // 3: AccountAPIKeyDeleteResponse
 	(*AccountAPIKeyFindOneRequest)(nil),        // 4: AccountAPIKeyFindOneRequest
 	(*AccountAPIKeyFindOneResponse)(nil),       // 5: AccountAPIKeyFindOneResponse
-	(*AccountAPIkeyFindManyByUserRequest)(nil), // 6: AccountAPIkeyFindManyByUserRequest
-	(*AccountAPIkeyFindManyResponse)(nil),      // 7: AccountAPIkeyFindManyResponse
+	(*AccountAPIKeyFindManyByUserRequest)(nil), // 6: AccountAPIKeyFindManyByUserRequest
+	(*AccountAPIKeyFindManyResponse)(nil),      // 7: AccountAPIKeyFindManyResponse
 	(*UUID)(nil),                               // 8: UUID
 	(*AccountAPIKey)(nil),                      // 9: AccountAPIKey
 }
@@ -482,8 +482,8 @@ var file_api_key_api_proto_depIdxs = []int32{
 	8, // 2: AccountAPIKeyDeleteRequest.id:type_name -> UUID
 	8, // 3: AccountAPIKeyFindOneRequest.id:type_name -> UUID
 	9, // 4: AccountAPIKeyFindOneResponse.account_api_key:type_name -> AccountAPIKey
-	8, // 5: AccountAPIkeyFindManyByUserRequest.user_id:type_name -> UUID
-	9, // 6: AccountAPIkeyFindManyResponse.account_api_keys:type_name -> AccountAPIKey
+	8, // 5: AccountAPIKeyFindManyByUserRequest.user_id:type_name -> UUID
+	9, // 6: AccountAPIKeyFindManyResponse.account_api_keys:type_name -> AccountAPIKey
 	7, // [7:7] is the sub-list for method output_type
 	7, // [7:7] is the sub-list for method input_type
 	7, // [7:7] is the sub-list for extension type_name
@@ -572,7 +572,7 @@ func file_api_key_api_proto_init() {
 			}
 		}
 		file_api_key_api_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*AccountAPIkeyFindManyByUserRequest); i {
+			switch v := v.(*AccountAPIKeyFindManyByUserRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -584,7 +584,7 @@ func file_api_key_api_proto_init() {
 			}
 		}
 		file_api_key_api_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*AccountAPIkeyFindManyResponse); i {
+			switch v := v.(*AccountAPIKeyFindManyResponse); i {
 			case 0:
 				return &v.state
 			case 1:

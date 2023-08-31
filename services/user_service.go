@@ -214,3 +214,9 @@ func IsUserUpdated(ctx context.Context, db *ent.Client, userId uuid.UUID, issued
 
     return false, nil
 }
+
+func ChangeUsername(ctx context.Context, db *ent.Client, req *protoapi.UserChangeUsernameRequest) (*protoapi.UserChangeUsernameResponse, error) {
+    if !validate.IsUsername(req.NewUsername) {
+        return nil, ErrInvalidUsername
+    }
+}

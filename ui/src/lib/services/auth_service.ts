@@ -28,6 +28,7 @@ export async function getAccessToken(): Promise<string | undefined> {
 
     const payload = decodeJwt(accessToken);
 
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     if (Date.now() >= payload.exp! * 1000) {
         return await refreshAccessToken();
     }

@@ -11,164 +11,60 @@
     import AccountChangeDetailModal from "$lib/components/internal/account/AccountChangeDetailModal.svelte";
     import { onMount } from "svelte";
     import { getSignedInUser } from "$lib/services/auth_service.js";
-    import {
-        User,
-        UserChangeUsernameRequest,
-        UserChangeEmailRequest,
-        UserChangePasswordRequest,
-        isWrongPasswordError
-    } from "@encedeus/js-api";
-    import { api } from "$lib/services/api";
+    import { User } from "@encedeus/js-api";
     import Toast from "$lib/components/generic/Toast.svelte";
+    import type { AccountChangeDetails } from "$lib/services/change_details_service";
+    import {
+        AccountChangeDetailService,
+        AccountChangeEmailService,
+        AccountChangePasswordService,
+        AccountChangeUsernameService,
+        subjectAsUppercase,
+        UserInformation
+    } from "$lib/services/change_details_service";
 
-    let changePasswordModalOpen = false;
-    let changeUsernameModalOpen = false;
-    let changeEmailModalOpen = false;
-
-    let user: User;
-
-    let oldUsername = "";
-    let oldUsernameError = false;
-    let newUsername = "";
-    let newUsernameError = false;
-    let confirmNewUsername = "";
-    let confirmNewUsernameError = false;
-
-    let oldEmail = "";
-    let oldEmailError = false;
-    let newEmail = "";
-    let newEmailError = false;
-    let confirmNewEmail = "";
-    let confirmNewEmailError = false;
-
-    let oldPassword = "";
-    let oldPasswordError = false;
-    let newPassword = "";
-    let newPasswordError = false;
-    let confirmNewPassword = "";
-    let confirmNewPasswordError = false;
+    let user = User.create();
 
     let notification: string | null | undefined = undefined;
     let notificationMode: "ok" | "error" = "ok";
+
+    let changeModalOpen = false;
+    let changeDetails: AccountChangeDetails = {};
+    let oldSubjectError = false;
+    let newSubjectError = false;
+    let confirmNewSubjectError = false;
 
     onMount(async () => {
         user = await getSignedInUser();
     });
 
-    async function onChangeUsername() {
-        if (!oldUsername.trim() || !newUsername.trim() || !confirmNewUsername.trim()) {
-            errorNotification("You must fill all fields");
-            return;
+
+    async function onChangeDetail() {
+        let service: AccountChangeDetailService;
+
+        switch (changeDetails.subject) {
+        case UserInformation.EMAIL:
+            service = new AccountChangeEmailService(user, changeDetails);
+            break;
+        case UserInformation.PASSWORD:
+            service = new AccountChangePasswordService(user, changeDetails);
+            break;
+        case UserInformation.USERNAME:
+            service = new AccountChangeUsernameService(user, changeDetails);
+            break;
         }
-        if (oldUsername.trim() !== user.name) {
-            oldUsernameError = true;
-            errorNotification("Old username is wrong");
-            return;
-        }
-        if (newUsername.trim() === oldUsername.trim()) {
-            newUsernameError = true;
-            errorNotification("New username must be different");
-            return;
-        }
-        if (newUsername !== confirmNewUsername) {
-            newUsernameError = true;
-            confirmNewUsernameError = true;
-            errorNotification("Conflict in new username");
+
+        const resp = await service.changeDetail();
+        if (resp?.isInvalid) {
+            errorNotification(resp?.error);
             return;
         }
 
-        const { error } = await api.usersService.changeUsername(UserChangeUsernameRequest.create({
-            userId: user.id,
-            oldUsername,
-            newUsername,
-        }));
-        if (error) {
-            errorNotification("Something went wrong");
-            return;
-        }
+        user[changeDetails?.subject] = changeDetails.newSubject;
 
-        user.name = newUsername;
-        changeUsernameModalOpen = false;
-        oldUsername = "";
-        newUsername = "";
-        confirmNewUsername = "";
-
-        okNotification("Changed username successfully");
-    }
-
-    async function onChangeEmail() {
-        if (!oldEmail.trim() || !newEmail.trim() || !confirmNewEmail.trim()) {
-            errorNotification("You must fill all fields");
-            return;
-        }
-        if (oldEmail.trim() !== user.email) {
-            oldEmailError = true;
-            errorNotification("Old email is wrong");
-            return;
-        }
-        if (newEmail.trim() === oldEmail.trim()) {
-            newEmailError = true;
-            errorNotification("New email must be different");
-            return;
-        }
-        if (newEmail !== confirmNewEmail) {
-            newEmailError = true;
-            confirmNewEmailError = true;
-            errorNotification("Conflict in new email");
-            return;
-        }
-
-        const { error } = await api.usersService.changeEmail(UserChangeEmailRequest.create({
-            userId: user.id,
-            oldEmail,
-            newEmail,
-        }));
-        if (error) {
-            errorNotification("Something went wrong");
-            return;
-        }
-
-        user.email = newEmail;
-        changeEmailModalOpen = false;
-        oldEmail = "";
-        newEmail = "";
-        confirmNewEmail = "";
-
-        okNotification("Changed email successfully");
-    }
-
-    async function onChangePassword() {
-        if (!oldPassword.trim() || !newPassword.trim() || !confirmNewPassword.trim()) {
-            errorNotification("You must fill all fields");
-            return;
-        }
-        if (newPassword !== confirmNewPassword) {
-            newPasswordError = true;
-            confirmNewPasswordError = true;
-            errorNotification("Conflict in new password");
-            return;
-        }
-
-        const { error } = await api.usersService.changePassword(UserChangePasswordRequest.create({
-            userId: user.id,
-            oldPassword,
-            newPassword,
-        }));
-        if (error) {
-            if (isWrongPasswordError(error)) {
-                errorNotification("Old password is wrong");
-                return;
-            }
-            errorNotification("Something went wrong");
-            return;
-        }
-
-        changePasswordModalOpen = false;
-        oldPassword = "";
-        newPassword = "";
-        confirmNewPassword = "";
-
-        okNotification("Changed password successfully");
+        changeModalOpen = false;
+        okNotification(`Changed ${subjectAsUppercase(changeDetails?.subject)} successfully`);
+        changeDetails = {};
     }
 
     function errorNotification(notify: string, timeout?: boolean) {
@@ -190,15 +86,10 @@
     }
 
     function clearNotification() {
-        oldUsernameError = false;
-        newUsernameError = false;
-        confirmNewUsernameError = false;
-        oldEmailError = false;
-        newEmailError = false;
-        confirmNewEmailError = false;
-        oldPasswordError = false;
-        newPasswordError = false;
-        confirmNewPasswordError = false;
+        oldSubjectError = false;
+        newSubjectError = false;
+        confirmNewSubjectError = false;
+
         if (notification) {
             notification = "";
             notificationMode = "error";
@@ -218,13 +109,25 @@
                 </span>
                 <AccountIcon height={26} slot="icon" width={26}/>
                 <div class="w-full h-full flex flex-col gap-3 items-center justify-between py-5 px-6" slot="content">
-                    <AccountDetailTab on:change={() => changeUsernameModalOpen = true} label="Username" value={user?.name}>
+                    <AccountDetailTab bind:value={user.name} label="Username" on:change={() => {
+                        changeModalOpen = true;
+                        changeDetails.subject = UserInformation.USERNAME;
+                        changeDetails = changeDetails;
+                    }}>
                         <IdIcon height={32} slot="icon" width={32}/>
                     </AccountDetailTab>
-                    <AccountDetailTab on:change={() => changeEmailModalOpen = true} label="E-Mail" value={user?.email}>
+                    <AccountDetailTab bind:value={user.email} label="E-Mail" on:change={() => {
+                        changeModalOpen = true;
+                        changeDetails.subject = UserInformation.EMAIL;
+                        changeDetails = changeDetails;
+                    }}>
                         <MailIcon height={32} slot="icon" width={32}/>
                     </AccountDetailTab>
-                    <AccountDetailTab on:change={() => changePasswordModalOpen = true} label="Password" value={new Array(12).fill("*").join("")}>
+                    <AccountDetailTab label="Password" on:change={() => {
+                        changeModalOpen = true;
+                        changeDetails.subject = UserInformation.PASSWORD;
+                        changeDetails = changeDetails;
+                    }} value={new Array(12).fill("*").join("")}>
                         <KeyIcon height={32} slot="icon" width={32}/>
                     </AccountDetailTab>
                 </div>
@@ -250,9 +153,11 @@
         </aside>
     {/if}
 
-    <AccountChangeDetailModal bind:oldSubjectError={oldPasswordError} bind:newSubjectError={newPasswordError} bind:confirmNewSubjectError={confirmNewPasswordError} on:cancel={() => { changePasswordModalOpen = false; clearNotification(); }} on:input={clearNotification} on:save={onChangePassword} bind:oldSubject={oldPassword} bind:newSubject={newPassword} bind:confirmNewSubject={confirmNewPassword} subject="Password" open={changePasswordModalOpen}/>
-    <AccountChangeDetailModal bind:oldSubjectError={oldUsernameError} bind:newSubjectError={newUsernameError} bind:confirmNewSubjectError={confirmNewUsernameError} on:cancel={() => { changeUsernameModalOpen = false; clearNotification(); }} on:input={clearNotification} on:save={onChangeUsername} bind:oldSubject={oldUsername} bind:newSubject={newUsername} bind:confirmNewSubject={confirmNewUsername} subject="Username" open={changeUsernameModalOpen}/>
-    <AccountChangeDetailModal bind:oldSubjectError={oldEmailError} bind:newSubjectError={newEmailError} bind:confirmNewSubjectError={confirmNewEmailError} on:cancel={() => { changeEmailModalOpen = false; clearNotification(); }} on:input={clearNotification} on:save={onChangeEmail} bind:oldSubject={oldEmail} bind:newSubject={newEmail} bind:confirmNewSubject={confirmNewEmail} subject="E-Mail" open={changeEmailModalOpen}/>
+    <AccountChangeDetailModal bind:confirmNewSubjectError={confirmNewSubjectError} bind:newSubjectError={newSubjectError}
+                              bind:oldSubjectError={oldSubjectError}
+                              on:cancel={() => { changeModalOpen = false; clearNotification(); }}
+                              on:input={clearNotification} on:save={onChangeDetail} open={changeModalOpen}
+                              subjectDetails={changeDetails}/>
 </main>
 
 <style lang="postcss">

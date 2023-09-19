@@ -32,7 +32,7 @@
     function onDelete() {
         dispatch("delete", {
             keyId: id,
-        })
+        });
     }
 </script>
 
@@ -49,7 +49,7 @@
     <div class="flex items-center gap-6">
         <div class="flex-col justify-center items-center relative">
             <div class="absolute left-[46.875%] -translate-y-6">
-                <div bind:this={notification} class="flex flex-col gap-0 justify-center items-center">
+                <div bind:this={notification} class="flex flex-col gap-0 justify-center items-center opacity-0">
                     <div class="absolute w-40 h-6 bg-indigo-500 rounded-md text-xs text-white font-semibold flex justify-center items-center">
                         <span>Copied to clipboard</span>
                     </div>

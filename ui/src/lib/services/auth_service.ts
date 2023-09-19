@@ -64,10 +64,19 @@ export async function getSignedInUser(): Promise<User> {
     if (error) {
         await signOut();
     }
-    userStore.set(response?.user!);
+    userStore.set(response?.user);
 
     unsubscribe();
     return user;
+}
+
+export function getUserIdFromToken(token: string): string | null {
+    const payload = decodeJwt(token);
+
+    const userId = (payload["user_id"] as any)?.["value"] as string;
+
+    // console.log("User Id:" + userId);
+    return userId;
 }
 
 export function saveAccessToken(accessToken: string) {

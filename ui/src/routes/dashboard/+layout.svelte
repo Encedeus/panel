@@ -4,6 +4,12 @@
     import SideBarTab from "$lib/components/internal/nav/SideBarTab.svelte";
     import CloudIcon from "$lib/components/heroicons/CloudIcon.svelte";
     import SideBarTabLabel from "$lib/components/internal/nav/SideBarTabLabel.svelte";
+    import { onMount } from "svelte";
+    import { getSignedInUser } from "$lib/services/auth_service.ts";
+
+    onMount(async () => {
+        await getSignedInUser();
+    });
 </script>
 
 <TabEnvironment>

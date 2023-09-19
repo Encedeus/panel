@@ -29,13 +29,14 @@ func (uc UserController) registerRoutes(srv *Server) {
     {
         userEndpoint.Static("/pfp", config.Config.CDN.Directory)
 
+        userEndpoint.GET("/:id", func(c echo.Context) error {
+            return handleFindUser(c, srv.DB)
+        })
+
         userEndpoint.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
             return middleware.AccessJWTAuth(srv.DB, next)
         })
 
-        userEndpoint.GET("/:id", func(c echo.Context) error {
-            return handleFindUser(c, srv.DB)
-        })
         userEndpoint.POST("", func(c echo.Context) error {
             return handleCreateUser(c, srv.DB)
         })

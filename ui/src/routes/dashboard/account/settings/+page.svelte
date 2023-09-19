@@ -9,8 +9,6 @@
     import IdIcon from "$lib/components/heroicons/IdIcon.svelte";
     import MailIcon from "$lib/components/heroicons/MailIcon.svelte";
     import AccountChangeDetailModal from "$lib/components/internal/account/AccountChangeDetailModal.svelte";
-    import { onMount } from "svelte";
-    import { getSignedInUser } from "$lib/services/auth_service.js";
     import { User } from "@encedeus/js-api";
     import Toast from "$lib/components/generic/Toast.svelte";
     import type { AccountChangeDetails } from "$lib/services/change_details_service";
@@ -22,6 +20,9 @@
         subjectAsUppercase,
         UserInformation
     } from "$lib/services/change_details_service";
+    import type { LayoutData } from "./$types";
+    import { fly } from "svelte/transition";
+    import Notification from "$lib/components/generic/Notification.svelte";
 
     let user = User.create();
 
@@ -34,10 +35,8 @@
     let newSubjectError = false;
     let confirmNewSubjectError = false;
 
-    onMount(async () => {
-        user = await getSignedInUser();
-    });
-
+    export let data: LayoutData;
+    $: user = data.user;
 
     async function onChangeDetail() {
         let service: AccountChangeDetailService;
@@ -145,14 +144,8 @@
             </Card>
         </div>
     </div>
-    {#if notification !== undefined}
-        <aside class="absolute left-10 {notification ? 'come-up-animation' : 'come-down-animation'}">
-            <Toast mode={notificationMode} size="md">
-                {notification}
-            </Toast>
-        </aside>
-    {/if}
 
+    <Notification show={notification} {notification} mode={notificationMode}/>
     <AccountChangeDetailModal bind:confirmNewSubjectError={confirmNewSubjectError} bind:newSubjectError={newSubjectError}
                               bind:oldSubjectError={oldSubjectError}
                               on:cancel={() => { changeModalOpen = false; clearNotification(); }}
@@ -160,9 +153,9 @@
                               subjectDetails={changeDetails}/>
 </main>
 
-<style lang="postcss">
+<!--<style lang="postcss">
     :root {
-        --animation-delay: 0.25s;
+        &#45;&#45;animation-delay: 0.25s;
     }
 
     @keyframes come-up {
@@ -184,14 +177,14 @@
     }
 
     .come-up-animation {
-        animation-duration: var(--animation-delay);
+        animation-duration: var(&#45;&#45;animation-delay);
         animation-name: come-up;
         animation-fill-mode: forwards;
     }
 
     .come-down-animation {
-        animation-duration: var(--animation-delay);
+        animation-duration: var(&#45;&#45;animation-delay);
         animation-name: come-down;
         animation-fill-mode: forwards;
     }
-</style>
+</style>-->

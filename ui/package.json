@@ -29,7 +29,7 @@
 		"vite": "^4.3.9"
 	},
 	"dependencies": {
-		"@encedeus/js-api": "^0.0.78",
+		"@encedeus/js-api": "^0.0.81",
 		"dotenv": "^16.3.1",
 		"is-ip": "^5.0.1",
 		"jose": "^4.14.4"

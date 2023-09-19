@@ -10,6 +10,7 @@
     import Button from "$lib/components/generic/Button.svelte";
     import { saveAccessToken } from "$lib/services/auth_service";
     import { goto } from "$app/navigation";
+    import Notification from "$lib/components/generic/Notification.svelte";
 
     let uid = "";
     let password = "";
@@ -84,14 +85,16 @@
         </AuthCard>
     </main>
 
-    {#if errorLabel !== null}
+<!--    {#if errorLabel !== null}
         <aside class="absolute left-10 {errorLabel ? 'come-up-animation' : 'come-down-animation'}">
             <Toast mode="error" size="md">
                 {errorLabel}
             </Toast>
         </aside>
-    {/if}
+    {/if}-->
 </div>
+
+<Notification show={errorLabel} notification={errorLabel} mode="error"/>
 
 
 <style lang="postcss">
@@ -104,7 +107,7 @@
         overflow: hidden;
     }
 
-    :root {
+/*    :root {
         --animation-delay: 0.25s;
     }
 
@@ -136,5 +139,5 @@
         animation-duration: var(--animation-delay);
         animation-name: come-down;
         animation-fill-mode: forwards;
-    }
+    }*/
 </style>

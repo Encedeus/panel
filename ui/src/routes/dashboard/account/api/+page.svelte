@@ -17,10 +17,12 @@
     import {
         AccountAPIKey,
         AccountAPIKeyDeleteRequest,
-        AccountAPIKeyFindManyByUserRequest,
         UUID,
         AccountAPIKeyCreateRequest
     } from "@encedeus/js-api";
+    import type { PageServerData } from "./$types";
+    import { fly } from "svelte/transition";
+    import Notification from "$lib/components/generic/Notification.svelte";
 
     let modalOpen = false;
 
@@ -32,26 +34,17 @@
     let descriptionError = false;
     let ipError = false;
 
-    let apiKeys: AccountAPIKey[] = [];
-
     let candidateForDeletion = "";
 
     let toast: HTMLElement;
 
-    onMount(async () => {
-        const {
-            response,
-            error
-        } = await api.apiKeyService.findAccountApiKeysByUserId(AccountAPIKeyFindManyByUserRequest.create({
-            userId: (await getSignedInUser()).id,
-        }));
-        if (!response || error) {
-            errorNotification("Failed fetching API keys");
-            return;
-        }
+    let apiKeys: AccountAPIKey[] = [];
+    export let data: PageServerData;
+    $: apiKeys = data.apiKeys;
 
-        if (response.accountApiKeys) {
-            apiKeys = response.accountApiKeys;
+    onMount(async () => {
+        if (!apiKeys && apiKeys?.length === 0) {
+            errorNotification("Failed fetching API keys");
         }
     });
 
@@ -135,7 +128,7 @@
             return;
         }
 
-        okNotification("Deleted an API key")
+        okNotification("Deleted an API key");
     }
 
     async function onDelete() {
@@ -161,7 +154,7 @@
         if (timeout) {
             setTimeout(() => {
                 notification = "";
-            }, 2000);
+            }, 1500);
         }
     }
 
@@ -170,7 +163,7 @@
         notificationMode = "ok";
         setTimeout(() => {
             notification = "";
-        }, 2000);
+        }, 1500);
     }
 </script>
 
@@ -214,7 +207,7 @@
                         {#each apiKeys as key}
                             <KeyTab className="flex-grow w-full h-full" id={key.id} key={key.key}
                                     name={key.description}
-                                    on:delete={() => { modalOpen = true; candidateForDeletion = key.id; console.log(key.id) }}/>
+                                    on:delete={() => { modalOpen = true; candidateForDeletion = key.id; console.log(key.id); }}/>
                         {/each}
                     {:else}
                         <CursorArrowRays width={240} height={240}/>
@@ -230,48 +223,7 @@
                        on:proceed={async () => await onDelete()}/>
 </main>
 
-{#if notification !== undefined}
-    <aside class="absolute left-10 {notification ? 'come-up-animation' : 'come-down-animation'}">
-        <Toast bind:this={toast} mode={notificationMode} size="md">
-            {notification}
-        </Toast>
-    </aside>
-{/if}
+<Notification show={notification} {notification} mode={notificationMode}/>
 
 
-<style lang="postcss">
-    :root {
-        --animation-delay: 0.25s;
-    }
-
-    @keyframes come-up {
-        from {
-            @apply -bottom-16;
-        }
-        to {
-            @apply bottom-10 block;
-        }
-    }
-
-    @keyframes come-down {
-        from {
-            @apply bottom-10;
-        }
-        to {
-            @apply -bottom-16 hidden;
-        }
-    }
-
-    .come-up-animation {
-        animation-duration: var(--animation-delay);
-        animation-name: come-up;
-        animation-fill-mode: forwards;
-    }
-
-    .come-down-animation {
-        animation-duration: var(--animation-delay);
-        animation-name: come-down;
-        animation-fill-mode: forwards;
-    }
-</style>
 

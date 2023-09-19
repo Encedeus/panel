@@ -1,8 +1,12 @@
+<script context="module" lang="ts">
+  export type NotificationMode = "error" | "ok" | "warning" | "info";
+</script>
+
 <script lang="ts">
     import CheckmarkIcon from "$lib/components/heroicons/CheckmarkIcon.svelte";
     import ErrorIcon from "$lib/components/heroicons/ErrorIcon.svelte";
 
-    export let mode: "error" | "ok" | "warning" | "info" = "ok";
+    export let mode: NotificationMode = "ok";
     export let label = "";
     export let size: "sm" | "md" | "lg" = "md";
     export let className = "";

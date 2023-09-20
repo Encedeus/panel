@@ -237,6 +237,10 @@ func ChangeUsername(ctx context.Context, db *ent.Client, req *protoapi.UserChang
 
     _, err = userData.Update().SetName(req.NewUsername).Save(ctx)
     if err != nil {
+        if ent.IsConstraintError(err) {
+            return nil, ErrUsernameAlreadyTaken
+        }
+
         return nil, err
     }
 
@@ -295,6 +299,10 @@ func ChangeUserEmail(ctx context.Context, db *ent.Client, req *protoapi.UserChan
 
     _, err = userData.Update().SetEmail(req.NewEmail).Save(ctx)
     if err != nil {
+        if ent.IsConstraintError(err) {
+            return nil, ErrEmailAlreadyTaken
+        }
+        
         return nil, err
     }
 

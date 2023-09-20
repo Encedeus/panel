@@ -21,7 +21,6 @@
         UserInformation
     } from "$lib/services/change_details_service";
     import type { LayoutData } from "./$types";
-    import { fly } from "svelte/transition";
     import Notification from "$lib/components/generic/Notification.svelte";
 
     let user = User.create();

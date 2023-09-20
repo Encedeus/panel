@@ -44,6 +44,7 @@ var (
     ErrOldEmailDoesNotMatch     = NewValidationError("old email does not match current one")
     ErrNewEmailEqualsOld        = NewValidationError("old email equals new one")
     ErrUserNotFound             = errors.New("user not found")
-
-    ErrWrongPassword = errors.New("wrong password")
+    ErrWrongPassword            = errors.New("wrong password")
+    ErrUsernameAlreadyTaken     = NewValidationError("username already taken")
+    ErrEmailAlreadyTaken        = NewValidationError("email already taken")
 )

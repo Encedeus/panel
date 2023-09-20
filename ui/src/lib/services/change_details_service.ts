@@ -83,12 +83,23 @@ export abstract class AccountChangeDetailService {
         };
     }
 
+    protected isAnyError(error: HttpError): AccountChangeDetailResponse | null {
+        if (error) {
+            return {
+                error: error.message,
+                isInvalid: true,
+            };
+        }
+
+        return null;
+    }
+
     protected validatePrefetchDetails(): AccountChangeDetailResponse | null {
         return this.isFieldEmpty() || this.isNewSubjectEqualToOldSubject() || this.isNewSubjectNotEqualToConfirmation();
     }
 
     protected validatePostfetchDetails(error: HttpError): AccountChangeDetailResponse | null {
-        return this.isOldSubjectWrong(error);
+        return this.isOldSubjectWrong(error) || this.isAnyError(error);
     }
 
     protected async sendChangeRequest(): Promise<HttpError | null> {
@@ -97,7 +108,7 @@ export abstract class AccountChangeDetailService {
 
     async changeDetail(): Promise<AccountChangeDetailResponse | null> {
         const prefetchValidateResp = this.validatePrefetchDetails();
-        if (prefetchValidateResp) {
+        if (prefetchValidateResp?.isInvalid) {
             return prefetchValidateResp;
         }
 
@@ -105,7 +116,7 @@ export abstract class AccountChangeDetailService {
 
         if (err) {
             const postfetchValidateResp = this.validatePostfetchDetails(err);
-            if (postfetchValidateResp) {
+            if (postfetchValidateResp?.isInvalid) {
                 return postfetchValidateResp;
             }
         }
@@ -119,6 +130,7 @@ export class AccountChangeEmailService extends AccountChangeDetailService {
         const resp = await api.usersService.changeEmail(UserChangeEmailRequest.create({
             oldEmail: this.details.oldSubject,
             newEmail: this.details.newSubject,
+            userId: this.user.id,
         }));
 
         if (resp.error) {
@@ -134,6 +146,7 @@ export class AccountChangeUsernameService extends AccountChangeDetailService {
         const resp = await api.usersService.changeUsername(UserChangeUsernameRequest.create({
             oldUsername: this.details.oldSubject,
             newUsername: this.details.newSubject,
+            userId: this.user.id,
         }));
 
         if (resp.error) {
@@ -149,6 +162,7 @@ export class AccountChangePasswordService extends AccountChangeDetailService {
         const resp = await api.usersService.changePassword(UserChangePasswordRequest.create({
             oldPassword: this.details.oldSubject,
             newPassword: this.details.newSubject,
+            userId: this.user.id,
         }));
 
         if (resp.error) {

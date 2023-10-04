@@ -2,7 +2,6 @@ package services
 
 import (
     "context"
-    "errors"
     "github.com/Encedeus/panel/ent"
     "github.com/Encedeus/panel/ent/role"
     "github.com/Encedeus/panel/ent/user"
@@ -89,7 +88,7 @@ func UpdateUser(ctx context.Context, db *ent.Client, req *protoapi.UserUpdateReq
     }
 
     if IsUserDeleted(userData) {
-        return nil, errors.New("user deleted")
+        return nil, ErrUserDeleted
     }
 
     if req.Name != "" {
@@ -140,7 +139,7 @@ func DeleteUser(ctx context.Context, db *ent.Client, req *protoapi.UserDeleteReq
     }
 
     if IsUserDeleted(userData) {
-        return nil, errors.New("already deleted")
+        return nil, ErrUserDeleted
     }
 
     userData, err = userData.Update().SetDeletedAt(time.Now()).Save(ctx)
@@ -163,7 +162,7 @@ func FindOneUser(ctx context.Context, db *ent.Client, req *protoapi.UserFindOneR
     }
 
     if IsUserDeleted(userData) {
-        return nil, errors.New("user deleted")
+        return nil, ErrUserDeleted
     }
 
     resp := &protoapi.UserFindOneResponse{
@@ -302,7 +301,7 @@ func ChangeUserEmail(ctx context.Context, db *ent.Client, req *protoapi.UserChan
         if ent.IsConstraintError(err) {
             return nil, ErrEmailAlreadyTaken
         }
-        
+
         return nil, err
     }
 

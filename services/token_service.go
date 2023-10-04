@@ -1,7 +1,6 @@
 package services
 
 import (
-    "errors"
     "github.com/Encedeus/panel/config"
     "github.com/Encedeus/panel/proto"
     protoapi "github.com/Encedeus/panel/proto/go"
@@ -172,7 +171,7 @@ func ValidateRefreshJWT(tokenString string) (bool, TokenClaims, error) {
 
     _, err := jwt.ParseWithClaims(tokenString, &claims, func(token *jwt.Token) (interface{}, error) {
         if token.Method != jwt.SigningMethodHS256 {
-            return nil, errors.New("unexpected jwt signing method")
+            return nil, ErrUnexpectedJWTSigningMethod
         }
         return []byte(config.Config.Auth.JWTSecretRefresh), nil
     })

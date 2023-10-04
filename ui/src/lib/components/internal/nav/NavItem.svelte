@@ -2,7 +2,7 @@
     import { page } from "$app/stores";
     import { createEventDispatcher } from "svelte";
 
-    export let link: string = "";
+    export let link = "";
 
     const dispatch = createEventDispatcher();
     function onClick() {

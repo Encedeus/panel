@@ -3,7 +3,6 @@ package services
 import (
     "context"
     "entgo.io/ent/dialect/sql"
-    "errors"
     "github.com/Encedeus/panel/ent"
     "github.com/Encedeus/panel/ent/apikey"
     "github.com/Encedeus/panel/proto"
@@ -57,7 +56,7 @@ func CreateAccountAPIKey(ctx context.Context, db *ent.Client, req *protoapi.Acco
 
 func DeleteAccountAPIKey(ctx context.Context, db *ent.Client, req *protoapi.AccountAPIKeyDeleteRequest) (resp *protoapi.AccountAPIKeyDeleteResponse, err error) {
     if s := req.Id.Value; strings.TrimSpace(s) == "" {
-        return nil, errors.New("missing API key")
+        return nil, ErrMissingAPIKey
     }
 
     err = db.ApiKey.DeleteOneID(proto.ProtoUUIDToUUID(req.Id)).Exec(ctx)

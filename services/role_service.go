@@ -2,7 +2,6 @@ package services
 
 import (
     "context"
-    "errors"
     "github.com/Encedeus/panel/ent"
     "github.com/Encedeus/panel/ent/role"
     "github.com/Encedeus/panel/proto"
@@ -57,7 +56,7 @@ func UpdateRole(ctx context.Context, db *ent.Client, req *protoapi.RoleUpdateReq
     }
 
     if IsRoleDeleted(roleData) {
-        return nil, errors.New("role deleted")
+        return nil, ErrRoleDeleted
     }
 
     if req.Name != "" {
@@ -104,7 +103,7 @@ func DeleteRole(ctx context.Context, db *ent.Client, req *protoapi.RoleDeleteReq
     }
 
     if IsRoleDeleted(roleData) {
-        return nil, errors.New("already deleted")
+        return nil, ErrRoleDeleted
     }
 
     _, err = roleData.Update().SetDeletedAt(time.Now()).Save(ctx)
@@ -126,7 +125,7 @@ func FindRole(ctx context.Context, db *ent.Client, req *protoapi.RoleFindOneRequ
     }
 
     if IsRoleDeleted(roleData) {
-        return nil, errors.New("role deleted")
+        return nil, ErrRoleDeleted
     }
 
     resp := &protoapi.RoleFindOneResponse{

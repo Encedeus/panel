@@ -13,11 +13,11 @@ export enum UserInformation {
     USERNAME = "name",
 }
 
-export type AccountChangeDetails = {
+export type AccountChangeDetails<T = string> = {
     subject: UserInformation;
-    oldSubject: string;
-    newSubject: string;
-    confirmNewSubject: string;
+    oldSubject: T;
+    newSubject: T;
+    confirmNewSubject: T;
 }
 
 export type AccountChangeDetailResponse = {
@@ -29,12 +29,12 @@ export function subjectAsUppercase(subject: UserInformation): string | undefined
     return subject?.toString().at(0)?.toUpperCase().concat(subject?.slice(1).toLowerCase());
 }
 
-export abstract class AccountChangeDetailService {
+export abstract class AccountChangeDetailService<T = string> {
 
-    constructor(protected user: User, protected details: AccountChangeDetails) {}
+    constructor(protected user: User, protected details: AccountChangeDetails<T>) {}
 
     protected isFieldEmpty(): AccountChangeDetailResponse | null {
-        const isInvalid = !this.details.oldSubject.trim() || !this.details.newSubject.trim() || !this.details.confirmNewSubject.trim();
+        const isInvalid = !this.details.oldSubject || !this.details.newSubject || !this.details.confirmNewSubject;
         if (isInvalid) {
             return {
                 isInvalid: true,

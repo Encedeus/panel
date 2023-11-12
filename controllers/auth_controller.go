@@ -2,9 +2,9 @@ package controllers
 
 import (
     "github.com/Encedeus/panel/ent"
-    "github.com/Encedeus/panel/hashing"
     "github.com/Encedeus/panel/middleware"
     protoapi "github.com/Encedeus/panel/proto/go"
+    "github.com/Encedeus/panel/security"
     "github.com/Encedeus/panel/services"
     "github.com/labstack/echo/v4"
     "github.com/labstack/gommon/log"
@@ -79,7 +79,7 @@ func (AuthController) handleUserSignIn(c echo.Context, db *ent.Client) error {
     }
 
     // check if the password hash is a match
-    auth := hashing.VerifyHash(signInReq.Password, passwordHash)
+    auth := security.VerifyHash(signInReq.Password, passwordHash)
 
     if !auth {
         return c.JSON(http.StatusUnauthorized, echo.Map{

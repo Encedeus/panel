@@ -36,18 +36,15 @@
 
     let candidateForDeletion = "";
 
-    let toast: HTMLElement;
-
     let apiKeys: AccountAPIKey[] = [];
     export let data: PageServerData;
-    $: apiKeys = data.apiKeys;
+    $: apiKeys = data.apiKeys ?? [];
 
     onMount(async () => {
         if (!apiKeys && apiKeys?.length === 0) {
             errorNotification("Failed fetching API keys");
         }
     });
-
 
     function validateInput(): boolean {
         if (!keyDescription) {

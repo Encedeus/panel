@@ -5,9 +5,9 @@ import (
     "github.com/Encedeus/panel/ent"
     "github.com/Encedeus/panel/ent/role"
     "github.com/Encedeus/panel/ent/user"
-    "github.com/Encedeus/panel/hashing"
     "github.com/Encedeus/panel/proto"
     protoapi "github.com/Encedeus/panel/proto/go"
+    "github.com/Encedeus/panel/security"
     "github.com/Encedeus/panel/validate"
     "github.com/google/uuid"
     "golang.org/x/exp/slices"
@@ -39,7 +39,7 @@ func CreateUser(ctx context.Context, db *ent.Client, req *protoapi.UserCreateReq
     userData, err := db.User.Create().
         SetName(req.Name).
         SetEmail(req.Email).
-        SetPassword(hashing.HashPassword(req.Password)).
+        SetPassword(security.HashPassword(req.Password)).
         SetRoleID(roleId).
         Save(ctx)
 
@@ -260,14 +260,14 @@ func ChangeUserPassword(ctx context.Context, db *ent.Client, req *protoapi.UserC
     if err != nil {
         return nil, err
     }
-    if !hashing.VerifyHash(req.OldPassword, userData.Password) {
+    if !security.VerifyHash(req.OldPassword, userData.Password) {
         return nil, ErrOldPasswordDoesNotMatch
     }
-    if userData.Password == hashing.HashPassword(req.NewPassword) {
+    if userData.Password == security.HashPassword(req.NewPassword) {
         return nil, ErrNewPasswordEqualsOld
     }
 
-    _, err = userData.Update().SetPassword(hashing.HashPassword(req.NewPassword)).Save(ctx)
+    _, err = userData.Update().SetPassword(security.HashPassword(req.NewPassword)).Save(ctx)
     if err != nil {
         return nil, err
     }

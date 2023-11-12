@@ -7,7 +7,7 @@ import (
     "github.com/Encedeus/panel/ent"
     "github.com/Encedeus/panel/ent/role"
     "github.com/Encedeus/panel/ent/user"
-    "github.com/Encedeus/panel/hashing"
+    "github.com/Encedeus/panel/security"
     "github.com/labstack/gommon/log"
     _ "github.com/lib/pq"
 )
@@ -65,7 +65,7 @@ func createSuperuser(db *ent.Client, ctx context.Context) {
 
     _, err = db.User.Create().
         SetName("admin").
-        SetPassword(hashing.HashPassword("admin")).
+        SetPassword(security.HashPassword("admin")).
         SetEmail("admin@admin.com").
         SetRole(userRole).
         Save(ctx)

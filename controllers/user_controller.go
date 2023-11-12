@@ -5,10 +5,10 @@ import (
     "fmt"
     "github.com/Encedeus/panel/config"
     "github.com/Encedeus/panel/ent"
-    "github.com/Encedeus/panel/hashing"
     "github.com/Encedeus/panel/middleware"
     "github.com/Encedeus/panel/proto"
     protoapi "github.com/Encedeus/panel/proto/go"
+    "github.com/Encedeus/panel/security"
     "github.com/Encedeus/panel/services"
     "github.com/google/uuid"
     "github.com/labstack/echo/v4"
@@ -176,7 +176,7 @@ func handleUpdateUser(c echo.Context, db *ent.Client) error {
         })
     }
 
-    updateReq.Password = hashing.HashPassword(updateReq.Password)
+    updateReq.Password = security.HashPassword(updateReq.Password)
     resp, err := services.UpdateUser(ctx, db, updateReq)
 
     // error checking

@@ -2,8 +2,10 @@ package module
 
 import (
     "archive/zip"
+    "context"
     "errors"
     "fmt"
+    "github.com/filecoin-project/go-jsonrpc"
     "github.com/hashicorp/hcl/v2/hclsimple"
     "github.com/labstack/gommon/log"
     "github.com/second-state/WasmEdge-go/wasmedge"
@@ -21,100 +23,9 @@ import (
     "time"
 )
 
-// func InitWasmtime() {
-//     dir, err := os.MkdirTemp("", "out")
-//     check(err)
-//     defer os.RemoveAll(dir)
-//     stdoutPath := filepath.Join(dir, "stdout")
-//
-//     engine := wasmtime.NewEngine()
-//
-//     module, err := wasmtime.NewModuleFromFile(engine, "/mnt/h/Programming/Web/Workspace/Projects/Encedeus/panel/module_test/go/main.wasm")
-//     check(err)
-//
-//     linker := wasmtime.NewLinker(engine)
-//     err = linker.DefineWasi()
-//     check(err)
-//     wasiConfig := wasmtime.NewWasiConfig()
-//     wasiConfig.SetStdoutFile(stdoutPath)
-//
-//     store := wasmtime.NewStore(engine)
-//     store.SetWasi(wasiConfig)
-//
-//     // exposeFuncs(store, linker)
-//
-//     err = executeModule(store, module, linker)
-//     check(err)
-//
-//     out, err := os.ReadFile(stdoutPath)
-//     check(err)
-//     fmt.Print(string(out))
-// }
-//
-// func check(e error) {
-//     if e != nil {
-//         panic(e)
-//     }
-// }
-//
-// func executeModule(store wasmtime.Storelike, module *wasmtime.Module, linker *wasmtime.Linker) (err error) {
-//     instance, err := linker.Instantiate(store, module)
-//     if err != nil {
-//         return err
-//     }
-//
-//     run := instance.GetFunc(store, "_start")
-//     if run == nil {
-//         return errors.New("module is invalid")
-//     }
-//
-//     _, err = run.Call(store)
-//     if err != nil {
-//         return err
-//     }
-//
-//     return nil
-// }
-
-// func exposeFuncs(store wasmtime.Storelike, linker *wasmtime.Linker) {
-// }
-
-/*func Init() {
-    wasmedge.SetLogErrorLevel()
-
-    // bytes, err := os.ReadFile("/mnt/h/Programming/Web/Workspace/Projects/Encedeus/wasmedge-quickjs/wasmedge_quickjs.wasm")
-    // if err != nil {
-    //     panic(err)
-    // }
-    //
-    // _, err = vm.RunWasmBuffer(bytes, "_start")
-    // if err != nil {
-    //     panic(err)
-    // }
-
-    var wg sync.WaitGroup
-    wg.Add(2)
-    go func() {
-        defer wg.Done()
-        conf := wasmedge.NewConfigure(wasmedge.REFERENCE_TYPES)
-        conf.AddConfig(wasmedge.WASI)
-        vm := wasmedge.NewVMWithConfig(conf)
-        wasi := vm.GetImportModule(wasmedge.WASI)
-        wasi.InitWasi(
-            os.Args[1:],
-            os.Environ(),
-            []string{".:."},
-        )
-
-        defer vm.Release()
-        defer conf.Release()
-
-        vm.RunWasmFile("/mnt/h/Programming/Web/Workspace/Projects/Encedeus/test/js/main.wasm", "_start")
-    }()
-}*/
-
 const ManifestFileName = "manifest.hcl"
-const ModulesFolderLocation = "/etc/encedeus/modules"
+
+// const ModulesFolderLocation = "/home/optimuseprime/Projects/Encedeus/test/panel/modules"
 
 // const ModulesFolderLocation = "/etc/encedeus/modules"
 
@@ -123,10 +34,29 @@ var (
 )
 
 type SemVerVersion struct {
-    MinorVersion uint32
     MajorVersion uint32
+    MinorVersion uint32
     PatchVersion uint32
     Suffix       string
+}
+
+func SemVerFromString(s string) SemVerVersion {
+    semVer := SemVerVersion{}
+
+    v := strings.Split(s, ".")
+    major, _ := strconv.Atoi(v[0])
+    minor, _ := strconv.Atoi(v[1])
+
+    v1 := strings.Split(v[2], "-")
+    patch, _ := strconv.Atoi(v1[0])
+    suffix := v1[1]
+
+    semVer.MajorVersion = uint32(major)
+    semVer.MinorVersion = uint32(minor)
+    semVer.PatchVersion = uint32(patch)
+    semVer.Suffix = suffix
+
+    return semVer
 }
 
 func (v SemVerVersion) String() string {
@@ -139,8 +69,9 @@ type Store struct {
     ModulesFolderPath string
 }
 
-func NewStore() *Store {
+func NewStore(modulesPath string) *Store {
     store := new(Store)
+    store.ModulesFolderPath = modulesPath
     store.Modules = make([]*Module, 5)
 
     return store
@@ -148,14 +79,21 @@ func NewStore() *Store {
 
 func (ms *Store) GetAvailablePort() Port {
     maxPort := math.MaxUint16
-    minPort := 100
+    minPort := 1024
 
-    isNotAvailable := func(port Port) func(m *Module) bool {
+    isAvailable := func(port Port) func(m *Module) bool {
         return func(m *Module) bool {
-            if m.Port == port {
-                return true
+            if m != nil {
+                if m.RPCPort == port {
+                    return true
+                }
             }
-
+            /*            if m != nil {
+                              if m.BackendPort == port || m.RPCPort == port || m.FrontendPort == port {
+                                  return false
+                              }
+                          }
+            */
             timeout := time.Second
             conn, err := net.DialTimeout("tcp", net.JoinHostPort("localhost", strconv.Itoa(int(port))), timeout)
             if err == nil && conn != nil {
@@ -167,27 +105,40 @@ func (ms *Store) GetAvailablePort() Port {
         }
     }
 
-    var port Port
-    for slices.ContainsFunc(ms.Modules, isNotAvailable(port)) {
+    var port = Port(rand.Intn(maxPort-minPort) + minPort)
+    for slices.ContainsFunc(ms.Modules, isAvailable(port)) {
         port = Port(rand.Intn(maxPort-minPort) + minPort)
     }
+    fmt.Printf("Available port: %v\n", port)
 
     return port
 }
 
+type Configuration struct {
+    Port     Port
+    Manifest Manifest
+}
+
+type HandshakeResponse struct {
+    RegisteredCommands []*Command
+}
+
 func (ms *Store) LoadOne(emaPath string) (*Module, error) {
-    zipReader, err := zip.OpenReader(emaPath)
+    zipReader, err := zip.OpenReader(filepath.Join(ms.ModulesFolderPath, emaPath))
     if err != nil {
+        log.Errorf("%e", err)
         return nil, err
     }
     defer zipReader.Close()
 
     manifest, err := NewManifestFromEma(zipReader)
     if err != nil {
+        log.Errorf("%e", err)
         return nil, err
     }
 
-    if len(manifest.FrontendMainFile) == 0 && len(manifest.BackendMainFile) == 0 {
+    if len(manifest.FrontendMainFile) == 0 /*&& len(manifest.BackendMainFile) == 0*/ {
+        log.Errorf("%e", ErrInvalidManifest)
         return nil, ErrInvalidManifest
     }
 
@@ -197,30 +148,46 @@ func (ms *Store) LoadOne(emaPath string) (*Module, error) {
     if errors.Is(err, fs.ErrNotExist) {
         err = Unzip(zipReader, unzipLocation)
         if err != nil {
+            log.Errorf("%e", err)
             return nil, err
         }
     }
 
-    port := ms.GetAvailablePort()
+    backendPort := ms.GetAvailablePort()
+    rpcPort := ms.GetAvailablePort()
     if len(manifest.FrontendMainFile) != 0 {
         frontendMain, err := os.Open(filepath.Join(unzipLocation, manifest.FrontendMainFile))
         if err != nil {
+            log.Errorf("%e", err)
             return nil, err
         }
 
-        err = ExecuteModuleWasmFile(frontendMain, port)
+        err = ExecuteModuleWasmFile(ms.ModulesFolderPath, manifest.Name, frontendMain, rpcPort, backendPort)
         if err != nil {
+            log.Errorf("%e", err)
             return nil, err
         }
+    } else {
+        log.Print("Njet")
     }
 
     module := new(Module)
     module.Manifest = *manifest
-    module.Port = port
+    module.BackendPort = backendPort
+    module.RPCPort = rpcPort
+
+    fmt.Println("Test")
+    err = module.beginHandshake()
+    if err != nil {
+        log.Errorf("%e", err)
+        return nil, err
+    }
 
     ms.mu.Lock()
     defer ms.mu.Unlock()
+
     ms.Modules = append(ms.Modules, module)
+    log.Infof("Modules: %+v\n", ms.Modules)
 
     return module, nil
 }
@@ -232,12 +199,12 @@ func (ms *Store) LoadAll() error {
     }
 
     for _, ema := range modulesFolder {
-        if filepath.Ext(ema.Name()) != "ema" {
+        if filepath.Ext(ema.Name()) != ".ema" {
             continue
         }
 
         go func(name string) {
-            _, err := ms.LoadOne(filepath.Join(ms.ModulesFolderPath, name))
+            _, err := ms.LoadOne(name)
             if err != nil {
                 log.Errorf("Failed loading module %s: %e", name, err)
             }
@@ -249,21 +216,52 @@ func (ms *Store) LoadAll() error {
 
 type Port uint16
 type Module struct {
-    Manifest Manifest
-    Port     Port
+    Manifest           Manifest
+    BackendPort        Port
+    FrontendPort       Port
+    RPCPort            Port
+    RegisteredCommands []*Command
+}
+
+func (m *Module) beginHandshake() error {
+    var client struct {
+        OnHandshake func(config Configuration) HandshakeResponse
+    }
+    fmt.Println("Handshake")
+    time.Sleep(2 * time.Second)
+
+    closer, err := jsonrpc.NewClient(context.Background(), fmt.Sprintf("http://localhost:%v", m.RPCPort), "HandshakeHandler", &client, nil)
+    if err != nil {
+        return err
+    }
+    defer closer()
+
+    resp := client.OnHandshake(Configuration{
+        Manifest: m.Manifest,
+        Port:     m.BackendPort,
+    })
+    fmt.Printf("%+v\n", resp)
+    m.RegisteredCommands = resp.RegisteredCommands
+
+    return nil
 }
 
 type Manifest struct {
-    Name             string
-    Authors          []string
-    Verison          SemVerVersion
-    FrontendMainFile string
-    BackendMainFile  string
+    Name             string   `hcl:"name"`
+    Authors          []string `hcl:"authors"`
+    Verison          string   `hcl:"version"`
+    FrontendMainFile string   `hcl:"frontend_main"`
+    // BackendMainFile  string   `hcl:"backend_main"`
+}
+
+func (m *Manifest) SemVer() SemVerVersion {
+    return SemVerFromString(m.Verison)
 }
 
 func NewManifestFromEma(reader *zip.ReadCloser) (*Manifest, error) {
     manifestFile, err := reader.Open(ManifestFileName)
     if err != nil {
+        log.Errorf("%e", err)
         return nil, err
     }
     defer manifestFile.Close()
@@ -271,13 +269,15 @@ func NewManifestFromEma(reader *zip.ReadCloser) (*Manifest, error) {
     stat, _ := manifestFile.Stat()
     b := make([]byte, stat.Size())
     _, err = manifestFile.Read(b)
-    if err != nil {
+    if err != nil && !errors.Is(err, io.EOF) {
+        log.Errorf("%e", err)
         return nil, err
     }
 
     manifest := new(Manifest)
     err = hclsimple.Decode(ManifestFileName, b, nil, manifest)
     if err != nil {
+        log.Errorf("%e", err)
         return nil, err
     }
 
@@ -348,29 +348,31 @@ func Unzip(r *zip.ReadCloser, dest string) error {
     return nil
 }
 
-func ExecuteWasmFileWithDefaults(buf []byte, args []string) error {
+func ExecuteWasmFileWithDefaults(dirMapping string, buf []byte, environ []string) error {
+    wasmedge.SetLogDebugLevel()
+
     conf := wasmedge.NewConfigure(wasmedge.REFERENCE_TYPES)
     conf.AddConfig(wasmedge.WASI)
     vm := wasmedge.NewVMWithConfig(conf)
     wasi := vm.GetImportModule(wasmedge.WASI)
     wasi.InitWasi(
-        args,
-        os.Environ(),
-        []string{".:."},
+        os.Args[1:],
+        environ,
+        []string{dirMapping},
     )
 
-    err := vm.LoadWasmBuffer(buf)
+    _, err := vm.RunWasmBuffer(buf, "_start")
     if err != nil {
-        return err
+        log.Errorf("%e", err)
     }
 
-    defer vm.Release()
-    defer conf.Release()
+    vm.Release()
+    conf.Release()
 
     return nil
 }
 
-func ExecuteModuleWasmFile(f fs.File, port Port) error {
+func ExecuteModuleWasmFile(modulesPath, moduleName string, f fs.File, rpcPort Port, backendPort Port) error {
     stat, _ := f.Stat()
     buf := make([]byte, stat.Size())
     _, err := f.Read(buf)
@@ -378,10 +380,17 @@ func ExecuteModuleWasmFile(f fs.File, port Port) error {
         return err
     }
 
-    err = ExecuteWasmFileWithDefaults(buf, []string{fmt.Sprintf("-p %v", port)})
-    if err != nil {
-        return err
-    }
+    path := filepath.Join(modulesPath, "cache", moduleName)
+    go func() {
+        err = ExecuteWasmFileWithDefaults(fmt.Sprintf("/:%s", path), buf,
+            []string{
+                fmt.Sprintf("MODULE_RPC_PORT=%v", strconv.Itoa(int(rpcPort))),
+                fmt.Sprintf("MODULE_MAIN_PORT=%v", strconv.Itoa(int(backendPort))),
+            })
+        if err != nil {
+            log.Errorf("%e", err)
+        }
+    }()
 
     return nil
 }

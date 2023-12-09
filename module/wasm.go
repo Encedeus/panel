@@ -14,6 +14,7 @@ import (
     "math"
     "math/rand"
     "net"
+    "net/http"
     "os"
     "path/filepath"
     "slices"
@@ -67,6 +68,7 @@ type Store struct {
     mu                sync.Mutex
     Modules           []*Module
     ModulesFolderPath string
+    RPCPort           Port
 }
 
 func NewStore(modulesPath string) *Store {
@@ -116,6 +118,7 @@ func (ms *Store) GetAvailablePort() Port {
 
 type Configuration struct {
     Port     Port
+    HostPort Port
     Manifest Manifest
 }
 
@@ -167,16 +170,14 @@ func (ms *Store) LoadOne(emaPath string) (*Module, error) {
             log.Errorf("%e", err)
             return nil, err
         }
-    } else {
-        log.Print("Njet")
     }
 
     module := new(Module)
     module.Manifest = *manifest
     module.BackendPort = backendPort
     module.RPCPort = rpcPort
+    module.Store = ms
 
-    fmt.Println("Test")
     err = module.beginHandshake()
     if err != nil {
         log.Errorf("%e", err)
@@ -192,11 +193,43 @@ func (ms *Store) LoadOne(emaPath string) (*Module, error) {
     return module, nil
 }
 
+func (ms *Store) InitRPCServer() {
+    rpcSrv := jsonrpc.NewServer()
+
+    invHandle := new(ModuleInvokeHandler)
+    invHandle.ModuleStore = ms
+    rpcSrv.Register("ModuleInvokeHandler", invHandle)
+
+    port := ms.GetAvailablePort()
+    srv := http.Server{
+        Addr:         fmt.Sprintf(":%v", port),
+        ReadTimeout:  5 * time.Second,
+        WriteTimeout: 5 * time.Second,
+        Handler:      rpcSrv,
+    }
+
+    log.Fatal(srv.ListenAndServe())
+}
+
+func (ms *Store) HasRegisteredCommand(command string) (bool, *Module, *Command) {
+    for _, mod := range ms.Modules {
+        for _, cmd := range mod.RegisteredCommands {
+            if cmd.Name == command {
+                return true, mod, cmd
+            }
+        }
+    }
+
+    return false, nil, nil
+}
+
 func (ms *Store) LoadAll() error {
     modulesFolder, err := os.ReadDir(ms.ModulesFolderPath)
     if err != nil {
         return err
     }
+
+    ms.InitRPCServer()
 
     for _, ema := range modulesFolder {
         if filepath.Ext(ema.Name()) != ".ema" {
@@ -216,6 +249,7 @@ func (ms *Store) LoadAll() error {
 
 type Port uint16
 type Module struct {
+    Store              *Store
     Manifest           Manifest
     BackendPort        Port
     FrontendPort       Port
@@ -227,8 +261,8 @@ func (m *Module) beginHandshake() error {
     var client struct {
         OnHandshake func(config Configuration) HandshakeResponse
     }
-    fmt.Println("Handshake")
-    time.Sleep(2 * time.Second)
+    // fmt.Println("Handshake")
+    // time.Sleep(2 * time.Second)
 
     closer, err := jsonrpc.NewClient(context.Background(), fmt.Sprintf("http://localhost:%v", m.RPCPort), "HandshakeHandler", &client, nil)
     if err != nil {
@@ -239,6 +273,7 @@ func (m *Module) beginHandshake() error {
     resp := client.OnHandshake(Configuration{
         Manifest: m.Manifest,
         Port:     m.BackendPort,
+        HostPort: m.Store.RPCPort,
     })
     fmt.Printf("%+v\n", resp)
     m.RegisteredCommands = resp.RegisteredCommands

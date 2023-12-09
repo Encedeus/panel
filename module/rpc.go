@@ -1,5 +1,1 @@
 package module
-
-func InitRPCServer() {
-
-}

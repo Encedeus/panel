@@ -211,16 +211,16 @@ func (ms *Store) InitRPCServer() {
     log.Fatal(srv.ListenAndServe())
 }
 
-func (ms *Store) HasRegisteredCommand(command string) (bool, *Module, *Command) {
+func (ms *Store) HasRegisteredCommand(command string) (bool, *Module, string) {
     for _, mod := range ms.Modules {
-        for _, cmd := range mod.RegisteredCommands {
-            if cmd.Name == command {
+        for _, cmd := range mod.Manifest.RegisteredCommands {
+            if cmd == command {
                 return true, mod, cmd
             }
         }
     }
 
-    return false, nil, nil
+    return false, nil, ""
 }
 
 func (ms *Store) LoadAll() error {
@@ -249,12 +249,12 @@ func (ms *Store) LoadAll() error {
 
 type Port uint16
 type Module struct {
-    Store              *Store
-    Manifest           Manifest
-    BackendPort        Port
-    FrontendPort       Port
-    RPCPort            Port
-    RegisteredCommands []*Command
+    Store        *Store
+    Manifest     Manifest
+    BackendPort  Port
+    FrontendPort Port
+    RPCPort      Port
+    // RegisteredCommands []*Command
 }
 
 func (m *Module) beginHandshake() error {
@@ -270,22 +270,23 @@ func (m *Module) beginHandshake() error {
     }
     defer closer()
 
-    resp := client.OnHandshake(Configuration{
+    _ = client.OnHandshake(Configuration{
         Manifest: m.Manifest,
         Port:     m.BackendPort,
         HostPort: m.Store.RPCPort,
     })
-    fmt.Printf("%+v\n", resp)
-    m.RegisteredCommands = resp.RegisteredCommands
+    // fmt.Printf("%+v\n", resp)
+    // m.RegisteredCommands = resp.RegisteredCommands
 
     return nil
 }
 
 type Manifest struct {
-    Name             string   `hcl:"name"`
-    Authors          []string `hcl:"authors"`
-    Verison          string   `hcl:"version"`
-    FrontendMainFile string   `hcl:"frontend_main"`
+    Name               string   `hcl:"name"`
+    Authors            []string `hcl:"authors"`
+    Verison            string   `hcl:"version"`
+    FrontendMainFile   string   `hcl:"frontend_main"`
+    RegisteredCommands []string `hcl:"commands"`
     // BackendMainFile  string   `hcl:"backend_main"`
 }
 

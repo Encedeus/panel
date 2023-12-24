@@ -75,6 +75,7 @@ func NewStore(modulesPath string) *Store {
     store := new(Store)
     store.ModulesFolderPath = modulesPath
     store.Modules = make([]*Module, 5)
+    store.RPCPort = store.GetAvailablePort()
 
     return store
 }
@@ -90,12 +91,7 @@ func (ms *Store) GetAvailablePort() Port {
                     return true
                 }
             }
-            /*            if m != nil {
-                              if m.BackendPort == port || m.RPCPort == port || m.FrontendPort == port {
-                                  return false
-                              }
-                          }
-            */
+
             timeout := time.Second
             conn, err := net.DialTimeout("tcp", net.JoinHostPort("localhost", strconv.Itoa(int(port))), timeout)
             if err == nil && conn != nil {
@@ -140,7 +136,7 @@ func (ms *Store) LoadOne(emaPath string) (*Module, error) {
         return nil, err
     }
 
-    if len(manifest.FrontendMainFile) == 0 /*&& len(manifest.BackendMainFile) == 0*/ {
+    if len(manifest.BackendMainFile) == 0 /*&& len(manifest.BackendMainFile) == 0*/ {
         log.Errorf("%e", ErrInvalidManifest)
         return nil, ErrInvalidManifest
     }
@@ -156,20 +152,38 @@ func (ms *Store) LoadOne(emaPath string) (*Module, error) {
         }
     }
 
+    // Backend loading
     backendPort := ms.GetAvailablePort()
     rpcPort := ms.GetAvailablePort()
-    if len(manifest.FrontendMainFile) != 0 {
-        frontendMain, err := os.Open(filepath.Join(unzipLocation, manifest.FrontendMainFile))
+    if len(manifest.BackendMainFile) != 0 {
+        backendMain, err := os.Open(filepath.Join(unzipLocation, "backend", manifest.BackendMainFile))
         if err != nil {
             log.Errorf("%e", err)
             return nil, err
         }
 
-        err = ExecuteModuleWasmFile(ms.ModulesFolderPath, manifest.Name, frontendMain, rpcPort, backendPort)
+        err = ExecuteModuleWasmFile(ms.ModulesFolderPath, manifest.Name, backendMain, rpcPort, backendPort)
         if err != nil {
             log.Errorf("%e", err)
             return nil, err
         }
+    }
+
+    // Frontend loading
+    if len(manifest.Frontend.TabName) != 0 {
+        port := ms.GetAvailablePort()
+        frontendServer := NewFrontendServer(
+            Platform(manifest.Frontend.Platform),
+            filepath.Join(unzipLocation, "frontend"),
+            port)
+
+        err = frontendServer.Start()
+        if err != nil {
+            log.Errorf("%e", err)
+            return nil, err
+        }
+
+        log.Printf("Frontend port: %v", port)
     }
 
     module := new(Module)
@@ -183,6 +197,7 @@ func (ms *Store) LoadOne(emaPath string) (*Module, error) {
         log.Errorf("%e", err)
         return nil, err
     }
+    // fmt.Println("Hadnshake done")
 
     ms.mu.Lock()
     defer ms.mu.Unlock()
@@ -200,14 +215,14 @@ func (ms *Store) InitRPCServer() {
     invHandle.ModuleStore = ms
     rpcSrv.Register("ModuleInvokeHandler", invHandle)
 
-    port := ms.GetAvailablePort()
     srv := http.Server{
-        Addr:         fmt.Sprintf(":%v", port),
+        Addr:         fmt.Sprintf(":%v", ms.RPCPort),
         ReadTimeout:  5 * time.Second,
         WriteTimeout: 5 * time.Second,
         Handler:      rpcSrv,
     }
 
+    fmt.Println("RPC server started")
     log.Fatal(srv.ListenAndServe())
 }
 
@@ -229,7 +244,7 @@ func (ms *Store) LoadAll() error {
         return err
     }
 
-    ms.InitRPCServer()
+    // ms.InitRPCServer()
 
     for _, ema := range modulesFolder {
         if filepath.Ext(ema.Name()) != ".ema" {
@@ -262,8 +277,9 @@ func (m *Module) beginHandshake() error {
         OnHandshake func(config Configuration) HandshakeResponse
     }
     // fmt.Println("Handshake")
-    // time.Sleep(2 * time.Second)
+    time.Sleep(2 * time.Second)
 
+    fmt.Printf("Actual RPC port: %v\n", m.RPCPort)
     closer, err := jsonrpc.NewClient(context.Background(), fmt.Sprintf("http://localhost:%v", m.RPCPort), "HandshakeHandler", &client, nil)
     if err != nil {
         return err
@@ -285,9 +301,12 @@ type Manifest struct {
     Name               string   `hcl:"name"`
     Authors            []string `hcl:"authors"`
     Verison            string   `hcl:"version"`
-    FrontendMainFile   string   `hcl:"frontend_main"`
+    BackendMainFile    string   `hcl:"backend_main"`
     RegisteredCommands []string `hcl:"commands"`
-    // BackendMainFile  string   `hcl:"backend_main"`
+    Frontend           struct {
+        TabName  string `hcl:"tab_name"`
+        Platform string `hcl:"platform"`
+    } `hcl:"frontend,block"`
 }
 
 func (m *Manifest) SemVer() SemVerVersion {

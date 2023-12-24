@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+{{ $vue := . }}
+<head>
+    <meta charset="utf-8">
+    <title>EModule</title>
+    {{ if $vue }}
+        {{ $vue.RenderTags }}
+    {{ end }}
+</head>
+<body>
+{{ if $vue }}
+    {{ $id := "app" }}
+    {{ if eq $vue.Platform "react" }}
+        {{ $id = "root" }}
+    {{ end }}
+    <div id="{{ $id }}"></div>
+{{ else }}
+    <div id="app"></div>
+{{ end }}
+</body>
+</html>

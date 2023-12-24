@@ -5,6 +5,7 @@ import (
     "errors"
     "fmt"
     "github.com/filecoin-project/go-jsonrpc"
+    "github.com/labstack/gommon/log"
 )
 
 var (
@@ -32,13 +33,11 @@ type ModuleInvokeHandler struct {
 }
 
 func (h *ModuleInvokeHandler) ModuleInvoke(command string, args Arguments) (Result, error) {
-    isFound, mod, cmd := h.ModuleStore.HasRegisteredCommand(command)
+    isFound, mod, _ := h.ModuleStore.HasRegisteredCommand(command)
+    log.Infof("Command info: %v", isFound)
 
     if !isFound {
         return nil, ErrCommandNotFound
-    }
-    if len(args) != len(cmd.Params) {
-        return nil, ErrInvalidArgumentLength
     }
 
     var client struct {
@@ -46,12 +45,14 @@ func (h *ModuleInvokeHandler) ModuleInvoke(command string, args Arguments) (Resu
     }
 
     closer, err := jsonrpc.NewClient(context.Background(), fmt.Sprintf("http://localhost:%v", mod.RPCPort), "HostInvokeHandler", &client, nil)
+    log.Infof("Command client created")
     if err != nil {
         return nil, fmt.Errorf("%e: %w", ErrInternalServerError, err)
     }
     defer closer()
 
     result, err := client.HostInvoke(command, args)
+    log.Infof("Invoked")
     if err != nil {
         return nil, fmt.Errorf("%e: %w", ErrCommandExecError, err)
     }

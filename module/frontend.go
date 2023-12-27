@@ -14,10 +14,10 @@ import (
 type Platform string
 
 const (
-    PLATFORM_SVELTE  = "svelte"
-    PLATFORM_VANILLA = "vanilla"
-    PLATFORM_REACT   = "react"
-    PLATFORM_VUE     = "vue"
+    PLATFORM_SVELTE  Platform = "svelte"
+    PLATFORM_VANILLA Platform = "vanilla"
+    PLATFORM_REACT   Platform = "react"
+    PLATFORM_VUE     Platform = "vue"
 )
 
 //go:embed "frontend-template.gohtml"
@@ -90,11 +90,10 @@ func (s *FrontendServer) Start() error {
 }
 
 func (s *FrontendServer) serveOneFile(w http.ResponseWriter, _ *http.Request, uri, contentType string) {
-    strippedURI := uri[:]
-    // path := filepath.Join(s.AssetsPath, "dist", strippedURI)
-    // fmt.Printf("Path: %v\n", path)
-    buf, err := os.ReadFile(filepath.Join(s.AssetsPath, "dist", strippedURI))
-    // fmt.Printf("Buf: %v\n", buf)
+    buf, err := os.ReadFile(filepath.Join(s.AssetsPath, "dist", uri))
+    if err != nil {
+        buf, err = os.ReadFile(filepath.Join(s.AssetsPath, "dist", "public", uri))
+    }
 
     if err != nil {
         w.WriteHeader(http.StatusNotFound)
@@ -110,7 +109,6 @@ func (s *FrontendServer) serveOneFile(w http.ResponseWriter, _ *http.Request, ur
 func (s *FrontendServer) servePage(w http.ResponseWriter, r *http.Request) {
     ext := filepath.Ext(r.RequestURI)
     contentType := mime.TypeByExtension(ext)
-    // fmt.Printf("Content type: %v, Ext: %v\n", contentType, ext)
     if contentType != "" {
         s.serveOneFile(w, r, r.RequestURI, contentType)
 

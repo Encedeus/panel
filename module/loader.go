@@ -136,7 +136,7 @@ func (ms *Store) LoadOne(emaPath string) (*Module, error) {
         return nil, err
     }
 
-    if len(manifest.BackendMainFile) == 0 /*&& len(manifest.BackendMainFile) == 0*/ {
+    if len(manifest.BackendMainFile) == 0 && len(manifest.Frontend.TabName) == 0 {
         log.Errorf("%e", ErrInvalidManifest)
         return nil, ErrInvalidManifest
     }
@@ -169,10 +169,11 @@ func (ms *Store) LoadOne(emaPath string) (*Module, error) {
         }
     }
 
+    var frontendServer *FrontendServer
     // Frontend loading
     if len(manifest.Frontend.TabName) != 0 {
         port := ms.GetAvailablePort()
-        frontendServer := NewFrontendServer(
+        frontendServer = NewFrontendServer(
             Platform(manifest.Frontend.Platform),
             filepath.Join(unzipLocation, "frontend"),
             port)
@@ -182,15 +183,16 @@ func (ms *Store) LoadOne(emaPath string) (*Module, error) {
             log.Errorf("%e", err)
             return nil, err
         }
-
-        log.Printf("Frontend port: %v", port)
     }
+
+    fmt.Printf("Frontend port: %v\n", frontendServer.Port)
 
     module := new(Module)
     module.Manifest = *manifest
     module.BackendPort = backendPort
     module.RPCPort = rpcPort
     module.Store = ms
+    module.FrontendServer = frontendServer
 
     err = module.beginHandshake()
     if err != nil {
@@ -264,11 +266,11 @@ func (ms *Store) LoadAll() error {
 
 type Port uint16
 type Module struct {
-    Store        *Store
-    Manifest     Manifest
-    BackendPort  Port
-    FrontendPort Port
-    RPCPort      Port
+    Store          *Store
+    Manifest       Manifest
+    BackendPort    Port
+    RPCPort        Port
+    FrontendServer *FrontendServer
     // RegisteredCommands []*Command
 }
 

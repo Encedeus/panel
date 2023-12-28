@@ -4,6 +4,9 @@
     import SideBarTab from "$lib/components/internal/nav/SideBarTab.svelte";
     import TabEnvironment from "$lib/components/internal/tabs/TabEnvironment.svelte";
     import SettingsIcon from "$lib/components/heroicons/SettingsIcon.svelte";
+    import type { LayoutServerData } from "./$types";
+
+    export let data: LayoutServerData;
 </script>
 
 <TabEnvironment>
@@ -20,8 +23,16 @@
                 API Credentials
             </SideBarTabLabel>
         </SideBarTab>
+        {#each data.modules as m}
+            <SideBarTab link="/dashboard/account/modules/{m.manifest.name}">
+                <CloudIcon slot="icon"/>
+                <SideBarTabLabel slot="label">
+                    {m.manifest.frontend.tab_name}
+                </SideBarTabLabel>
+            </SideBarTab>
+        {/each}
     </div>
-    <div slot="content">
+    <div class="w-full h-full" slot="content">
         <slot/>
     </div>
 </TabEnvironment>

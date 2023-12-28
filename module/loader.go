@@ -74,7 +74,7 @@ type Store struct {
 func NewStore(modulesPath string) *Store {
     store := new(Store)
     store.ModulesFolderPath = modulesPath
-    store.Modules = make([]*Module, 5)
+    store.Modules = make([]*Module, 0, 5)
     store.RPCPort = store.GetAvailablePort()
 
     return store
@@ -94,8 +94,8 @@ func (ms *Store) GetAvailablePort() Port {
 
             timeout := time.Second
             conn, err := net.DialTimeout("tcp", net.JoinHostPort("localhost", strconv.Itoa(int(port))), timeout)
+            defer conn.Close()
             if err == nil && conn != nil {
-                defer conn.Close()
                 return true
             }
 

@@ -1,4 +1,4 @@
-import type { LayoutServerLoad } from "../../../.svelte-kit/types/src/routes";
+import type { LayoutServerLoad } from "./$types";
 import axios from "axios";
 
 export const load: LayoutServerLoad = async () => {

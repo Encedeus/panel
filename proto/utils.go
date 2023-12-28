@@ -2,6 +2,7 @@ package proto
 
 import (
     "github.com/Encedeus/panel/ent"
+    "github.com/Encedeus/panel/module"
     protoapi "github.com/Encedeus/panel/proto/go"
     "github.com/google/uuid"
     "github.com/labstack/echo/v4"
@@ -112,4 +113,49 @@ func MarshalControllerProtoResponseToJSON(c *echo.Context, okStatus int, message
     }
 
     return (*c).JSONBlob(okStatus, json)
+}
+
+func ModuleToProtoModule(m module.Module) *protoapi.Module {
+    pm := &protoapi.Module{
+        Store: &protoapi.ModuleStore{
+            ModulesFolderPath: m.Store.ModulesFolderPath,
+            RpcPort: &protoapi.Port{
+                Value: uint32(m.Store.RPCPort),
+            },
+        },
+        Manifest: &protoapi.ModuleManifest{
+            Name:    m.Manifest.Name,
+            Authors: m.Manifest.Authors,
+            Version: m.Manifest.Verison,
+            Frontend: &protoapi.ModuleManifestFrontend{
+                TabName: m.Manifest.Frontend.TabName,
+                Platform: &protoapi.ModulePlatform{
+                    Value: m.Manifest.Frontend.Platform,
+                },
+            },
+            Backend: &protoapi.ModuleManifestBackend{
+                Main:               m.Manifest.BackendMainFile,
+                RegisteredCommands: m.Manifest.RegisteredCommands,
+            },
+        },
+        FrontendServer: &protoapi.ModuleFrontendServer{
+            Platform: &protoapi.ModulePlatform{
+                Value: string(m.FrontendServer.Platform),
+            },
+            Environment: m.FrontendServer.Environment,
+            EntryPoint:  m.FrontendServer.EntryPoint,
+            AssetsPath:  m.FrontendServer.AssetsPath,
+            Port: &protoapi.Port{
+                Value: uint32(m.FrontendServer.Port),
+            },
+        },
+        BackendPort: &protoapi.Port{
+            Value: uint32(m.BackendPort),
+        },
+        RpcPort: &protoapi.Port{
+            Value: uint32(m.RPCPort),
+        },
+    }
+
+    return pm
 }

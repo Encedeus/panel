@@ -1,10 +1,10 @@
 <script lang="ts">
-    import type { LayoutData, PageData } from "./$types";
+    import type { LayoutServerData } from "./$types";
+    import { page } from "$app/stores";
 
-    export let layoutData: LayoutData;
-    export let pageData: PageData;
+    export let data: LayoutServerData;
 
-    const module = layoutData.modules.find(m => m.manifest.name === pageData.module);
+    const module = data.modules.find(m => m.manifest.name == $page.params.module);
 </script>
 
-<iframe class="border-none overflow-x-hidden" src="http://localhost:{module.frontend_server.port.value}" title={module.manifest.name}></iframe>
+<iframe class="border-none overflow-x-hidden w-full h-full" src="http://localhost:{module?.frontend_server?.port?.value}" title={module.manifest.name} loading="eager"></iframe>

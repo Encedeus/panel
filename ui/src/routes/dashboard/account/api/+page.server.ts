@@ -5,7 +5,7 @@ import { AccountAPIKeyFindManyByUserRequest, UUID } from "@encedeus/js-api";
 export const load: PageServerLoad = async ({ locals }) => {
     const resp = await api.apiKeyService.findAccountApiKeysByUserId(AccountAPIKeyFindManyByUserRequest.create({
         userId: UUID.create({
-            value: locals.userId,
+            value: (locals as any).userId,
         }),
     }));
 

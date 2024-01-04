@@ -79,9 +79,8 @@ func (AuthController) handleUserSignIn(c echo.Context, db *ent.Client) error {
     }
 
     // check if the password hash is a match
-    auth := security.VerifyHash(signInReq.Password, passwordHash)
-
-    if !auth {
+    match, err := security.VerifyPasswordHash(signInReq.Password, passwordHash)
+    if !match || err != nil {
         return c.JSON(http.StatusUnauthorized, echo.Map{
             "message": "unauthorised",
         })

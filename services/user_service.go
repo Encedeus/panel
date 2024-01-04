@@ -39,7 +39,7 @@ func CreateUser(ctx context.Context, db *ent.Client, req *protoapi.UserCreateReq
     userData, err := db.User.Create().
         SetName(req.Name).
         SetEmail(req.Email).
-        SetPassword(security.HashPassword(req.Password)).
+        SetPassword(security.HashPassword(security.DefaultArgon2Params(), req.Password)).
         SetRoleID(roleId).
         Save(ctx)
 
@@ -260,14 +260,16 @@ func ChangeUserPassword(ctx context.Context, db *ent.Client, req *protoapi.UserC
     if err != nil {
         return nil, err
     }
-    if !security.VerifyHash(req.OldPassword, userData.Password) {
+
+    match, err := security.VerifyPasswordHash(req.OldPassword, userData.Password)
+    if !match || err != nil {
         return nil, ErrOldPasswordDoesNotMatch
     }
-    if userData.Password == security.HashPassword(req.NewPassword) {
+    if userData.Password == security.HashPassword(security.DefaultArgon2Params(), req.NewPassword) {
         return nil, ErrNewPasswordEqualsOld
     }
 
-    _, err = userData.Update().SetPassword(security.HashPassword(req.NewPassword)).Save(ctx)
+    _, err = userData.Update().SetPassword(security.HashPassword(security.DefaultArgon2Params(), req.NewPassword)).Save(ctx)
     if err != nil {
         return nil, err
     }

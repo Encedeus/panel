@@ -279,7 +279,7 @@ func (m *Module) beginHandshake() error {
         OnHandshake func(config Configuration) HandshakeResponse
     }
     // fmt.Println("Handshake")
-    time.Sleep(2 * time.Second)
+    // time.Sleep(2 * time.Second)/**/
 
     fmt.Printf("Actual RPC port: %v\n", m.RPCPort)
     closer, err := jsonrpc.NewClient(context.Background(), fmt.Sprintf("http://localhost:%v", m.RPCPort), "HandshakeHandler", &client, nil)

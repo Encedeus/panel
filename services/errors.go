@@ -27,7 +27,7 @@ func IsValidationError(err error) bool {
 }
 
 var (
-    ErrInvalidTokenType           = errors.New("invalid JWT  type")
+    ErrInvalidTokenType           = errors.New("invalid JWT type")
     ErrInvalidAPIKeyDescription   = NewValidationError("invalid API key description")
     ErrInvalidUserId              = NewValidationError("invalid user id")
     ErrInvalidIPAddress           = NewValidationError("invalid IP address")

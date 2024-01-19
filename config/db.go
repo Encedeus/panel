@@ -10,6 +10,7 @@ import (
     "github.com/Encedeus/panel/security"
     "github.com/labstack/gommon/log"
     _ "github.com/lib/pq"
+    "strings"
 )
 
 func InitDB() *ent.Client {
@@ -36,7 +37,7 @@ func InitDB() *ent.Client {
     // db.Schema.Create(context.Background())
 
     // update Db schema
-    if err := db.Schema.Create(ctx); err != nil {
+    if err := db.Schema.Create(ctx); err != nil && !strings.Contains(err.Error(), "unexpected number of rows") {
         log.Fatalf("failed creating schema resources: %v", err)
     }
 

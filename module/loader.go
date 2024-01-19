@@ -136,7 +136,7 @@ func (ms *Store) LoadOne(emaPath string) (*Module, error) {
         return nil, err
     }
 
-    if len(manifest.BackendMainFile) == 0 && len(manifest.Frontend.TabName) == 0 {
+    if len(manifest.Backend.MainFile) == 0 && len(manifest.Frontend.TabName) == 0 {
         log.Errorf("%e", ErrInvalidManifest)
         return nil, ErrInvalidManifest
     }
@@ -155,8 +155,8 @@ func (ms *Store) LoadOne(emaPath string) (*Module, error) {
     // Backend loading
     backendPort := ms.GetAvailablePort()
     rpcPort := ms.GetAvailablePort()
-    if len(manifest.BackendMainFile) != 0 {
-        backendMain, err := os.Open(filepath.Join(unzipLocation, "backend", manifest.BackendMainFile))
+    if len(manifest.Backend.MainFile) != 0 {
+        backendMain, err := os.Open(filepath.Join(unzipLocation, "backend", manifest.Backend.MainFile))
         if err != nil {
             log.Errorf("%e", err)
             return nil, err
@@ -230,7 +230,7 @@ func (ms *Store) InitRPCServer() {
 
 func (ms *Store) HasRegisteredCommand(command string) (bool, *Module, string) {
     for _, mod := range ms.Modules {
-        for _, cmd := range mod.Manifest.RegisteredCommands {
+        for _, cmd := range mod.Manifest.Backend.RegisteredCommands {
             if cmd == command {
                 return true, mod, cmd
             }
@@ -300,19 +300,22 @@ func (m *Module) beginHandshake() error {
 }
 
 type Manifest struct {
-    Name               string   `hcl:"name"`
-    Authors            []string `hcl:"authors"`
-    Verison            string   `hcl:"version"`
-    BackendMainFile    string   `hcl:"backend_main"`
-    RegisteredCommands []string `hcl:"commands"`
-    Frontend           struct {
-        TabName  string `hcl:"tab_name"`
+    Name    string   `hcl:"name"`
+    Authors []string `hcl:"authors"`
+    Version string   `hcl:"version"`
+    Backend struct {
+        MainFile           string   `hcl:"main"`
+        RegisteredCommands []string `hcl:"commands"`
+    } `hcl:"backend,block"`
+    Frontend struct {
+        TabName string `hcl:"tab_name"`
+        // TabIconPath string `hcl:"tab_icon"`
         Platform string `hcl:"platform"`
     } `hcl:"frontend,block"`
 }
 
 func (m *Manifest) SemVer() SemVerVersion {
-    return SemVerFromString(m.Verison)
+    return SemVerFromString(m.Version)
 }
 
 func NewManifestFromEma(reader *zip.ReadCloser) (*Manifest, error) {

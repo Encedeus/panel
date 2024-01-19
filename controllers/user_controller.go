@@ -176,7 +176,7 @@ func handleUpdateUser(c echo.Context, db *ent.Client) error {
         })
     }
 
-    updateReq.Password = security.HashPassword(updateReq.Password)
+    updateReq.Password = security.HashPassword(security.DefaultArgon2Params(), updateReq.Password)
     resp, err := services.UpdateUser(ctx, db, updateReq)
 
     // error checking

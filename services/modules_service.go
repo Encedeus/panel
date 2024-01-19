@@ -21,7 +21,7 @@ func FindAllModules(_ context.Context, store *module.Store, req *protoapi.FindAl
             }
         }
         if req.BackendOnly {
-            if len(m.Manifest.BackendMainFile) != 0 {
+            if len(m.Manifest.Backend.MainFile) != 0 {
                 modules[i] = proto.ModuleToProtoModule(*m)
                 continue
             }

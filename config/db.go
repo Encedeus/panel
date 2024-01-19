@@ -65,7 +65,7 @@ func createSuperuser(db *ent.Client, ctx context.Context) {
 
     _, err = db.User.Create().
         SetName("admin").
-        SetPassword(security.HashPassword("admin")).
+        SetPassword(security.HashPassword(security.DefaultArgon2Params(), "admin")).
         SetEmail("admin@admin.com").
         SetRole(userRole).
         Save(ctx)

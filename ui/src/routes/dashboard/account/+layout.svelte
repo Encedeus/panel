@@ -25,7 +25,7 @@
         </SideBarTab>
         {#each data.modules as m}
             <SideBarTab link="/dashboard/account/modules/{m.manifest.name}">
-                <CloudIcon slot="icon"/>
+                <img src="http://localhost:{m?.frontend_server?.port?.value}/favicon.ico" height="34" width="34" alt="{m?.manifest?.name} icon" slot="icon">
                 <SideBarTabLabel slot="label">
                     {m.manifest.frontend.tab_name}
                 </SideBarTabLabel>

@@ -126,16 +126,17 @@ func ModuleToProtoModule(m module.Module) *protoapi.Module {
         Manifest: &protoapi.ModuleManifest{
             Name:    m.Manifest.Name,
             Authors: m.Manifest.Authors,
-            Version: m.Manifest.Verison,
+            Version: m.Manifest.Version,
             Frontend: &protoapi.ModuleManifestFrontend{
                 TabName: m.Manifest.Frontend.TabName,
+                // TabIconPath: m.Manifest.Frontend.TabIconPath,
                 Platform: &protoapi.ModulePlatform{
                     Value: m.Manifest.Frontend.Platform,
                 },
             },
             Backend: &protoapi.ModuleManifestBackend{
-                Main:               m.Manifest.BackendMainFile,
-                RegisteredCommands: m.Manifest.RegisteredCommands,
+                Main:               m.Manifest.Backend.MainFile,
+                RegisteredCommands: m.Manifest.Backend.RegisteredCommands,
             },
         },
         FrontendServer: &protoapi.ModuleFrontendServer{

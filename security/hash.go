@@ -46,10 +46,10 @@ func DefaultArgon2Params() Argon2Parameters {
     params := Argon2Parameters{
         // 128-bit salt
         Salt: RandomBytes(16),
-        // Iteration of 1
-        Time: 1,
-        // 4 GiB memory in KiB
-        Memory: 4 * 1024 * 1024,
+        // Iteration of 3
+        Time: 3,
+        // 64 MiB memory in KiB
+        Memory: 64 * 1024,
         // 0x13 = 19
         Version: argon2.Version,
         // Number of parallel execution chains

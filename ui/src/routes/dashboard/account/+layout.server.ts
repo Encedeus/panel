@@ -1,10 +1,14 @@
 import type { LayoutServerLoad } from "./$types";
-import axios from "axios";
+import { api } from "$lib/services/api";
+import { ModulesFindAllRequest, ModulesFindAllResponse } from "@encedeus/js-api";
 
 export const load: LayoutServerLoad = async () => {
-    const resp = await axios.get("http://localhost:8080/modules");
+    const resp = await api.modulesService.findAllModules(ModulesFindAllRequest.create({
+        backendOnly: true,
+        frontendOnly: true,
+    }));
 
     return {
-        modules: resp.data.modules as any[],
+        modules: resp.response?.modules,
     };
 };

@@ -9,8 +9,17 @@ import (
 // ApiKey is the predicate function for apikey builders.
 type ApiKey func(*sql.Selector)
 
+// Game is the predicate function for game builders.
+type Game func(*sql.Selector)
+
+// Node is the predicate function for node builders.
+type Node func(*sql.Selector)
+
 // Role is the predicate function for role builders.
 type Role func(*sql.Selector)
+
+// Server is the predicate function for server builders.
+type Server func(*sql.Selector)
 
 // User is the predicate function for user builders.
 type User func(*sql.Selector)

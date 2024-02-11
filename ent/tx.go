@@ -14,8 +14,14 @@ type Tx struct {
 	config
 	// ApiKey is the client for interacting with the ApiKey builders.
 	ApiKey *ApiKeyClient
+	// Game is the client for interacting with the Game builders.
+	Game *GameClient
+	// Node is the client for interacting with the Node builders.
+	Node *NodeClient
 	// Role is the client for interacting with the Role builders.
 	Role *RoleClient
+	// Server is the client for interacting with the Server builders.
+	Server *ServerClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 
@@ -150,7 +156,10 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.ApiKey = NewApiKeyClient(tx.config)
+	tx.Game = NewGameClient(tx.config)
+	tx.Node = NewNodeClient(tx.config)
 	tx.Role = NewRoleClient(tx.config)
+	tx.Server = NewServerClient(tx.config)
 	tx.User = NewUserClient(tx.config)
 }
 

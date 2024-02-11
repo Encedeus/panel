@@ -1,25 +1,18 @@
 <script lang="ts">
     import TabEnvironment from "$lib/components/internal/tabs/TabEnvironment.svelte";
     import SideBarTab from "$lib/components/internal/nav/SideBarTab.svelte";
-    import SettingsIcon from "$lib/components/heroicons/SettingsIcon.svelte";
     import SideBarTabLabel from "$lib/components/internal/nav/SideBarTabLabel.svelte";
-    import CloudIcon from "$lib/components/heroicons/CloudIcon.svelte";
     import { page } from "$app/stores";
-    import FolderIcon from "$lib/components/heroicons/FolderIcon.svelte";
-    import DatabaseIcon from "$lib/components/heroicons/DatabaseIcon.svelte";
-    import CalendarIcon from "$lib/components/heroicons/CalendarIcon.svelte";
-    import DefaultUserIcon from "$lib/components/heroicons/DefaultUserIcon.svelte";
-    import GlobeIcon from "$lib/components/heroicons/GlobeIcon.svelte";
-    import StartupIcon from "$lib/components/heroicons/StartupIcon.svelte";
-    import UserIcon from "$lib/components/heroicons/UserIcon.svelte";
+    import type { LayoutServerData } from "./$types";
     import ConsoleIcon from "$lib/components/heroicons/ConsoleIcon.svelte";
 
+    export let data: LayoutServerData;
     $: serverId = $page.params.id;
 </script>
 
 <TabEnvironment>
     <div slot="tabs">
-        <SideBarTab link="/dashboard/servers/{serverId}/console">
+<!--        <SideBarTab link="/dashboard/servers/{serverId}/console">
             <ConsoleIcon slot="icon"/>
             <SideBarTabLabel slot="label">
                 Console
@@ -72,9 +65,25 @@
             <SideBarTabLabel slot="label">
                 Settings
             </SideBarTabLabel>
+        </SideBarTab>-->
+        {#if data.modules}
+            {#each data.modules as m}
+                <SideBarTab link="/dashboard/servers/{serverId}/modules/{m.manifest?.name}">
+                    <img src="http://localhost:{m?.frontendServer?.port?.value}/favicon.ico" height="34" width="34" alt="{m?.manifest?.name} icon" slot="icon">
+                    <SideBarTabLabel slot="label">
+                        {m.manifest?.frontend?.tabName}
+                    </SideBarTabLabel>
+                </SideBarTab>
+            {/each}
+        {/if}
+        <SideBarTab link="/dashboard/servers/{serverId}/modules/dev_module_console">
+            <ConsoleIcon slot="icon"/>
+            <SideBarTabLabel slot="label">
+                Console
+            </SideBarTabLabel>
         </SideBarTab>
     </div>
-    <div slot="content">
+    <div slot="content" class="w-full h-full">
         <slot/>
     </div>
 </TabEnvironment>

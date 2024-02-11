@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/Encedeus/panel/ent/role"
+	"github.com/Encedeus/panel/ent/server"
 	"github.com/Encedeus/panel/ent/user"
 	"github.com/google/uuid"
 )
@@ -105,6 +106,21 @@ func (uc *UserCreate) SetNillableID(u *uuid.UUID) *UserCreate {
 // SetRole sets the "role" edge to the Role entity.
 func (uc *UserCreate) SetRole(r *Role) *UserCreate {
 	return uc.SetRoleID(r.ID)
+}
+
+// AddOwnerIDs adds the "owners" edge to the Server entity by IDs.
+func (uc *UserCreate) AddOwnerIDs(ids ...uuid.UUID) *UserCreate {
+	uc.mutation.AddOwnerIDs(ids...)
+	return uc
+}
+
+// AddOwners adds the "owners" edges to the Server entity.
+func (uc *UserCreate) AddOwners(s ...*Server) *UserCreate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return uc.AddOwnerIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -263,6 +279,22 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.RoleID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.OwnersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.OwnersTable,
+			Columns: []string{user.OwnersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(server.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

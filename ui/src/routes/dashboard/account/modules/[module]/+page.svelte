@@ -7,4 +7,4 @@
     const module = data.modules.find(m => m.manifest.name == $page.params.module);
 </script>
 
-<iframe class="border-none overflow-x-hidden w-full h-full" src="http://localhost:{module?.frontend_server?.port?.value}" title={module.manifest.name} loading="eager"></iframe>
+<iframe class="border-none overflow-x-hidden w-full h-full" src="http://localhost:{module?.frontendServer?.port?.value}" title={module.manifest.name} loading="eager"></iframe>

@@ -6,8 +6,11 @@ import (
 	"time"
 
 	"github.com/Encedeus/panel/ent/apikey"
+	"github.com/Encedeus/panel/ent/game"
+	"github.com/Encedeus/panel/ent/node"
 	"github.com/Encedeus/panel/ent/role"
 	"github.com/Encedeus/panel/ent/schema"
+	"github.com/Encedeus/panel/ent/server"
 	"github.com/Encedeus/panel/ent/user"
 	"github.com/google/uuid"
 )
@@ -36,6 +39,38 @@ func init() {
 	apikeyDescID := apikeyFields[0].Descriptor()
 	// apikey.DefaultID holds the default value on creation for the id field.
 	apikey.DefaultID = apikeyDescID.Default.(func() uuid.UUID)
+	gameFields := schema.Game{}.Fields()
+	_ = gameFields
+	// gameDescCreatedAt is the schema descriptor for created_at field.
+	gameDescCreatedAt := gameFields[1].Descriptor()
+	// game.DefaultCreatedAt holds the default value on creation for the created_at field.
+	game.DefaultCreatedAt = gameDescCreatedAt.Default.(func() time.Time)
+	// gameDescUpdatedAt is the schema descriptor for updated_at field.
+	gameDescUpdatedAt := gameFields[2].Descriptor()
+	// game.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	game.DefaultUpdatedAt = gameDescUpdatedAt.Default.(func() time.Time)
+	// game.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	game.UpdateDefaultUpdatedAt = gameDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// gameDescID is the schema descriptor for id field.
+	gameDescID := gameFields[0].Descriptor()
+	// game.DefaultID holds the default value on creation for the id field.
+	game.DefaultID = gameDescID.Default.(func() uuid.UUID)
+	nodeFields := schema.Node{}.Fields()
+	_ = nodeFields
+	// nodeDescCreatedAt is the schema descriptor for created_at field.
+	nodeDescCreatedAt := nodeFields[1].Descriptor()
+	// node.DefaultCreatedAt holds the default value on creation for the created_at field.
+	node.DefaultCreatedAt = nodeDescCreatedAt.Default.(func() time.Time)
+	// nodeDescUpdatedAt is the schema descriptor for updated_at field.
+	nodeDescUpdatedAt := nodeFields[2].Descriptor()
+	// node.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	node.DefaultUpdatedAt = nodeDescUpdatedAt.Default.(func() time.Time)
+	// node.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	node.UpdateDefaultUpdatedAt = nodeDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// nodeDescID is the schema descriptor for id field.
+	nodeDescID := nodeFields[0].Descriptor()
+	// node.DefaultID holds the default value on creation for the id field.
+	node.DefaultID = nodeDescID.Default.(func() uuid.UUID)
 	roleFields := schema.Role{}.Fields()
 	_ = roleFields
 	// roleDescCreatedAt is the schema descriptor for created_at field.
@@ -56,6 +91,22 @@ func init() {
 	roleDescID := roleFields[0].Descriptor()
 	// role.DefaultID holds the default value on creation for the id field.
 	role.DefaultID = roleDescID.Default.(func() uuid.UUID)
+	serverFields := schema.Server{}.Fields()
+	_ = serverFields
+	// serverDescCreatedAt is the schema descriptor for created_at field.
+	serverDescCreatedAt := serverFields[1].Descriptor()
+	// server.DefaultCreatedAt holds the default value on creation for the created_at field.
+	server.DefaultCreatedAt = serverDescCreatedAt.Default.(func() time.Time)
+	// serverDescUpdatedAt is the schema descriptor for updated_at field.
+	serverDescUpdatedAt := serverFields[2].Descriptor()
+	// server.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	server.DefaultUpdatedAt = serverDescUpdatedAt.Default.(func() time.Time)
+	// server.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	server.UpdateDefaultUpdatedAt = serverDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// serverDescID is the schema descriptor for id field.
+	serverDescID := serverFields[0].Descriptor()
+	// server.DefaultID holds the default value on creation for the id field.
+	server.DefaultID = serverDescID.Default.(func() uuid.UUID)
 	userFields := schema.User{}.Fields()
 	_ = userFields
 	// userDescCreatedAt is the schema descriptor for created_at field.

@@ -4,9 +4,9 @@
     import SideBarTab from "$lib/components/internal/nav/SideBarTab.svelte";
     import TabEnvironment from "$lib/components/internal/tabs/TabEnvironment.svelte";
     import SettingsIcon from "$lib/components/heroicons/SettingsIcon.svelte";
-    import type { LayoutServerData } from "./$types";
+    // import type { LayoutServerData } from "./$types";
 
-    export let data: LayoutServerData;
+    // export let data: LayoutServerData;
 </script>
 
 <TabEnvironment>
@@ -23,14 +23,14 @@
                 API Credentials
             </SideBarTabLabel>
         </SideBarTab>
-        {#each data.modules as m}
-            <SideBarTab link="/dashboard/account/modules/{m.manifest.name}">
-                <img src="http://localhost:{m?.frontend_server?.port?.value}/favicon.ico" height="34" width="34" alt="{m?.manifest?.name} icon" slot="icon">
+<!--        {#each data.modules as m}
+            <SideBarTab link="/dashboard/account/modules/{m.manifest?.name}">
+                <img src="http://localhost:{m?.frontendServer?.port?.value}/favicon.ico" height="34" width="34" alt="{m?.manifest?.name} icon" slot="icon">
                 <SideBarTabLabel slot="label">
-                    {m.manifest.frontend.tab_name}
+                    {m.manifest?.frontend?.tabName}
                 </SideBarTabLabel>
             </SideBarTab>
-        {/each}
+        {/each}-->
     </div>
     <div class="w-full h-full" slot="content">
         <slot/>

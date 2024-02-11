@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/Encedeus/panel/ent/predicate"
 	"github.com/Encedeus/panel/ent/role"
+	"github.com/Encedeus/panel/ent/server"
 	"github.com/Encedeus/panel/ent/user"
 	"github.com/google/uuid"
 )
@@ -99,6 +100,21 @@ func (uu *UserUpdate) SetRole(r *Role) *UserUpdate {
 	return uu.SetRoleID(r.ID)
 }
 
+// AddOwnerIDs adds the "owners" edge to the Server entity by IDs.
+func (uu *UserUpdate) AddOwnerIDs(ids ...uuid.UUID) *UserUpdate {
+	uu.mutation.AddOwnerIDs(ids...)
+	return uu
+}
+
+// AddOwners adds the "owners" edges to the Server entity.
+func (uu *UserUpdate) AddOwners(s ...*Server) *UserUpdate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return uu.AddOwnerIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uu *UserUpdate) Mutation() *UserMutation {
 	return uu.mutation
@@ -108,6 +124,27 @@ func (uu *UserUpdate) Mutation() *UserMutation {
 func (uu *UserUpdate) ClearRole() *UserUpdate {
 	uu.mutation.ClearRole()
 	return uu
+}
+
+// ClearOwners clears all "owners" edges to the Server entity.
+func (uu *UserUpdate) ClearOwners() *UserUpdate {
+	uu.mutation.ClearOwners()
+	return uu
+}
+
+// RemoveOwnerIDs removes the "owners" edge to Server entities by IDs.
+func (uu *UserUpdate) RemoveOwnerIDs(ids ...uuid.UUID) *UserUpdate {
+	uu.mutation.RemoveOwnerIDs(ids...)
+	return uu
+}
+
+// RemoveOwners removes "owners" edges to Server entities.
+func (uu *UserUpdate) RemoveOwners(s ...*Server) *UserUpdate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return uu.RemoveOwnerIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -226,6 +263,51 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if uu.mutation.OwnersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.OwnersTable,
+			Columns: []string{user.OwnersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(server.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.RemovedOwnersIDs(); len(nodes) > 0 && !uu.mutation.OwnersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.OwnersTable,
+			Columns: []string{user.OwnersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(server.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.OwnersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.OwnersTable,
+			Columns: []string{user.OwnersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(server.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, uu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{user.Label}
@@ -315,6 +397,21 @@ func (uuo *UserUpdateOne) SetRole(r *Role) *UserUpdateOne {
 	return uuo.SetRoleID(r.ID)
 }
 
+// AddOwnerIDs adds the "owners" edge to the Server entity by IDs.
+func (uuo *UserUpdateOne) AddOwnerIDs(ids ...uuid.UUID) *UserUpdateOne {
+	uuo.mutation.AddOwnerIDs(ids...)
+	return uuo
+}
+
+// AddOwners adds the "owners" edges to the Server entity.
+func (uuo *UserUpdateOne) AddOwners(s ...*Server) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return uuo.AddOwnerIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uuo *UserUpdateOne) Mutation() *UserMutation {
 	return uuo.mutation
@@ -324,6 +421,27 @@ func (uuo *UserUpdateOne) Mutation() *UserMutation {
 func (uuo *UserUpdateOne) ClearRole() *UserUpdateOne {
 	uuo.mutation.ClearRole()
 	return uuo
+}
+
+// ClearOwners clears all "owners" edges to the Server entity.
+func (uuo *UserUpdateOne) ClearOwners() *UserUpdateOne {
+	uuo.mutation.ClearOwners()
+	return uuo
+}
+
+// RemoveOwnerIDs removes the "owners" edge to Server entities by IDs.
+func (uuo *UserUpdateOne) RemoveOwnerIDs(ids ...uuid.UUID) *UserUpdateOne {
+	uuo.mutation.RemoveOwnerIDs(ids...)
+	return uuo
+}
+
+// RemoveOwners removes "owners" edges to Server entities.
+func (uuo *UserUpdateOne) RemoveOwners(s ...*Server) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return uuo.RemoveOwnerIDs(ids...)
 }
 
 // Where appends a list predicates to the UserUpdate builder.
@@ -465,6 +583,51 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uuo.mutation.OwnersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.OwnersTable,
+			Columns: []string{user.OwnersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(server.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.RemovedOwnersIDs(); len(nodes) > 0 && !uuo.mutation.OwnersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.OwnersTable,
+			Columns: []string{user.OwnersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(server.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.OwnersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.OwnersTable,
+			Columns: []string{user.OwnersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(server.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

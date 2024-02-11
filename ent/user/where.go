@@ -459,6 +459,29 @@ func HasRoleWith(preds ...predicate.Role) predicate.User {
 	})
 }
 
+// HasOwners applies the HasEdge predicate on the "owners" edge.
+func HasOwners() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, OwnersTable, OwnersColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasOwnersWith applies the HasEdge predicate on the "owners" edge with a given conditions (other predicates).
+func HasOwnersWith(preds ...predicate.Server) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newOwnersStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.User) predicate.User {
 	return predicate.User(func(s *sql.Selector) {

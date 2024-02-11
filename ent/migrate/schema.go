@@ -32,6 +32,42 @@ var (
 			},
 		},
 	}
+	// GamesColumns holds the columns for the "games" table.
+	GamesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "name", Type: field.TypeString, Unique: true},
+		{Name: "description", Type: field.TypeString},
+	}
+	// GamesTable holds the schema information for the "games" table.
+	GamesTable = &schema.Table{
+		Name:       "games",
+		Columns:    GamesColumns,
+		PrimaryKey: []*schema.Column{GamesColumns[0]},
+	}
+	// NodesColumns holds the columns for the "nodes" table.
+	NodesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "ipv4_address", Type: field.TypeString, Unique: true},
+		{Name: "fqdn", Type: field.TypeString, Unique: true},
+		{Name: "skyhook_version", Type: field.TypeString},
+		{Name: "os", Type: field.TypeString},
+		{Name: "cpu", Type: field.TypeString},
+		{Name: "cpu_base_clock", Type: field.TypeUint},
+		{Name: "cores", Type: field.TypeUint},
+		{Name: "logical_cores", Type: field.TypeUint},
+		{Name: "ram", Type: field.TypeUint},
+		{Name: "storage", Type: field.TypeUint},
+	}
+	// NodesTable holds the schema information for the "nodes" table.
+	NodesTable = &schema.Table{
+		Name:       "nodes",
+		Columns:    NodesColumns,
+		PrimaryKey: []*schema.Column{NodesColumns[0]},
+	}
 	// RolesColumns holds the columns for the "roles" table.
 	RolesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
@@ -46,6 +82,45 @@ var (
 		Name:       "roles",
 		Columns:    RolesColumns,
 		PrimaryKey: []*schema.Column{RolesColumns[0]},
+	}
+	// ServersColumns holds the columns for the "servers" table.
+	ServersColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "ram", Type: field.TypeUint},
+		{Name: "storage", Type: field.TypeUint},
+		{Name: "logical_cores", Type: field.TypeUint},
+		{Name: "port", Type: field.TypeUint16},
+		{Name: "game_games", Type: field.TypeUUID, Nullable: true},
+		{Name: "node_nodes", Type: field.TypeUUID, Nullable: true},
+		{Name: "user_owners", Type: field.TypeUUID, Nullable: true},
+	}
+	// ServersTable holds the schema information for the "servers" table.
+	ServersTable = &schema.Table{
+		Name:       "servers",
+		Columns:    ServersColumns,
+		PrimaryKey: []*schema.Column{ServersColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "servers_games_games",
+				Columns:    []*schema.Column{ServersColumns[7]},
+				RefColumns: []*schema.Column{GamesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "servers_nodes_nodes",
+				Columns:    []*schema.Column{ServersColumns[8]},
+				RefColumns: []*schema.Column{NodesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "servers_users_owners",
+				Columns:    []*schema.Column{ServersColumns[9]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
 	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
@@ -75,12 +150,18 @@ var (
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		APIKeysTable,
+		GamesTable,
+		NodesTable,
 		RolesTable,
+		ServersTable,
 		UsersTable,
 	}
 )
 
 func init() {
 	APIKeysTable.ForeignKeys[0].RefTable = UsersTable
+	ServersTable.ForeignKeys[0].RefTable = GamesTable
+	ServersTable.ForeignKeys[1].RefTable = NodesTable
+	ServersTable.ForeignKeys[2].RefTable = UsersTable
 	UsersTable.ForeignKeys[0].RefTable = RolesTable
 }

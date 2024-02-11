@@ -9,7 +9,7 @@
     const sizes: { [size: string] : { rows: number; cols: number; } } = {
         lg: {
             rows: 10,
-            cols: 76,
+            cols: 78,
         },
         md: {
             rows: 7,

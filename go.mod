@@ -16,6 +16,7 @@ require (
 	github.com/microcosm-cc/bluemonday v1.0.25
 	github.com/rodaine/hclencoder v0.0.1
 	github.com/second-state/WasmEdge-go v0.13.4
+	github.com/torenware/vite-go v0.5.6
 	golang.org/x/crypto v0.14.0
 	golang.org/x/exp v0.0.0-20231006140011-7918f672742d
 	golang.org/x/text v0.13.0
@@ -39,7 +40,6 @@ require (
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/mitchellh/go-wordwrap v0.0.0-20150314170334-ad45545899c7 // indirect
-	github.com/torenware/vite-go v0.5.6 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	github.com/zclconf/go-cty v1.13.0 // indirect

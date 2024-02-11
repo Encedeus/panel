@@ -102,7 +102,7 @@
             return;
         }
 
-        key.key = response?.accountApiKey?.key;
+        key.key = <string>response?.accountApiKey?.key;
         key.id = response?.accountApiKey?.id;
         apiKeys = [key, ...apiKeys];
 
@@ -175,8 +175,8 @@
                     Create API Key
                 </span>
                 <PlusIcon slot="icon"/>
-                <div class="mt-5 w-full h-full flex flex-col items-center justify-between" slot="content">
-                    <div class="w-full h-full flex flex-col items-center justify-center gap-4">
+<!--                <div class="mt-5 w-full h-full flex flex-col items-center justify-between" slot="content">-->
+                    <div class="mt-7 w-full h-full flex flex-col items-center basis-0 flex-grow justify-center gap-4" slot="content">
                         <Input bind:value={keyDescription} error={descriptionError} label="Description"
                                on:input={clearInput}
                                placeholder="API Key Description" size="xl"/>
@@ -185,12 +185,12 @@
                                   on:input={clearInput}
                                   placeholder="Leave blank to allow any IP address to use this API key. Otherwise, provide each IP address on a new line."
                                   size="lg"/>
-                        <Button className="mt-6 flex justify-center items-center" color="indigo"
+                        <Button className="mt-7 flex justify-center items-center" color="indigo"
                                 on:click={async () => await createKey()}
                                 size="sm">Create
                         </Button>
                     </div>
-                </div>
+<!--                </div>-->
             </Card>
         </div>
         <div>

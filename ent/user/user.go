@@ -31,6 +31,8 @@ const (
 	FieldRoleID = "role_id"
 	// EdgeRole holds the string denoting the role edge name in mutations.
 	EdgeRole = "role"
+	// EdgeOwners holds the string denoting the owners edge name in mutations.
+	EdgeOwners = "owners"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// RoleTable is the table that holds the role relation/edge.
@@ -40,6 +42,13 @@ const (
 	RoleInverseTable = "roles"
 	// RoleColumn is the table column denoting the role relation/edge.
 	RoleColumn = "role_id"
+	// OwnersTable is the table that holds the owners relation/edge.
+	OwnersTable = "servers"
+	// OwnersInverseTable is the table name for the Server entity.
+	// It exists in this package in order to avoid circular dependency with the "server" package.
+	OwnersInverseTable = "servers"
+	// OwnersColumn is the table column denoting the owners relation/edge.
+	OwnersColumn = "user_owners"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -128,10 +137,31 @@ func ByRoleField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newRoleStep(), sql.OrderByField(field, opts...))
 	}
 }
+
+// ByOwnersCount orders the results by owners count.
+func ByOwnersCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newOwnersStep(), opts...)
+	}
+}
+
+// ByOwners orders the results by owners terms.
+func ByOwners(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newOwnersStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newRoleStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(RoleInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, false, RoleTable, RoleColumn),
+	)
+}
+func newOwnersStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(OwnersInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, OwnersTable, OwnersColumn),
 	)
 }

@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@encedeus/js-api": "^0.0.85"
+  }
+}

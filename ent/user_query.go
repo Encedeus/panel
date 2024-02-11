@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -12,6 +13,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/Encedeus/panel/ent/predicate"
 	"github.com/Encedeus/panel/ent/role"
+	"github.com/Encedeus/panel/ent/server"
 	"github.com/Encedeus/panel/ent/user"
 	"github.com/google/uuid"
 )
@@ -24,6 +26,7 @@ type UserQuery struct {
 	inters     []Interceptor
 	predicates []predicate.User
 	withRole   *RoleQuery
+	withOwners *ServerQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -75,6 +78,28 @@ func (uq *UserQuery) QueryRole() *RoleQuery {
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(role.Table, role.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, false, user.RoleTable, user.RoleColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryOwners chains the current query on the "owners" edge.
+func (uq *UserQuery) QueryOwners() *ServerQuery {
+	query := (&ServerClient{config: uq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := uq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := uq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(server.Table, server.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.OwnersTable, user.OwnersColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
 		return fromU, nil
@@ -275,6 +300,7 @@ func (uq *UserQuery) Clone() *UserQuery {
 		inters:     append([]Interceptor{}, uq.inters...),
 		predicates: append([]predicate.User{}, uq.predicates...),
 		withRole:   uq.withRole.Clone(),
+		withOwners: uq.withOwners.Clone(),
 		// clone intermediate query.
 		sql:  uq.sql.Clone(),
 		path: uq.path,
@@ -289,6 +315,17 @@ func (uq *UserQuery) WithRole(opts ...func(*RoleQuery)) *UserQuery {
 		opt(query)
 	}
 	uq.withRole = query
+	return uq
+}
+
+// WithOwners tells the query-builder to eager-load the nodes that are connected to
+// the "owners" edge. The optional arguments are used to configure the query builder of the edge.
+func (uq *UserQuery) WithOwners(opts ...func(*ServerQuery)) *UserQuery {
+	query := (&ServerClient{config: uq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	uq.withOwners = query
 	return uq
 }
 
@@ -370,8 +407,9 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	var (
 		nodes       = []*User{}
 		_spec       = uq.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
 			uq.withRole != nil,
+			uq.withOwners != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -395,6 +433,13 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	if query := uq.withRole; query != nil {
 		if err := uq.loadRole(ctx, query, nodes, nil,
 			func(n *User, e *Role) { n.Edges.Role = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := uq.withOwners; query != nil {
+		if err := uq.loadOwners(ctx, query, nodes,
+			func(n *User) { n.Edges.Owners = []*Server{} },
+			func(n *User, e *Server) { n.Edges.Owners = append(n.Edges.Owners, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -427,6 +472,37 @@ func (uq *UserQuery) loadRole(ctx context.Context, query *RoleQuery, nodes []*Us
 		for i := range nodes {
 			assign(nodes[i], n)
 		}
+	}
+	return nil
+}
+func (uq *UserQuery) loadOwners(ctx context.Context, query *ServerQuery, nodes []*User, init func(*User), assign func(*User, *Server)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.Server(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.OwnersColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.user_owners
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "user_owners" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_owners" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
 	}
 	return nil
 }

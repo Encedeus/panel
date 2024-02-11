@@ -13,7 +13,10 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/Encedeus/panel/ent/apikey"
+	"github.com/Encedeus/panel/ent/game"
+	"github.com/Encedeus/panel/ent/node"
 	"github.com/Encedeus/panel/ent/role"
+	"github.com/Encedeus/panel/ent/server"
 	"github.com/Encedeus/panel/ent/user"
 )
 
@@ -76,7 +79,10 @@ func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
 			apikey.Table: apikey.ValidColumn,
+			game.Table:   game.ValidColumn,
+			node.Table:   node.ValidColumn,
 			role.Table:   role.ValidColumn,
+			server.Table: server.ValidColumn,
 			user.Table:   user.ValidColumn,
 		})
 	})
@@ -188,7 +194,7 @@ func (e *ValidationError) Unwrap() error {
 	return e.err
 }
 
-// IsValidationError returns a boolean indicating whether the error is a validate error.
+// IsValidationError returns a boolean indicating whether the error is a validation error.
 func IsValidationError(err error) bool {
 	if err == nil {
 		return false

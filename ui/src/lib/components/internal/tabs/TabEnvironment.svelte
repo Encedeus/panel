@@ -14,7 +14,7 @@
     <NavBar>
         <div slot="logo" class="text-white text-3xl font-bold font-lato">Encedeus</div>
         <div class="flex items-center justify-between gap-3 mr-5" slot="links">
-            <NavItem link="/dashboard/account">
+            <NavItem link="/dashboard/admin">
                 <SettingsIcon/>
             </NavItem>
             <NavItem link="/dashboard/servers">
@@ -23,7 +23,7 @@
             <NavItem on:click={signOut}>
                 <DoorExitIcon/>
             </NavItem>
-            <NavItem link="/dashboard/account/settings">
+            <NavItem link="/dashboard/account">
                 <ProfilePicture/>
             </NavItem>
         </div>

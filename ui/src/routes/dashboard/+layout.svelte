@@ -1,6 +1,6 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import { getSignedInUser } from "$lib/services/auth_service.ts";
+    import { getSignedInUser } from "$lib/services/auth_service";
 
     onMount(async () => {
         await getSignedInUser();

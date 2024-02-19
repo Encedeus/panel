@@ -21,6 +21,7 @@
 
     async function signIn() {
         const {error, accessToken} = await sendAuthenticationRequest(uid, password);
+        console.log(error);
         checkForErrors(error);
         if (error) {
             return;
@@ -44,8 +45,7 @@
 
         if (isWrongEmailOrUsernameError(error) || isBadRequestError(error)) {
             uidError = true;
-        }
-        if (isWrongPasswordError(error)) {
+        } else if (isWrongPasswordError(error)) {
             passwordError = true;
         }
     }

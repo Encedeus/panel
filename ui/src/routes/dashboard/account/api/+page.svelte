@@ -18,7 +18,7 @@
         AccountAPIKey,
         AccountAPIKeyDeleteRequest,
         UUID,
-        AccountAPIKeyCreateRequest
+        AccountAPIKeyCreateRequest, AccountAPIKeyFindManyByUserRequest
     } from "@encedeus/js-api";
     import type { PageServerData } from "./$types";
     import { fly } from "svelte/transition";
@@ -113,9 +113,8 @@
     }
 
     async function deleteKey(keyId: UUID) {
-        const idx = apiKeys.findIndex(key => key.id?.value === keyId.value);
-        apiKeys.splice(idx, 1);
-        apiKeys = apiKeys;
+        const idx = apiKeys.findIndex(key => key.id === keyId);
+        apiKeys = apiKeys.toSpliced(idx, 1);
 
         const resp = await api.apiKeyService.deleteAccountApiKey(AccountAPIKeyDeleteRequest.create({
             id: UUID.create(keyId),

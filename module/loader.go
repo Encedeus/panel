@@ -12,8 +12,6 @@ import (
 	"github.com/second-state/WasmEdge-go/wasmedge"
 	"io"
 	"io/fs"
-	"math"
-	"math/rand"
 	"net"
 	"net/http"
 	"os"
@@ -31,8 +29,20 @@ const ManifestFileName = "manifest.hcl"
 
 // const ModulesFolderLocation = "/etc/encedeus/modules"
 
+/*type ModuleLoadError struct {
+	a   *Module
+	b   *Module
+	err string
+}
+
+func (e ModuleLoadError) Error() string {
+	return err
+}*/
+
 var (
-	ErrInvalidManifest = errors.New("invalid manifest file")
+	ErrInvalidManifest          = errors.New("invalid manifest file")
+	ErrModuleDependencyNotFound = errors.New("module dependency not found")
+	ErrCircularDependency       = errors.New("circular dependency")
 )
 
 type SemVerVersion struct {
@@ -81,42 +91,114 @@ func NewStore(modulesPath string) *Store {
 	return store
 }
 
-type num int32
-
-func (n num) display() string {
-	return fmt.Sprintf("Broj: %v", n)
-}
-
-func (ms *Store) GetAvailablePort() Port {
-	maxPort := math.MaxUint16
-	minPort := 1024
-
-	isAvailable := func(port Port) func(m *Module) bool {
-		return func(m *Module) bool {
-			if m != nil {
-				if m.RPCPort == port {
-					return true
-				}
-			}
-
-			timeout := time.Second
-			conn, err := net.DialTimeout("tcp", net.JoinHostPort("localhost", strconv.Itoa(int(port))), timeout)
-			defer conn.Close()
-			if err == nil && conn != nil {
-				return true
-			}
-
-			return false
+func (ms *Store) FindModuleByName(name string) (bool, *Module) {
+	for _, m := range ms.Modules {
+		if m.Manifest.Name == name {
+			return true, m
 		}
 	}
 
-	var port = Port(rand.Intn(maxPort-minPort) + minPort)
-	for slices.ContainsFunc(ms.Modules, isAvailable(port)) {
-		port = Port(rand.Intn(maxPort-minPort) + minPort)
-	}
-	fmt.Printf("Available port: %v\n", port)
+	return false, nil
+}
 
-	return port
+func (ms *Store) buildDependencyGraph() {
+	for _, m := range ms.Modules {
+		for _, depName := range m.Manifest.Dependencies {
+			isFound, dep := ms.FindModuleByName(depName)
+			if !isFound {
+				log.Printf("Module %v depends on module %v, but module %v doesn't exist", m.Manifest.Name, depName, depName)
+				return
+			}
+			m.Dependencies = append(m.Dependencies, dep)
+		}
+	}
+}
+
+func (ms *Store) resolveDependencies() []*Module {
+	ms.buildDependencyGraph()
+	start := ms.Modules[0]
+	resolved := make([]*Module, 0)
+	unresolved := make([]*Module, 0)
+	err := resolveDependenciesRecurse(start, &resolved, &unresolved)
+	if err != nil {
+		log.Printf("%v\n", err)
+	}
+
+	return resolved
+}
+
+func resolveDependenciesRecurse(m *Module, resolved, unresolved *[]*Module) error {
+	*unresolved = append(*unresolved, m)
+	for _, dep := range m.Dependencies {
+		if !slices.Contains(*resolved, dep) {
+			if slices.Contains(*unresolved, dep) {
+				return ErrCircularDependency
+			}
+			return resolveDependenciesRecurse(dep, resolved, unresolved)
+		}
+	}
+	*resolved = append(*resolved, m)
+	*unresolved = slices.DeleteFunc(*unresolved, func(module *Module) bool {
+		return module.Manifest.Name == m.Manifest.Name
+	})
+
+	return nil
+}
+
+func (ms *Store) GetAvailablePort() Port {
+	/*	maxPort := math.MaxUint16
+		minPort := 1024
+
+		isAvailable := func(port Port) func(m *Module) bool {
+			return func(m *Module) bool {
+				if m != nil {
+					if m.Backend.RPCPort == port {
+						return true
+					}
+				}
+
+				timeout := time.Second
+				conn, err := net.DialTimeout("tcp", net.JoinHostPort("localhost", strconv.Itoa(int(port))), timeout)
+				defer conn.Close()
+				if err == nil && conn != nil {
+					return true
+				}
+
+				return false
+			}
+		}
+
+		var port = Port(rand.Intn(maxPort-minPort) + minPort)
+		for slices.ContainsFunc(ms.Modules, isAvailable(port)) {
+			port = Port(rand.Intn(maxPort-minPort) + minPort)
+		}
+		fmt.Printf("Available port: %v\n", port)*/
+
+	server, err := net.Listen("tcp", ":0")
+
+	// If there's an error it likely means no ports
+	// are available or something else prevented finding
+	// an open port
+	if err != nil {
+		return 0
+	}
+
+	// Defer the closing of the server so it closes
+	defer server.Close()
+
+	// Get the host string in the format "127.0.0.1:4444"
+	hostString := server.Addr().String()
+
+	// Split the host from the port
+	_, portString, err := net.SplitHostPort(hostString)
+	if err != nil {
+		return 0
+	}
+
+	// Return the port as an int
+	port, _ := strconv.Atoi(portString)
+
+	return Port(port)
 }
 
 type Configuration struct {
@@ -129,7 +211,7 @@ type HandshakeResponse struct {
 	RegisteredCommands []*Command
 }
 
-func (ms *Store) LoadOne(emaPath string) (*Module, error) {
+func (ms *Store) LoadOne(emaPath string, doHandshake bool) (*Module, error) {
 	zipReader, err := zip.OpenReader(filepath.Join(ms.ModulesFolderPath, emaPath))
 	if err != nil {
 		log.Errorf("%e", err)
@@ -192,19 +274,25 @@ func (ms *Store) LoadOne(emaPath string) (*Module, error) {
 		}
 	}
 
-	fmt.Printf("Frontend port: %v\n", frontendServer.Port)
+	backend := &Backend{
+		BackendPort: backendPort,
+		RPCPort:     rpcPort,
+	}
+
+	//fmt.Printf("Frontend port: %v\n", frontendServer.Port)
 
 	module := new(Module)
 	module.Manifest = *manifest
-	module.BackendPort = backendPort
-	module.RPCPort = rpcPort
 	module.Store = ms
 	module.FrontendServer = frontendServer
+	module.Backend = backend
 
-	err = module.beginHandshake()
-	if err != nil {
-		log.Errorf("%e", err)
-		return nil, err
+	if doHandshake {
+		err = module.beginHandshake()
+		if err != nil {
+			log.Errorf("%e", err)
+			return nil, err
+		}
 	}
 	// fmt.Println("Hadnshake done")
 
@@ -231,7 +319,6 @@ func (ms *Store) InitRPCServer() {
 		Handler:      rpcSrv,
 	}
 
-	fmt.Println("RPC server started")
 	log.Fatal(srv.ListenAndServe())
 }
 
@@ -253,33 +340,57 @@ func (ms *Store) LoadAll() error {
 		return err
 	}
 
-	// ms.InitRPCServer()
+	go ms.InitRPCServer()
 
+	wg := sync.WaitGroup{}
 	for _, ema := range modulesFolder {
 		if filepath.Ext(ema.Name()) != ".ema" {
 			continue
 		}
+		wg.Add(1)
 
 		go func(name string) {
-			_, err := ms.LoadOne(name)
+			_, err := ms.LoadOne(name, false)
 			if err != nil {
 				log.Errorf("Failed loading module %s: %e", name, err)
 			}
+			wg.Done()
 		}(ema.Name())
 	}
+	wg.Wait()
+
+	loadOrder := ms.resolveDependencies()
+	wg.Add(len(loadOrder))
+	for _, m := range loadOrder {
+		go func(module *Module) {
+			err = module.beginHandshake()
+			if err != nil {
+				log.Errorf("%e", err)
+			}
+			wg.Done()
+		}(m)
+	}
+	wg.Wait()
 
 	return nil
 }
 
 type Port uint16
 type Module struct {
-	ID             uuid.UUID
-	Store          *Store
-	Manifest       Manifest
-	BackendPort    Port
-	RPCPort        Port
+	ID       uuid.UUID
+	Store    *Store
+	Manifest Manifest
+	Backend  *Backend
+	/*	BackendPort    Port
+		RPCPort        Port*/
 	FrontendServer *FrontendServer
+	Dependencies   []*Module
 	// RegisteredCommands []*Command
+}
+
+type Backend struct {
+	BackendPort Port
+	RPCPort     Port
 }
 
 func (m *Module) beginHandshake() error {
@@ -289,8 +400,20 @@ func (m *Module) beginHandshake() error {
 	// fmt.Println("Handshake")
 	// time.Sleep(2 * time.Second)/**/
 
-	fmt.Printf("Actual RPC port: %v\n", m.RPCPort)
-	closer, err := jsonrpc.NewClient(context.Background(), fmt.Sprintf("http://localhost:%v", m.RPCPort), "HandshakeHandler", &client, nil)
+	//fmt.Printf("Actual RPC port: %v\n", m.Backend.RPCPort)
+	start := time.Now()
+	for {
+		conn, err := net.DialTimeout("tcp", fmt.Sprintf("127.0.0.1:%v", m.Backend.RPCPort), 5*time.Second)
+		if err == nil {
+			_ = conn.Close()
+			break
+		}
+		if time.Now().Sub(start) > 5*time.Second {
+			log.Printf("Connection to module %v RPC server at port %v refused: %v", m.ID, m.Backend.RPCPort, err)
+			break
+		}
+	}
+	closer, err := jsonrpc.NewClient(context.Background(), fmt.Sprintf("http://localhost:%v", m.Backend.RPCPort), "HandshakeHandler", &client, nil)
 	if err != nil {
 		return err
 	}
@@ -298,10 +421,10 @@ func (m *Module) beginHandshake() error {
 
 	_ = client.OnHandshake(Configuration{
 		Manifest: m.Manifest,
-		Port:     m.BackendPort,
+		Port:     m.Backend.BackendPort,
 		HostPort: m.Store.RPCPort,
 	})
-	// fmt.Printf("%+v\n", resp)
+	//fmt.Printf("handshake done\n%+v\n", resp)
 	// m.RegisteredCommands = resp.RegisteredCommands
 
 	return nil
@@ -320,6 +443,7 @@ type Manifest struct {
 		// TabIconPath string `hcl:"tab_icon"`
 		Platform string `hcl:"platform"`
 	} `hcl:"frontend,block"`
+	Dependencies []string `hcl:"dependencies"`
 }
 
 func (m *Manifest) SemVer() SemVerVersion {

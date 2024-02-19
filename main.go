@@ -7,14 +7,12 @@ import (
 	"github.com/labstack/gommon/log"
 )
 
-type cumInt uint64
-
 func main() {
 	config.InitConfig()
 	db := config.InitDB()
 
 	s := module.NewStore("/home/optimuseprime/Projects/Encedeus/test/panel/modules")
-	go s.InitRPCServer()
+	// go s.InitRPCServer()
 	err := s.LoadAll()
 	if err != nil {
 		log.Fatalf("Load all error: %e", err)

@@ -21,17 +21,18 @@ func (Node) Fields() []ent.Field {
 		field.Time("updated_at").UpdateDefault(time.Now).Default(time.Now),
 		field.String("ipv4_address").Unique(),
 		field.String("fqdn").Unique(),
-		field.String("skyhook_version"),
-		field.String("os"),
-		field.String("cpu"),
+		field.String("skyhook_version").Optional(),
+		field.String("skyhook_api_key").Unique(),
+		field.String("os").Optional(),
+		field.String("cpu").Optional(),
 		// in MHz
-		field.Uint("cpu_base_clock"),
-		field.Uint("cores"),
-		field.Uint("logical_cores"),
+		field.Uint("cpu_base_clock").Optional(),
+		field.Uint("cores").Optional(),
+		field.Uint("logical_cores").Optional(),
 		// In KB
-		field.Uint("ram"),
+		field.Uint64("ram").Optional(),
 		// In KB
-		field.Uint("storage"),
+		field.Uint64("storage").Optional(),
 	}
 }
 

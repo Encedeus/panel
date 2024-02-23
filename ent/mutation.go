@@ -1349,6 +1349,7 @@ type NodeMutation struct {
 	ipv4_address      *string
 	fqdn              *string
 	skyhook_version   *string
+	skyhook_api_key   *string
 	os                *string
 	cpu               *string
 	cpu_base_clock    *uint
@@ -1357,10 +1358,10 @@ type NodeMutation struct {
 	addcores          *int
 	logical_cores     *uint
 	addlogical_cores  *int
-	ram               *uint
-	addram            *int
-	storage           *uint
-	addstorage        *int
+	ram               *uint64
+	addram            *int64
+	storage           *uint64
+	addstorage        *int64
 	clearedFields     map[string]struct{}
 	nodes             map[uuid.UUID]struct{}
 	removednodes      map[uuid.UUID]struct{}
@@ -1649,9 +1650,58 @@ func (m *NodeMutation) OldSkyhookVersion(ctx context.Context) (v string, err err
 	return oldValue.SkyhookVersion, nil
 }
 
+// ClearSkyhookVersion clears the value of the "skyhook_version" field.
+func (m *NodeMutation) ClearSkyhookVersion() {
+	m.skyhook_version = nil
+	m.clearedFields[node.FieldSkyhookVersion] = struct{}{}
+}
+
+// SkyhookVersionCleared returns if the "skyhook_version" field was cleared in this mutation.
+func (m *NodeMutation) SkyhookVersionCleared() bool {
+	_, ok := m.clearedFields[node.FieldSkyhookVersion]
+	return ok
+}
+
 // ResetSkyhookVersion resets all changes to the "skyhook_version" field.
 func (m *NodeMutation) ResetSkyhookVersion() {
 	m.skyhook_version = nil
+	delete(m.clearedFields, node.FieldSkyhookVersion)
+}
+
+// SetSkyhookAPIKey sets the "skyhook_api_key" field.
+func (m *NodeMutation) SetSkyhookAPIKey(s string) {
+	m.skyhook_api_key = &s
+}
+
+// SkyhookAPIKey returns the value of the "skyhook_api_key" field in the mutation.
+func (m *NodeMutation) SkyhookAPIKey() (r string, exists bool) {
+	v := m.skyhook_api_key
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSkyhookAPIKey returns the old "skyhook_api_key" field's value of the Node entity.
+// If the Node object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *NodeMutation) OldSkyhookAPIKey(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSkyhookAPIKey is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSkyhookAPIKey requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSkyhookAPIKey: %w", err)
+	}
+	return oldValue.SkyhookAPIKey, nil
+}
+
+// ResetSkyhookAPIKey resets all changes to the "skyhook_api_key" field.
+func (m *NodeMutation) ResetSkyhookAPIKey() {
+	m.skyhook_api_key = nil
 }
 
 // SetOs sets the "os" field.
@@ -1685,9 +1735,22 @@ func (m *NodeMutation) OldOs(ctx context.Context) (v string, err error) {
 	return oldValue.Os, nil
 }
 
+// ClearOs clears the value of the "os" field.
+func (m *NodeMutation) ClearOs() {
+	m.os = nil
+	m.clearedFields[node.FieldOs] = struct{}{}
+}
+
+// OsCleared returns if the "os" field was cleared in this mutation.
+func (m *NodeMutation) OsCleared() bool {
+	_, ok := m.clearedFields[node.FieldOs]
+	return ok
+}
+
 // ResetOs resets all changes to the "os" field.
 func (m *NodeMutation) ResetOs() {
 	m.os = nil
+	delete(m.clearedFields, node.FieldOs)
 }
 
 // SetCPU sets the "cpu" field.
@@ -1721,9 +1784,22 @@ func (m *NodeMutation) OldCPU(ctx context.Context) (v string, err error) {
 	return oldValue.CPU, nil
 }
 
+// ClearCPU clears the value of the "cpu" field.
+func (m *NodeMutation) ClearCPU() {
+	m.cpu = nil
+	m.clearedFields[node.FieldCPU] = struct{}{}
+}
+
+// CPUCleared returns if the "cpu" field was cleared in this mutation.
+func (m *NodeMutation) CPUCleared() bool {
+	_, ok := m.clearedFields[node.FieldCPU]
+	return ok
+}
+
 // ResetCPU resets all changes to the "cpu" field.
 func (m *NodeMutation) ResetCPU() {
 	m.cpu = nil
+	delete(m.clearedFields, node.FieldCPU)
 }
 
 // SetCPUBaseClock sets the "cpu_base_clock" field.
@@ -1776,10 +1852,24 @@ func (m *NodeMutation) AddedCPUBaseClock() (r int, exists bool) {
 	return *v, true
 }
 
+// ClearCPUBaseClock clears the value of the "cpu_base_clock" field.
+func (m *NodeMutation) ClearCPUBaseClock() {
+	m.cpu_base_clock = nil
+	m.addcpu_base_clock = nil
+	m.clearedFields[node.FieldCPUBaseClock] = struct{}{}
+}
+
+// CPUBaseClockCleared returns if the "cpu_base_clock" field was cleared in this mutation.
+func (m *NodeMutation) CPUBaseClockCleared() bool {
+	_, ok := m.clearedFields[node.FieldCPUBaseClock]
+	return ok
+}
+
 // ResetCPUBaseClock resets all changes to the "cpu_base_clock" field.
 func (m *NodeMutation) ResetCPUBaseClock() {
 	m.cpu_base_clock = nil
 	m.addcpu_base_clock = nil
+	delete(m.clearedFields, node.FieldCPUBaseClock)
 }
 
 // SetCores sets the "cores" field.
@@ -1832,10 +1922,24 @@ func (m *NodeMutation) AddedCores() (r int, exists bool) {
 	return *v, true
 }
 
+// ClearCores clears the value of the "cores" field.
+func (m *NodeMutation) ClearCores() {
+	m.cores = nil
+	m.addcores = nil
+	m.clearedFields[node.FieldCores] = struct{}{}
+}
+
+// CoresCleared returns if the "cores" field was cleared in this mutation.
+func (m *NodeMutation) CoresCleared() bool {
+	_, ok := m.clearedFields[node.FieldCores]
+	return ok
+}
+
 // ResetCores resets all changes to the "cores" field.
 func (m *NodeMutation) ResetCores() {
 	m.cores = nil
 	m.addcores = nil
+	delete(m.clearedFields, node.FieldCores)
 }
 
 // SetLogicalCores sets the "logical_cores" field.
@@ -1888,20 +1992,34 @@ func (m *NodeMutation) AddedLogicalCores() (r int, exists bool) {
 	return *v, true
 }
 
+// ClearLogicalCores clears the value of the "logical_cores" field.
+func (m *NodeMutation) ClearLogicalCores() {
+	m.logical_cores = nil
+	m.addlogical_cores = nil
+	m.clearedFields[node.FieldLogicalCores] = struct{}{}
+}
+
+// LogicalCoresCleared returns if the "logical_cores" field was cleared in this mutation.
+func (m *NodeMutation) LogicalCoresCleared() bool {
+	_, ok := m.clearedFields[node.FieldLogicalCores]
+	return ok
+}
+
 // ResetLogicalCores resets all changes to the "logical_cores" field.
 func (m *NodeMutation) ResetLogicalCores() {
 	m.logical_cores = nil
 	m.addlogical_cores = nil
+	delete(m.clearedFields, node.FieldLogicalCores)
 }
 
 // SetRAM sets the "ram" field.
-func (m *NodeMutation) SetRAM(u uint) {
+func (m *NodeMutation) SetRAM(u uint64) {
 	m.ram = &u
 	m.addram = nil
 }
 
 // RAM returns the value of the "ram" field in the mutation.
-func (m *NodeMutation) RAM() (r uint, exists bool) {
+func (m *NodeMutation) RAM() (r uint64, exists bool) {
 	v := m.ram
 	if v == nil {
 		return
@@ -1912,7 +2030,7 @@ func (m *NodeMutation) RAM() (r uint, exists bool) {
 // OldRAM returns the old "ram" field's value of the Node entity.
 // If the Node object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *NodeMutation) OldRAM(ctx context.Context) (v uint, err error) {
+func (m *NodeMutation) OldRAM(ctx context.Context) (v uint64, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldRAM is only allowed on UpdateOne operations")
 	}
@@ -1927,7 +2045,7 @@ func (m *NodeMutation) OldRAM(ctx context.Context) (v uint, err error) {
 }
 
 // AddRAM adds u to the "ram" field.
-func (m *NodeMutation) AddRAM(u int) {
+func (m *NodeMutation) AddRAM(u int64) {
 	if m.addram != nil {
 		*m.addram += u
 	} else {
@@ -1936,7 +2054,7 @@ func (m *NodeMutation) AddRAM(u int) {
 }
 
 // AddedRAM returns the value that was added to the "ram" field in this mutation.
-func (m *NodeMutation) AddedRAM() (r int, exists bool) {
+func (m *NodeMutation) AddedRAM() (r int64, exists bool) {
 	v := m.addram
 	if v == nil {
 		return
@@ -1944,20 +2062,34 @@ func (m *NodeMutation) AddedRAM() (r int, exists bool) {
 	return *v, true
 }
 
+// ClearRAM clears the value of the "ram" field.
+func (m *NodeMutation) ClearRAM() {
+	m.ram = nil
+	m.addram = nil
+	m.clearedFields[node.FieldRAM] = struct{}{}
+}
+
+// RAMCleared returns if the "ram" field was cleared in this mutation.
+func (m *NodeMutation) RAMCleared() bool {
+	_, ok := m.clearedFields[node.FieldRAM]
+	return ok
+}
+
 // ResetRAM resets all changes to the "ram" field.
 func (m *NodeMutation) ResetRAM() {
 	m.ram = nil
 	m.addram = nil
+	delete(m.clearedFields, node.FieldRAM)
 }
 
 // SetStorage sets the "storage" field.
-func (m *NodeMutation) SetStorage(u uint) {
+func (m *NodeMutation) SetStorage(u uint64) {
 	m.storage = &u
 	m.addstorage = nil
 }
 
 // Storage returns the value of the "storage" field in the mutation.
-func (m *NodeMutation) Storage() (r uint, exists bool) {
+func (m *NodeMutation) Storage() (r uint64, exists bool) {
 	v := m.storage
 	if v == nil {
 		return
@@ -1968,7 +2100,7 @@ func (m *NodeMutation) Storage() (r uint, exists bool) {
 // OldStorage returns the old "storage" field's value of the Node entity.
 // If the Node object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *NodeMutation) OldStorage(ctx context.Context) (v uint, err error) {
+func (m *NodeMutation) OldStorage(ctx context.Context) (v uint64, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldStorage is only allowed on UpdateOne operations")
 	}
@@ -1983,7 +2115,7 @@ func (m *NodeMutation) OldStorage(ctx context.Context) (v uint, err error) {
 }
 
 // AddStorage adds u to the "storage" field.
-func (m *NodeMutation) AddStorage(u int) {
+func (m *NodeMutation) AddStorage(u int64) {
 	if m.addstorage != nil {
 		*m.addstorage += u
 	} else {
@@ -1992,7 +2124,7 @@ func (m *NodeMutation) AddStorage(u int) {
 }
 
 // AddedStorage returns the value that was added to the "storage" field in this mutation.
-func (m *NodeMutation) AddedStorage() (r int, exists bool) {
+func (m *NodeMutation) AddedStorage() (r int64, exists bool) {
 	v := m.addstorage
 	if v == nil {
 		return
@@ -2000,10 +2132,24 @@ func (m *NodeMutation) AddedStorage() (r int, exists bool) {
 	return *v, true
 }
 
+// ClearStorage clears the value of the "storage" field.
+func (m *NodeMutation) ClearStorage() {
+	m.storage = nil
+	m.addstorage = nil
+	m.clearedFields[node.FieldStorage] = struct{}{}
+}
+
+// StorageCleared returns if the "storage" field was cleared in this mutation.
+func (m *NodeMutation) StorageCleared() bool {
+	_, ok := m.clearedFields[node.FieldStorage]
+	return ok
+}
+
 // ResetStorage resets all changes to the "storage" field.
 func (m *NodeMutation) ResetStorage() {
 	m.storage = nil
 	m.addstorage = nil
+	delete(m.clearedFields, node.FieldStorage)
 }
 
 // AddNodeIDs adds the "nodes" edge to the Server entity by ids.
@@ -2094,7 +2240,7 @@ func (m *NodeMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *NodeMutation) Fields() []string {
-	fields := make([]string, 0, 12)
+	fields := make([]string, 0, 13)
 	if m.created_at != nil {
 		fields = append(fields, node.FieldCreatedAt)
 	}
@@ -2109,6 +2255,9 @@ func (m *NodeMutation) Fields() []string {
 	}
 	if m.skyhook_version != nil {
 		fields = append(fields, node.FieldSkyhookVersion)
+	}
+	if m.skyhook_api_key != nil {
+		fields = append(fields, node.FieldSkyhookAPIKey)
 	}
 	if m.os != nil {
 		fields = append(fields, node.FieldOs)
@@ -2149,6 +2298,8 @@ func (m *NodeMutation) Field(name string) (ent.Value, bool) {
 		return m.Fqdn()
 	case node.FieldSkyhookVersion:
 		return m.SkyhookVersion()
+	case node.FieldSkyhookAPIKey:
+		return m.SkyhookAPIKey()
 	case node.FieldOs:
 		return m.Os()
 	case node.FieldCPU:
@@ -2182,6 +2333,8 @@ func (m *NodeMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldFqdn(ctx)
 	case node.FieldSkyhookVersion:
 		return m.OldSkyhookVersion(ctx)
+	case node.FieldSkyhookAPIKey:
+		return m.OldSkyhookAPIKey(ctx)
 	case node.FieldOs:
 		return m.OldOs(ctx)
 	case node.FieldCPU:
@@ -2240,6 +2393,13 @@ func (m *NodeMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetSkyhookVersion(v)
 		return nil
+	case node.FieldSkyhookAPIKey:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSkyhookAPIKey(v)
+		return nil
 	case node.FieldOs:
 		v, ok := value.(string)
 		if !ok {
@@ -2276,14 +2436,14 @@ func (m *NodeMutation) SetField(name string, value ent.Value) error {
 		m.SetLogicalCores(v)
 		return nil
 	case node.FieldRAM:
-		v, ok := value.(uint)
+		v, ok := value.(uint64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetRAM(v)
 		return nil
 	case node.FieldStorage:
-		v, ok := value.(uint)
+		v, ok := value.(uint64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -2361,14 +2521,14 @@ func (m *NodeMutation) AddField(name string, value ent.Value) error {
 		m.AddLogicalCores(v)
 		return nil
 	case node.FieldRAM:
-		v, ok := value.(int)
+		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddRAM(v)
 		return nil
 	case node.FieldStorage:
-		v, ok := value.(int)
+		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -2381,7 +2541,32 @@ func (m *NodeMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *NodeMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(node.FieldSkyhookVersion) {
+		fields = append(fields, node.FieldSkyhookVersion)
+	}
+	if m.FieldCleared(node.FieldOs) {
+		fields = append(fields, node.FieldOs)
+	}
+	if m.FieldCleared(node.FieldCPU) {
+		fields = append(fields, node.FieldCPU)
+	}
+	if m.FieldCleared(node.FieldCPUBaseClock) {
+		fields = append(fields, node.FieldCPUBaseClock)
+	}
+	if m.FieldCleared(node.FieldCores) {
+		fields = append(fields, node.FieldCores)
+	}
+	if m.FieldCleared(node.FieldLogicalCores) {
+		fields = append(fields, node.FieldLogicalCores)
+	}
+	if m.FieldCleared(node.FieldRAM) {
+		fields = append(fields, node.FieldRAM)
+	}
+	if m.FieldCleared(node.FieldStorage) {
+		fields = append(fields, node.FieldStorage)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -2394,6 +2579,32 @@ func (m *NodeMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *NodeMutation) ClearField(name string) error {
+	switch name {
+	case node.FieldSkyhookVersion:
+		m.ClearSkyhookVersion()
+		return nil
+	case node.FieldOs:
+		m.ClearOs()
+		return nil
+	case node.FieldCPU:
+		m.ClearCPU()
+		return nil
+	case node.FieldCPUBaseClock:
+		m.ClearCPUBaseClock()
+		return nil
+	case node.FieldCores:
+		m.ClearCores()
+		return nil
+	case node.FieldLogicalCores:
+		m.ClearLogicalCores()
+		return nil
+	case node.FieldRAM:
+		m.ClearRAM()
+		return nil
+	case node.FieldStorage:
+		m.ClearStorage()
+		return nil
+	}
 	return fmt.Errorf("unknown Node nullable field %s", name)
 }
 
@@ -2415,6 +2626,9 @@ func (m *NodeMutation) ResetField(name string) error {
 		return nil
 	case node.FieldSkyhookVersion:
 		m.ResetSkyhookVersion()
+		return nil
+	case node.FieldSkyhookAPIKey:
+		m.ResetSkyhookAPIKey()
 		return nil
 	case node.FieldOs:
 		m.ResetOs()
@@ -3139,21 +3353,24 @@ type ServerMutation struct {
 	id               *uuid.UUID
 	created_at       *time.Time
 	updated_at       *time.Time
-	ram              *uint
-	addram           *int
-	storage          *uint
-	addstorage       *int
+	name             *string
+	ram              *uint64
+	addram           *int64
+	storage          *uint64
+	addstorage       *int64
 	logical_cores    *uint
 	addlogical_cores *int
 	port             *uint16
 	addport          *int16
+	crater_provider  *string
+	crater           *string
+	crater_variant   *string
+	crater_options   *any
 	clearedFields    map[string]struct{}
 	node             *uuid.UUID
 	clearednode      bool
 	owner            *uuid.UUID
 	clearedowner     bool
-	game             *uuid.UUID
-	clearedgame      bool
 	done             bool
 	oldValue         func(context.Context) (*Server, error)
 	predicates       []predicate.Server
@@ -3335,14 +3552,50 @@ func (m *ServerMutation) ResetUpdatedAt() {
 	m.updated_at = nil
 }
 
+// SetName sets the "name" field.
+func (m *ServerMutation) SetName(s string) {
+	m.name = &s
+}
+
+// Name returns the value of the "name" field in the mutation.
+func (m *ServerMutation) Name() (r string, exists bool) {
+	v := m.name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldName returns the old "name" field's value of the Server entity.
+// If the Server object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ServerMutation) OldName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldName: %w", err)
+	}
+	return oldValue.Name, nil
+}
+
+// ResetName resets all changes to the "name" field.
+func (m *ServerMutation) ResetName() {
+	m.name = nil
+}
+
 // SetRAM sets the "ram" field.
-func (m *ServerMutation) SetRAM(u uint) {
+func (m *ServerMutation) SetRAM(u uint64) {
 	m.ram = &u
 	m.addram = nil
 }
 
 // RAM returns the value of the "ram" field in the mutation.
-func (m *ServerMutation) RAM() (r uint, exists bool) {
+func (m *ServerMutation) RAM() (r uint64, exists bool) {
 	v := m.ram
 	if v == nil {
 		return
@@ -3353,7 +3606,7 @@ func (m *ServerMutation) RAM() (r uint, exists bool) {
 // OldRAM returns the old "ram" field's value of the Server entity.
 // If the Server object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ServerMutation) OldRAM(ctx context.Context) (v uint, err error) {
+func (m *ServerMutation) OldRAM(ctx context.Context) (v uint64, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldRAM is only allowed on UpdateOne operations")
 	}
@@ -3368,7 +3621,7 @@ func (m *ServerMutation) OldRAM(ctx context.Context) (v uint, err error) {
 }
 
 // AddRAM adds u to the "ram" field.
-func (m *ServerMutation) AddRAM(u int) {
+func (m *ServerMutation) AddRAM(u int64) {
 	if m.addram != nil {
 		*m.addram += u
 	} else {
@@ -3377,7 +3630,7 @@ func (m *ServerMutation) AddRAM(u int) {
 }
 
 // AddedRAM returns the value that was added to the "ram" field in this mutation.
-func (m *ServerMutation) AddedRAM() (r int, exists bool) {
+func (m *ServerMutation) AddedRAM() (r int64, exists bool) {
 	v := m.addram
 	if v == nil {
 		return
@@ -3392,13 +3645,13 @@ func (m *ServerMutation) ResetRAM() {
 }
 
 // SetStorage sets the "storage" field.
-func (m *ServerMutation) SetStorage(u uint) {
+func (m *ServerMutation) SetStorage(u uint64) {
 	m.storage = &u
 	m.addstorage = nil
 }
 
 // Storage returns the value of the "storage" field in the mutation.
-func (m *ServerMutation) Storage() (r uint, exists bool) {
+func (m *ServerMutation) Storage() (r uint64, exists bool) {
 	v := m.storage
 	if v == nil {
 		return
@@ -3409,7 +3662,7 @@ func (m *ServerMutation) Storage() (r uint, exists bool) {
 // OldStorage returns the old "storage" field's value of the Server entity.
 // If the Server object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ServerMutation) OldStorage(ctx context.Context) (v uint, err error) {
+func (m *ServerMutation) OldStorage(ctx context.Context) (v uint64, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldStorage is only allowed on UpdateOne operations")
 	}
@@ -3424,7 +3677,7 @@ func (m *ServerMutation) OldStorage(ctx context.Context) (v uint, err error) {
 }
 
 // AddStorage adds u to the "storage" field.
-func (m *ServerMutation) AddStorage(u int) {
+func (m *ServerMutation) AddStorage(u int64) {
 	if m.addstorage != nil {
 		*m.addstorage += u
 	} else {
@@ -3433,7 +3686,7 @@ func (m *ServerMutation) AddStorage(u int) {
 }
 
 // AddedStorage returns the value that was added to the "storage" field in this mutation.
-func (m *ServerMutation) AddedStorage() (r int, exists bool) {
+func (m *ServerMutation) AddedStorage() (r int64, exists bool) {
 	v := m.addstorage
 	if v == nil {
 		return
@@ -3559,6 +3812,163 @@ func (m *ServerMutation) ResetPort() {
 	m.addport = nil
 }
 
+// SetCraterProvider sets the "crater_provider" field.
+func (m *ServerMutation) SetCraterProvider(s string) {
+	m.crater_provider = &s
+}
+
+// CraterProvider returns the value of the "crater_provider" field in the mutation.
+func (m *ServerMutation) CraterProvider() (r string, exists bool) {
+	v := m.crater_provider
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCraterProvider returns the old "crater_provider" field's value of the Server entity.
+// If the Server object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ServerMutation) OldCraterProvider(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCraterProvider is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCraterProvider requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCraterProvider: %w", err)
+	}
+	return oldValue.CraterProvider, nil
+}
+
+// ResetCraterProvider resets all changes to the "crater_provider" field.
+func (m *ServerMutation) ResetCraterProvider() {
+	m.crater_provider = nil
+}
+
+// SetCrater sets the "crater" field.
+func (m *ServerMutation) SetCrater(s string) {
+	m.crater = &s
+}
+
+// Crater returns the value of the "crater" field in the mutation.
+func (m *ServerMutation) Crater() (r string, exists bool) {
+	v := m.crater
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCrater returns the old "crater" field's value of the Server entity.
+// If the Server object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ServerMutation) OldCrater(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCrater is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCrater requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCrater: %w", err)
+	}
+	return oldValue.Crater, nil
+}
+
+// ResetCrater resets all changes to the "crater" field.
+func (m *ServerMutation) ResetCrater() {
+	m.crater = nil
+}
+
+// SetCraterVariant sets the "crater_variant" field.
+func (m *ServerMutation) SetCraterVariant(s string) {
+	m.crater_variant = &s
+}
+
+// CraterVariant returns the value of the "crater_variant" field in the mutation.
+func (m *ServerMutation) CraterVariant() (r string, exists bool) {
+	v := m.crater_variant
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCraterVariant returns the old "crater_variant" field's value of the Server entity.
+// If the Server object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ServerMutation) OldCraterVariant(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCraterVariant is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCraterVariant requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCraterVariant: %w", err)
+	}
+	return oldValue.CraterVariant, nil
+}
+
+// ResetCraterVariant resets all changes to the "crater_variant" field.
+func (m *ServerMutation) ResetCraterVariant() {
+	m.crater_variant = nil
+}
+
+// SetCraterOptions sets the "crater_options" field.
+func (m *ServerMutation) SetCraterOptions(a any) {
+	m.crater_options = &a
+}
+
+// CraterOptions returns the value of the "crater_options" field in the mutation.
+func (m *ServerMutation) CraterOptions() (r any, exists bool) {
+	v := m.crater_options
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCraterOptions returns the old "crater_options" field's value of the Server entity.
+// If the Server object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ServerMutation) OldCraterOptions(ctx context.Context) (v any, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCraterOptions is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCraterOptions requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCraterOptions: %w", err)
+	}
+	return oldValue.CraterOptions, nil
+}
+
+// ClearCraterOptions clears the value of the "crater_options" field.
+func (m *ServerMutation) ClearCraterOptions() {
+	m.crater_options = nil
+	m.clearedFields[server.FieldCraterOptions] = struct{}{}
+}
+
+// CraterOptionsCleared returns if the "crater_options" field was cleared in this mutation.
+func (m *ServerMutation) CraterOptionsCleared() bool {
+	_, ok := m.clearedFields[server.FieldCraterOptions]
+	return ok
+}
+
+// ResetCraterOptions resets all changes to the "crater_options" field.
+func (m *ServerMutation) ResetCraterOptions() {
+	m.crater_options = nil
+	delete(m.clearedFields, server.FieldCraterOptions)
+}
+
 // SetNodeID sets the "node" edge to the Node entity by id.
 func (m *ServerMutation) SetNodeID(id uuid.UUID) {
 	m.node = &id
@@ -3637,45 +4047,6 @@ func (m *ServerMutation) ResetOwner() {
 	m.clearedowner = false
 }
 
-// SetGameID sets the "game" edge to the Game entity by id.
-func (m *ServerMutation) SetGameID(id uuid.UUID) {
-	m.game = &id
-}
-
-// ClearGame clears the "game" edge to the Game entity.
-func (m *ServerMutation) ClearGame() {
-	m.clearedgame = true
-}
-
-// GameCleared reports if the "game" edge to the Game entity was cleared.
-func (m *ServerMutation) GameCleared() bool {
-	return m.clearedgame
-}
-
-// GameID returns the "game" edge ID in the mutation.
-func (m *ServerMutation) GameID() (id uuid.UUID, exists bool) {
-	if m.game != nil {
-		return *m.game, true
-	}
-	return
-}
-
-// GameIDs returns the "game" edge IDs in the mutation.
-// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// GameID instead. It exists only for internal usage by the builders.
-func (m *ServerMutation) GameIDs() (ids []uuid.UUID) {
-	if id := m.game; id != nil {
-		ids = append(ids, *id)
-	}
-	return
-}
-
-// ResetGame resets all changes to the "game" edge.
-func (m *ServerMutation) ResetGame() {
-	m.game = nil
-	m.clearedgame = false
-}
-
 // Where appends a list predicates to the ServerMutation builder.
 func (m *ServerMutation) Where(ps ...predicate.Server) {
 	m.predicates = append(m.predicates, ps...)
@@ -3710,12 +4081,15 @@ func (m *ServerMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ServerMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 11)
 	if m.created_at != nil {
 		fields = append(fields, server.FieldCreatedAt)
 	}
 	if m.updated_at != nil {
 		fields = append(fields, server.FieldUpdatedAt)
+	}
+	if m.name != nil {
+		fields = append(fields, server.FieldName)
 	}
 	if m.ram != nil {
 		fields = append(fields, server.FieldRAM)
@@ -3729,6 +4103,18 @@ func (m *ServerMutation) Fields() []string {
 	if m.port != nil {
 		fields = append(fields, server.FieldPort)
 	}
+	if m.crater_provider != nil {
+		fields = append(fields, server.FieldCraterProvider)
+	}
+	if m.crater != nil {
+		fields = append(fields, server.FieldCrater)
+	}
+	if m.crater_variant != nil {
+		fields = append(fields, server.FieldCraterVariant)
+	}
+	if m.crater_options != nil {
+		fields = append(fields, server.FieldCraterOptions)
+	}
 	return fields
 }
 
@@ -3741,6 +4127,8 @@ func (m *ServerMutation) Field(name string) (ent.Value, bool) {
 		return m.CreatedAt()
 	case server.FieldUpdatedAt:
 		return m.UpdatedAt()
+	case server.FieldName:
+		return m.Name()
 	case server.FieldRAM:
 		return m.RAM()
 	case server.FieldStorage:
@@ -3749,6 +4137,14 @@ func (m *ServerMutation) Field(name string) (ent.Value, bool) {
 		return m.LogicalCores()
 	case server.FieldPort:
 		return m.Port()
+	case server.FieldCraterProvider:
+		return m.CraterProvider()
+	case server.FieldCrater:
+		return m.Crater()
+	case server.FieldCraterVariant:
+		return m.CraterVariant()
+	case server.FieldCraterOptions:
+		return m.CraterOptions()
 	}
 	return nil, false
 }
@@ -3762,6 +4158,8 @@ func (m *ServerMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldCreatedAt(ctx)
 	case server.FieldUpdatedAt:
 		return m.OldUpdatedAt(ctx)
+	case server.FieldName:
+		return m.OldName(ctx)
 	case server.FieldRAM:
 		return m.OldRAM(ctx)
 	case server.FieldStorage:
@@ -3770,6 +4168,14 @@ func (m *ServerMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldLogicalCores(ctx)
 	case server.FieldPort:
 		return m.OldPort(ctx)
+	case server.FieldCraterProvider:
+		return m.OldCraterProvider(ctx)
+	case server.FieldCrater:
+		return m.OldCrater(ctx)
+	case server.FieldCraterVariant:
+		return m.OldCraterVariant(ctx)
+	case server.FieldCraterOptions:
+		return m.OldCraterOptions(ctx)
 	}
 	return nil, fmt.Errorf("unknown Server field %s", name)
 }
@@ -3793,15 +4199,22 @@ func (m *ServerMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetUpdatedAt(v)
 		return nil
+	case server.FieldName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetName(v)
+		return nil
 	case server.FieldRAM:
-		v, ok := value.(uint)
+		v, ok := value.(uint64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetRAM(v)
 		return nil
 	case server.FieldStorage:
-		v, ok := value.(uint)
+		v, ok := value.(uint64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -3820,6 +4233,34 @@ func (m *ServerMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetPort(v)
+		return nil
+	case server.FieldCraterProvider:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCraterProvider(v)
+		return nil
+	case server.FieldCrater:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCrater(v)
+		return nil
+	case server.FieldCraterVariant:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCraterVariant(v)
+		return nil
+	case server.FieldCraterOptions:
+		v, ok := value.(any)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCraterOptions(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Server field %s", name)
@@ -3867,14 +4308,14 @@ func (m *ServerMutation) AddedField(name string) (ent.Value, bool) {
 func (m *ServerMutation) AddField(name string, value ent.Value) error {
 	switch name {
 	case server.FieldRAM:
-		v, ok := value.(int)
+		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddRAM(v)
 		return nil
 	case server.FieldStorage:
-		v, ok := value.(int)
+		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -3901,7 +4342,11 @@ func (m *ServerMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *ServerMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(server.FieldCraterOptions) {
+		fields = append(fields, server.FieldCraterOptions)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -3914,6 +4359,11 @@ func (m *ServerMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *ServerMutation) ClearField(name string) error {
+	switch name {
+	case server.FieldCraterOptions:
+		m.ClearCraterOptions()
+		return nil
+	}
 	return fmt.Errorf("unknown Server nullable field %s", name)
 }
 
@@ -3927,6 +4377,9 @@ func (m *ServerMutation) ResetField(name string) error {
 	case server.FieldUpdatedAt:
 		m.ResetUpdatedAt()
 		return nil
+	case server.FieldName:
+		m.ResetName()
+		return nil
 	case server.FieldRAM:
 		m.ResetRAM()
 		return nil
@@ -3939,21 +4392,30 @@ func (m *ServerMutation) ResetField(name string) error {
 	case server.FieldPort:
 		m.ResetPort()
 		return nil
+	case server.FieldCraterProvider:
+		m.ResetCraterProvider()
+		return nil
+	case server.FieldCrater:
+		m.ResetCrater()
+		return nil
+	case server.FieldCraterVariant:
+		m.ResetCraterVariant()
+		return nil
+	case server.FieldCraterOptions:
+		m.ResetCraterOptions()
+		return nil
 	}
 	return fmt.Errorf("unknown Server field %s", name)
 }
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *ServerMutation) AddedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 2)
 	if m.node != nil {
 		edges = append(edges, server.EdgeNode)
 	}
 	if m.owner != nil {
 		edges = append(edges, server.EdgeOwner)
-	}
-	if m.game != nil {
-		edges = append(edges, server.EdgeGame)
 	}
 	return edges
 }
@@ -3970,17 +4432,13 @@ func (m *ServerMutation) AddedIDs(name string) []ent.Value {
 		if id := m.owner; id != nil {
 			return []ent.Value{*id}
 		}
-	case server.EdgeGame:
-		if id := m.game; id != nil {
-			return []ent.Value{*id}
-		}
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *ServerMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 2)
 	return edges
 }
 
@@ -3992,15 +4450,12 @@ func (m *ServerMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *ServerMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 2)
 	if m.clearednode {
 		edges = append(edges, server.EdgeNode)
 	}
 	if m.clearedowner {
 		edges = append(edges, server.EdgeOwner)
-	}
-	if m.clearedgame {
-		edges = append(edges, server.EdgeGame)
 	}
 	return edges
 }
@@ -4013,8 +4468,6 @@ func (m *ServerMutation) EdgeCleared(name string) bool {
 		return m.clearednode
 	case server.EdgeOwner:
 		return m.clearedowner
-	case server.EdgeGame:
-		return m.clearedgame
 	}
 	return false
 }
@@ -4029,9 +4482,6 @@ func (m *ServerMutation) ClearEdge(name string) error {
 	case server.EdgeOwner:
 		m.ClearOwner()
 		return nil
-	case server.EdgeGame:
-		m.ClearGame()
-		return nil
 	}
 	return fmt.Errorf("unknown Server unique edge %s", name)
 }
@@ -4045,9 +4495,6 @@ func (m *ServerMutation) ResetEdge(name string) error {
 		return nil
 	case server.EdgeOwner:
 		m.ResetOwner()
-		return nil
-	case server.EdgeGame:
-		m.ResetGame()
 		return nil
 	}
 	return fmt.Errorf("unknown Server edge %s", name)

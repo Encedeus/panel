@@ -68,15 +68,63 @@ func (nu *NodeUpdate) SetSkyhookVersion(s string) *NodeUpdate {
 	return nu
 }
 
+// SetNillableSkyhookVersion sets the "skyhook_version" field if the given value is not nil.
+func (nu *NodeUpdate) SetNillableSkyhookVersion(s *string) *NodeUpdate {
+	if s != nil {
+		nu.SetSkyhookVersion(*s)
+	}
+	return nu
+}
+
+// ClearSkyhookVersion clears the value of the "skyhook_version" field.
+func (nu *NodeUpdate) ClearSkyhookVersion() *NodeUpdate {
+	nu.mutation.ClearSkyhookVersion()
+	return nu
+}
+
+// SetSkyhookAPIKey sets the "skyhook_api_key" field.
+func (nu *NodeUpdate) SetSkyhookAPIKey(s string) *NodeUpdate {
+	nu.mutation.SetSkyhookAPIKey(s)
+	return nu
+}
+
 // SetOs sets the "os" field.
 func (nu *NodeUpdate) SetOs(s string) *NodeUpdate {
 	nu.mutation.SetOs(s)
 	return nu
 }
 
+// SetNillableOs sets the "os" field if the given value is not nil.
+func (nu *NodeUpdate) SetNillableOs(s *string) *NodeUpdate {
+	if s != nil {
+		nu.SetOs(*s)
+	}
+	return nu
+}
+
+// ClearOs clears the value of the "os" field.
+func (nu *NodeUpdate) ClearOs() *NodeUpdate {
+	nu.mutation.ClearOs()
+	return nu
+}
+
 // SetCPU sets the "cpu" field.
 func (nu *NodeUpdate) SetCPU(s string) *NodeUpdate {
 	nu.mutation.SetCPU(s)
+	return nu
+}
+
+// SetNillableCPU sets the "cpu" field if the given value is not nil.
+func (nu *NodeUpdate) SetNillableCPU(s *string) *NodeUpdate {
+	if s != nil {
+		nu.SetCPU(*s)
+	}
+	return nu
+}
+
+// ClearCPU clears the value of the "cpu" field.
+func (nu *NodeUpdate) ClearCPU() *NodeUpdate {
+	nu.mutation.ClearCPU()
 	return nu
 }
 
@@ -87,9 +135,23 @@ func (nu *NodeUpdate) SetCPUBaseClock(u uint) *NodeUpdate {
 	return nu
 }
 
+// SetNillableCPUBaseClock sets the "cpu_base_clock" field if the given value is not nil.
+func (nu *NodeUpdate) SetNillableCPUBaseClock(u *uint) *NodeUpdate {
+	if u != nil {
+		nu.SetCPUBaseClock(*u)
+	}
+	return nu
+}
+
 // AddCPUBaseClock adds u to the "cpu_base_clock" field.
 func (nu *NodeUpdate) AddCPUBaseClock(u int) *NodeUpdate {
 	nu.mutation.AddCPUBaseClock(u)
+	return nu
+}
+
+// ClearCPUBaseClock clears the value of the "cpu_base_clock" field.
+func (nu *NodeUpdate) ClearCPUBaseClock() *NodeUpdate {
+	nu.mutation.ClearCPUBaseClock()
 	return nu
 }
 
@@ -100,9 +162,23 @@ func (nu *NodeUpdate) SetCores(u uint) *NodeUpdate {
 	return nu
 }
 
+// SetNillableCores sets the "cores" field if the given value is not nil.
+func (nu *NodeUpdate) SetNillableCores(u *uint) *NodeUpdate {
+	if u != nil {
+		nu.SetCores(*u)
+	}
+	return nu
+}
+
 // AddCores adds u to the "cores" field.
 func (nu *NodeUpdate) AddCores(u int) *NodeUpdate {
 	nu.mutation.AddCores(u)
+	return nu
+}
+
+// ClearCores clears the value of the "cores" field.
+func (nu *NodeUpdate) ClearCores() *NodeUpdate {
+	nu.mutation.ClearCores()
 	return nu
 }
 
@@ -113,35 +189,77 @@ func (nu *NodeUpdate) SetLogicalCores(u uint) *NodeUpdate {
 	return nu
 }
 
+// SetNillableLogicalCores sets the "logical_cores" field if the given value is not nil.
+func (nu *NodeUpdate) SetNillableLogicalCores(u *uint) *NodeUpdate {
+	if u != nil {
+		nu.SetLogicalCores(*u)
+	}
+	return nu
+}
+
 // AddLogicalCores adds u to the "logical_cores" field.
 func (nu *NodeUpdate) AddLogicalCores(u int) *NodeUpdate {
 	nu.mutation.AddLogicalCores(u)
 	return nu
 }
 
+// ClearLogicalCores clears the value of the "logical_cores" field.
+func (nu *NodeUpdate) ClearLogicalCores() *NodeUpdate {
+	nu.mutation.ClearLogicalCores()
+	return nu
+}
+
 // SetRAM sets the "ram" field.
-func (nu *NodeUpdate) SetRAM(u uint) *NodeUpdate {
+func (nu *NodeUpdate) SetRAM(u uint64) *NodeUpdate {
 	nu.mutation.ResetRAM()
 	nu.mutation.SetRAM(u)
 	return nu
 }
 
+// SetNillableRAM sets the "ram" field if the given value is not nil.
+func (nu *NodeUpdate) SetNillableRAM(u *uint64) *NodeUpdate {
+	if u != nil {
+		nu.SetRAM(*u)
+	}
+	return nu
+}
+
 // AddRAM adds u to the "ram" field.
-func (nu *NodeUpdate) AddRAM(u int) *NodeUpdate {
+func (nu *NodeUpdate) AddRAM(u int64) *NodeUpdate {
 	nu.mutation.AddRAM(u)
 	return nu
 }
 
+// ClearRAM clears the value of the "ram" field.
+func (nu *NodeUpdate) ClearRAM() *NodeUpdate {
+	nu.mutation.ClearRAM()
+	return nu
+}
+
 // SetStorage sets the "storage" field.
-func (nu *NodeUpdate) SetStorage(u uint) *NodeUpdate {
+func (nu *NodeUpdate) SetStorage(u uint64) *NodeUpdate {
 	nu.mutation.ResetStorage()
 	nu.mutation.SetStorage(u)
 	return nu
 }
 
+// SetNillableStorage sets the "storage" field if the given value is not nil.
+func (nu *NodeUpdate) SetNillableStorage(u *uint64) *NodeUpdate {
+	if u != nil {
+		nu.SetStorage(*u)
+	}
+	return nu
+}
+
 // AddStorage adds u to the "storage" field.
-func (nu *NodeUpdate) AddStorage(u int) *NodeUpdate {
+func (nu *NodeUpdate) AddStorage(u int64) *NodeUpdate {
 	nu.mutation.AddStorage(u)
+	return nu
+}
+
+// ClearStorage clears the value of the "storage" field.
+func (nu *NodeUpdate) ClearStorage() *NodeUpdate {
+	nu.mutation.ClearStorage()
 	return nu
 }
 
@@ -246,11 +364,23 @@ func (nu *NodeUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := nu.mutation.SkyhookVersion(); ok {
 		_spec.SetField(node.FieldSkyhookVersion, field.TypeString, value)
 	}
+	if nu.mutation.SkyhookVersionCleared() {
+		_spec.ClearField(node.FieldSkyhookVersion, field.TypeString)
+	}
+	if value, ok := nu.mutation.SkyhookAPIKey(); ok {
+		_spec.SetField(node.FieldSkyhookAPIKey, field.TypeString, value)
+	}
 	if value, ok := nu.mutation.Os(); ok {
 		_spec.SetField(node.FieldOs, field.TypeString, value)
 	}
+	if nu.mutation.OsCleared() {
+		_spec.ClearField(node.FieldOs, field.TypeString)
+	}
 	if value, ok := nu.mutation.CPU(); ok {
 		_spec.SetField(node.FieldCPU, field.TypeString, value)
+	}
+	if nu.mutation.CPUCleared() {
+		_spec.ClearField(node.FieldCPU, field.TypeString)
 	}
 	if value, ok := nu.mutation.CPUBaseClock(); ok {
 		_spec.SetField(node.FieldCPUBaseClock, field.TypeUint, value)
@@ -258,11 +388,17 @@ func (nu *NodeUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := nu.mutation.AddedCPUBaseClock(); ok {
 		_spec.AddField(node.FieldCPUBaseClock, field.TypeUint, value)
 	}
+	if nu.mutation.CPUBaseClockCleared() {
+		_spec.ClearField(node.FieldCPUBaseClock, field.TypeUint)
+	}
 	if value, ok := nu.mutation.Cores(); ok {
 		_spec.SetField(node.FieldCores, field.TypeUint, value)
 	}
 	if value, ok := nu.mutation.AddedCores(); ok {
 		_spec.AddField(node.FieldCores, field.TypeUint, value)
+	}
+	if nu.mutation.CoresCleared() {
+		_spec.ClearField(node.FieldCores, field.TypeUint)
 	}
 	if value, ok := nu.mutation.LogicalCores(); ok {
 		_spec.SetField(node.FieldLogicalCores, field.TypeUint, value)
@@ -270,17 +406,26 @@ func (nu *NodeUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := nu.mutation.AddedLogicalCores(); ok {
 		_spec.AddField(node.FieldLogicalCores, field.TypeUint, value)
 	}
+	if nu.mutation.LogicalCoresCleared() {
+		_spec.ClearField(node.FieldLogicalCores, field.TypeUint)
+	}
 	if value, ok := nu.mutation.RAM(); ok {
-		_spec.SetField(node.FieldRAM, field.TypeUint, value)
+		_spec.SetField(node.FieldRAM, field.TypeUint64, value)
 	}
 	if value, ok := nu.mutation.AddedRAM(); ok {
-		_spec.AddField(node.FieldRAM, field.TypeUint, value)
+		_spec.AddField(node.FieldRAM, field.TypeUint64, value)
+	}
+	if nu.mutation.RAMCleared() {
+		_spec.ClearField(node.FieldRAM, field.TypeUint64)
 	}
 	if value, ok := nu.mutation.Storage(); ok {
-		_spec.SetField(node.FieldStorage, field.TypeUint, value)
+		_spec.SetField(node.FieldStorage, field.TypeUint64, value)
 	}
 	if value, ok := nu.mutation.AddedStorage(); ok {
-		_spec.AddField(node.FieldStorage, field.TypeUint, value)
+		_spec.AddField(node.FieldStorage, field.TypeUint64, value)
+	}
+	if nu.mutation.StorageCleared() {
+		_spec.ClearField(node.FieldStorage, field.TypeUint64)
 	}
 	if nu.mutation.NodesCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -385,15 +530,63 @@ func (nuo *NodeUpdateOne) SetSkyhookVersion(s string) *NodeUpdateOne {
 	return nuo
 }
 
+// SetNillableSkyhookVersion sets the "skyhook_version" field if the given value is not nil.
+func (nuo *NodeUpdateOne) SetNillableSkyhookVersion(s *string) *NodeUpdateOne {
+	if s != nil {
+		nuo.SetSkyhookVersion(*s)
+	}
+	return nuo
+}
+
+// ClearSkyhookVersion clears the value of the "skyhook_version" field.
+func (nuo *NodeUpdateOne) ClearSkyhookVersion() *NodeUpdateOne {
+	nuo.mutation.ClearSkyhookVersion()
+	return nuo
+}
+
+// SetSkyhookAPIKey sets the "skyhook_api_key" field.
+func (nuo *NodeUpdateOne) SetSkyhookAPIKey(s string) *NodeUpdateOne {
+	nuo.mutation.SetSkyhookAPIKey(s)
+	return nuo
+}
+
 // SetOs sets the "os" field.
 func (nuo *NodeUpdateOne) SetOs(s string) *NodeUpdateOne {
 	nuo.mutation.SetOs(s)
 	return nuo
 }
 
+// SetNillableOs sets the "os" field if the given value is not nil.
+func (nuo *NodeUpdateOne) SetNillableOs(s *string) *NodeUpdateOne {
+	if s != nil {
+		nuo.SetOs(*s)
+	}
+	return nuo
+}
+
+// ClearOs clears the value of the "os" field.
+func (nuo *NodeUpdateOne) ClearOs() *NodeUpdateOne {
+	nuo.mutation.ClearOs()
+	return nuo
+}
+
 // SetCPU sets the "cpu" field.
 func (nuo *NodeUpdateOne) SetCPU(s string) *NodeUpdateOne {
 	nuo.mutation.SetCPU(s)
+	return nuo
+}
+
+// SetNillableCPU sets the "cpu" field if the given value is not nil.
+func (nuo *NodeUpdateOne) SetNillableCPU(s *string) *NodeUpdateOne {
+	if s != nil {
+		nuo.SetCPU(*s)
+	}
+	return nuo
+}
+
+// ClearCPU clears the value of the "cpu" field.
+func (nuo *NodeUpdateOne) ClearCPU() *NodeUpdateOne {
+	nuo.mutation.ClearCPU()
 	return nuo
 }
 
@@ -404,9 +597,23 @@ func (nuo *NodeUpdateOne) SetCPUBaseClock(u uint) *NodeUpdateOne {
 	return nuo
 }
 
+// SetNillableCPUBaseClock sets the "cpu_base_clock" field if the given value is not nil.
+func (nuo *NodeUpdateOne) SetNillableCPUBaseClock(u *uint) *NodeUpdateOne {
+	if u != nil {
+		nuo.SetCPUBaseClock(*u)
+	}
+	return nuo
+}
+
 // AddCPUBaseClock adds u to the "cpu_base_clock" field.
 func (nuo *NodeUpdateOne) AddCPUBaseClock(u int) *NodeUpdateOne {
 	nuo.mutation.AddCPUBaseClock(u)
+	return nuo
+}
+
+// ClearCPUBaseClock clears the value of the "cpu_base_clock" field.
+func (nuo *NodeUpdateOne) ClearCPUBaseClock() *NodeUpdateOne {
+	nuo.mutation.ClearCPUBaseClock()
 	return nuo
 }
 
@@ -417,9 +624,23 @@ func (nuo *NodeUpdateOne) SetCores(u uint) *NodeUpdateOne {
 	return nuo
 }
 
+// SetNillableCores sets the "cores" field if the given value is not nil.
+func (nuo *NodeUpdateOne) SetNillableCores(u *uint) *NodeUpdateOne {
+	if u != nil {
+		nuo.SetCores(*u)
+	}
+	return nuo
+}
+
 // AddCores adds u to the "cores" field.
 func (nuo *NodeUpdateOne) AddCores(u int) *NodeUpdateOne {
 	nuo.mutation.AddCores(u)
+	return nuo
+}
+
+// ClearCores clears the value of the "cores" field.
+func (nuo *NodeUpdateOne) ClearCores() *NodeUpdateOne {
+	nuo.mutation.ClearCores()
 	return nuo
 }
 
@@ -430,35 +651,77 @@ func (nuo *NodeUpdateOne) SetLogicalCores(u uint) *NodeUpdateOne {
 	return nuo
 }
 
+// SetNillableLogicalCores sets the "logical_cores" field if the given value is not nil.
+func (nuo *NodeUpdateOne) SetNillableLogicalCores(u *uint) *NodeUpdateOne {
+	if u != nil {
+		nuo.SetLogicalCores(*u)
+	}
+	return nuo
+}
+
 // AddLogicalCores adds u to the "logical_cores" field.
 func (nuo *NodeUpdateOne) AddLogicalCores(u int) *NodeUpdateOne {
 	nuo.mutation.AddLogicalCores(u)
 	return nuo
 }
 
+// ClearLogicalCores clears the value of the "logical_cores" field.
+func (nuo *NodeUpdateOne) ClearLogicalCores() *NodeUpdateOne {
+	nuo.mutation.ClearLogicalCores()
+	return nuo
+}
+
 // SetRAM sets the "ram" field.
-func (nuo *NodeUpdateOne) SetRAM(u uint) *NodeUpdateOne {
+func (nuo *NodeUpdateOne) SetRAM(u uint64) *NodeUpdateOne {
 	nuo.mutation.ResetRAM()
 	nuo.mutation.SetRAM(u)
 	return nuo
 }
 
+// SetNillableRAM sets the "ram" field if the given value is not nil.
+func (nuo *NodeUpdateOne) SetNillableRAM(u *uint64) *NodeUpdateOne {
+	if u != nil {
+		nuo.SetRAM(*u)
+	}
+	return nuo
+}
+
 // AddRAM adds u to the "ram" field.
-func (nuo *NodeUpdateOne) AddRAM(u int) *NodeUpdateOne {
+func (nuo *NodeUpdateOne) AddRAM(u int64) *NodeUpdateOne {
 	nuo.mutation.AddRAM(u)
 	return nuo
 }
 
+// ClearRAM clears the value of the "ram" field.
+func (nuo *NodeUpdateOne) ClearRAM() *NodeUpdateOne {
+	nuo.mutation.ClearRAM()
+	return nuo
+}
+
 // SetStorage sets the "storage" field.
-func (nuo *NodeUpdateOne) SetStorage(u uint) *NodeUpdateOne {
+func (nuo *NodeUpdateOne) SetStorage(u uint64) *NodeUpdateOne {
 	nuo.mutation.ResetStorage()
 	nuo.mutation.SetStorage(u)
 	return nuo
 }
 
+// SetNillableStorage sets the "storage" field if the given value is not nil.
+func (nuo *NodeUpdateOne) SetNillableStorage(u *uint64) *NodeUpdateOne {
+	if u != nil {
+		nuo.SetStorage(*u)
+	}
+	return nuo
+}
+
 // AddStorage adds u to the "storage" field.
-func (nuo *NodeUpdateOne) AddStorage(u int) *NodeUpdateOne {
+func (nuo *NodeUpdateOne) AddStorage(u int64) *NodeUpdateOne {
 	nuo.mutation.AddStorage(u)
+	return nuo
+}
+
+// ClearStorage clears the value of the "storage" field.
+func (nuo *NodeUpdateOne) ClearStorage() *NodeUpdateOne {
+	nuo.mutation.ClearStorage()
 	return nuo
 }
 
@@ -593,11 +856,23 @@ func (nuo *NodeUpdateOne) sqlSave(ctx context.Context) (_node *Node, err error) 
 	if value, ok := nuo.mutation.SkyhookVersion(); ok {
 		_spec.SetField(node.FieldSkyhookVersion, field.TypeString, value)
 	}
+	if nuo.mutation.SkyhookVersionCleared() {
+		_spec.ClearField(node.FieldSkyhookVersion, field.TypeString)
+	}
+	if value, ok := nuo.mutation.SkyhookAPIKey(); ok {
+		_spec.SetField(node.FieldSkyhookAPIKey, field.TypeString, value)
+	}
 	if value, ok := nuo.mutation.Os(); ok {
 		_spec.SetField(node.FieldOs, field.TypeString, value)
 	}
+	if nuo.mutation.OsCleared() {
+		_spec.ClearField(node.FieldOs, field.TypeString)
+	}
 	if value, ok := nuo.mutation.CPU(); ok {
 		_spec.SetField(node.FieldCPU, field.TypeString, value)
+	}
+	if nuo.mutation.CPUCleared() {
+		_spec.ClearField(node.FieldCPU, field.TypeString)
 	}
 	if value, ok := nuo.mutation.CPUBaseClock(); ok {
 		_spec.SetField(node.FieldCPUBaseClock, field.TypeUint, value)
@@ -605,11 +880,17 @@ func (nuo *NodeUpdateOne) sqlSave(ctx context.Context) (_node *Node, err error) 
 	if value, ok := nuo.mutation.AddedCPUBaseClock(); ok {
 		_spec.AddField(node.FieldCPUBaseClock, field.TypeUint, value)
 	}
+	if nuo.mutation.CPUBaseClockCleared() {
+		_spec.ClearField(node.FieldCPUBaseClock, field.TypeUint)
+	}
 	if value, ok := nuo.mutation.Cores(); ok {
 		_spec.SetField(node.FieldCores, field.TypeUint, value)
 	}
 	if value, ok := nuo.mutation.AddedCores(); ok {
 		_spec.AddField(node.FieldCores, field.TypeUint, value)
+	}
+	if nuo.mutation.CoresCleared() {
+		_spec.ClearField(node.FieldCores, field.TypeUint)
 	}
 	if value, ok := nuo.mutation.LogicalCores(); ok {
 		_spec.SetField(node.FieldLogicalCores, field.TypeUint, value)
@@ -617,17 +898,26 @@ func (nuo *NodeUpdateOne) sqlSave(ctx context.Context) (_node *Node, err error) 
 	if value, ok := nuo.mutation.AddedLogicalCores(); ok {
 		_spec.AddField(node.FieldLogicalCores, field.TypeUint, value)
 	}
+	if nuo.mutation.LogicalCoresCleared() {
+		_spec.ClearField(node.FieldLogicalCores, field.TypeUint)
+	}
 	if value, ok := nuo.mutation.RAM(); ok {
-		_spec.SetField(node.FieldRAM, field.TypeUint, value)
+		_spec.SetField(node.FieldRAM, field.TypeUint64, value)
 	}
 	if value, ok := nuo.mutation.AddedRAM(); ok {
-		_spec.AddField(node.FieldRAM, field.TypeUint, value)
+		_spec.AddField(node.FieldRAM, field.TypeUint64, value)
+	}
+	if nuo.mutation.RAMCleared() {
+		_spec.ClearField(node.FieldRAM, field.TypeUint64)
 	}
 	if value, ok := nuo.mutation.Storage(); ok {
-		_spec.SetField(node.FieldStorage, field.TypeUint, value)
+		_spec.SetField(node.FieldStorage, field.TypeUint64, value)
 	}
 	if value, ok := nuo.mutation.AddedStorage(); ok {
-		_spec.AddField(node.FieldStorage, field.TypeUint, value)
+		_spec.AddField(node.FieldStorage, field.TypeUint64, value)
+	}
+	if nuo.mutation.StorageCleared() {
+		_spec.ClearField(node.FieldStorage, field.TypeUint64)
 	}
 	if nuo.mutation.NodesCleared() {
 		edge := &sqlgraph.EdgeSpec{

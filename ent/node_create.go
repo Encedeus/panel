@@ -68,9 +68,31 @@ func (nc *NodeCreate) SetSkyhookVersion(s string) *NodeCreate {
 	return nc
 }
 
+// SetNillableSkyhookVersion sets the "skyhook_version" field if the given value is not nil.
+func (nc *NodeCreate) SetNillableSkyhookVersion(s *string) *NodeCreate {
+	if s != nil {
+		nc.SetSkyhookVersion(*s)
+	}
+	return nc
+}
+
+// SetSkyhookAPIKey sets the "skyhook_api_key" field.
+func (nc *NodeCreate) SetSkyhookAPIKey(s string) *NodeCreate {
+	nc.mutation.SetSkyhookAPIKey(s)
+	return nc
+}
+
 // SetOs sets the "os" field.
 func (nc *NodeCreate) SetOs(s string) *NodeCreate {
 	nc.mutation.SetOs(s)
+	return nc
+}
+
+// SetNillableOs sets the "os" field if the given value is not nil.
+func (nc *NodeCreate) SetNillableOs(s *string) *NodeCreate {
+	if s != nil {
+		nc.SetOs(*s)
+	}
 	return nc
 }
 
@@ -80,9 +102,25 @@ func (nc *NodeCreate) SetCPU(s string) *NodeCreate {
 	return nc
 }
 
+// SetNillableCPU sets the "cpu" field if the given value is not nil.
+func (nc *NodeCreate) SetNillableCPU(s *string) *NodeCreate {
+	if s != nil {
+		nc.SetCPU(*s)
+	}
+	return nc
+}
+
 // SetCPUBaseClock sets the "cpu_base_clock" field.
 func (nc *NodeCreate) SetCPUBaseClock(u uint) *NodeCreate {
 	nc.mutation.SetCPUBaseClock(u)
+	return nc
+}
+
+// SetNillableCPUBaseClock sets the "cpu_base_clock" field if the given value is not nil.
+func (nc *NodeCreate) SetNillableCPUBaseClock(u *uint) *NodeCreate {
+	if u != nil {
+		nc.SetCPUBaseClock(*u)
+	}
 	return nc
 }
 
@@ -92,21 +130,53 @@ func (nc *NodeCreate) SetCores(u uint) *NodeCreate {
 	return nc
 }
 
+// SetNillableCores sets the "cores" field if the given value is not nil.
+func (nc *NodeCreate) SetNillableCores(u *uint) *NodeCreate {
+	if u != nil {
+		nc.SetCores(*u)
+	}
+	return nc
+}
+
 // SetLogicalCores sets the "logical_cores" field.
 func (nc *NodeCreate) SetLogicalCores(u uint) *NodeCreate {
 	nc.mutation.SetLogicalCores(u)
 	return nc
 }
 
+// SetNillableLogicalCores sets the "logical_cores" field if the given value is not nil.
+func (nc *NodeCreate) SetNillableLogicalCores(u *uint) *NodeCreate {
+	if u != nil {
+		nc.SetLogicalCores(*u)
+	}
+	return nc
+}
+
 // SetRAM sets the "ram" field.
-func (nc *NodeCreate) SetRAM(u uint) *NodeCreate {
+func (nc *NodeCreate) SetRAM(u uint64) *NodeCreate {
 	nc.mutation.SetRAM(u)
 	return nc
 }
 
+// SetNillableRAM sets the "ram" field if the given value is not nil.
+func (nc *NodeCreate) SetNillableRAM(u *uint64) *NodeCreate {
+	if u != nil {
+		nc.SetRAM(*u)
+	}
+	return nc
+}
+
 // SetStorage sets the "storage" field.
-func (nc *NodeCreate) SetStorage(u uint) *NodeCreate {
+func (nc *NodeCreate) SetStorage(u uint64) *NodeCreate {
 	nc.mutation.SetStorage(u)
+	return nc
+}
+
+// SetNillableStorage sets the "storage" field if the given value is not nil.
+func (nc *NodeCreate) SetNillableStorage(u *uint64) *NodeCreate {
+	if u != nil {
+		nc.SetStorage(*u)
+	}
 	return nc
 }
 
@@ -202,29 +272,8 @@ func (nc *NodeCreate) check() error {
 	if _, ok := nc.mutation.Fqdn(); !ok {
 		return &ValidationError{Name: "fqdn", err: errors.New(`ent: missing required field "Node.fqdn"`)}
 	}
-	if _, ok := nc.mutation.SkyhookVersion(); !ok {
-		return &ValidationError{Name: "skyhook_version", err: errors.New(`ent: missing required field "Node.skyhook_version"`)}
-	}
-	if _, ok := nc.mutation.Os(); !ok {
-		return &ValidationError{Name: "os", err: errors.New(`ent: missing required field "Node.os"`)}
-	}
-	if _, ok := nc.mutation.CPU(); !ok {
-		return &ValidationError{Name: "cpu", err: errors.New(`ent: missing required field "Node.cpu"`)}
-	}
-	if _, ok := nc.mutation.CPUBaseClock(); !ok {
-		return &ValidationError{Name: "cpu_base_clock", err: errors.New(`ent: missing required field "Node.cpu_base_clock"`)}
-	}
-	if _, ok := nc.mutation.Cores(); !ok {
-		return &ValidationError{Name: "cores", err: errors.New(`ent: missing required field "Node.cores"`)}
-	}
-	if _, ok := nc.mutation.LogicalCores(); !ok {
-		return &ValidationError{Name: "logical_cores", err: errors.New(`ent: missing required field "Node.logical_cores"`)}
-	}
-	if _, ok := nc.mutation.RAM(); !ok {
-		return &ValidationError{Name: "ram", err: errors.New(`ent: missing required field "Node.ram"`)}
-	}
-	if _, ok := nc.mutation.Storage(); !ok {
-		return &ValidationError{Name: "storage", err: errors.New(`ent: missing required field "Node.storage"`)}
+	if _, ok := nc.mutation.SkyhookAPIKey(); !ok {
+		return &ValidationError{Name: "skyhook_api_key", err: errors.New(`ent: missing required field "Node.skyhook_api_key"`)}
 	}
 	return nil
 }
@@ -281,6 +330,10 @@ func (nc *NodeCreate) createSpec() (*Node, *sqlgraph.CreateSpec) {
 		_spec.SetField(node.FieldSkyhookVersion, field.TypeString, value)
 		_node.SkyhookVersion = value
 	}
+	if value, ok := nc.mutation.SkyhookAPIKey(); ok {
+		_spec.SetField(node.FieldSkyhookAPIKey, field.TypeString, value)
+		_node.SkyhookAPIKey = value
+	}
 	if value, ok := nc.mutation.Os(); ok {
 		_spec.SetField(node.FieldOs, field.TypeString, value)
 		_node.Os = value
@@ -302,11 +355,11 @@ func (nc *NodeCreate) createSpec() (*Node, *sqlgraph.CreateSpec) {
 		_node.LogicalCores = value
 	}
 	if value, ok := nc.mutation.RAM(); ok {
-		_spec.SetField(node.FieldRAM, field.TypeUint, value)
+		_spec.SetField(node.FieldRAM, field.TypeUint64, value)
 		_node.RAM = value
 	}
 	if value, ok := nc.mutation.Storage(); ok {
-		_spec.SetField(node.FieldStorage, field.TypeUint, value)
+		_spec.SetField(node.FieldStorage, field.TypeUint64, value)
 		_node.Storage = value
 	}
 	if nodes := nc.mutation.NodesIDs(); len(nodes) > 0 {

@@ -81,6 +81,11 @@ func SkyhookVersion(v string) predicate.Node {
 	return predicate.Node(sql.FieldEQ(FieldSkyhookVersion, v))
 }
 
+// SkyhookAPIKey applies equality check predicate on the "skyhook_api_key" field. It's identical to SkyhookAPIKeyEQ.
+func SkyhookAPIKey(v string) predicate.Node {
+	return predicate.Node(sql.FieldEQ(FieldSkyhookAPIKey, v))
+}
+
 // Os applies equality check predicate on the "os" field. It's identical to OsEQ.
 func Os(v string) predicate.Node {
 	return predicate.Node(sql.FieldEQ(FieldOs, v))
@@ -107,12 +112,12 @@ func LogicalCores(v uint) predicate.Node {
 }
 
 // RAM applies equality check predicate on the "ram" field. It's identical to RAMEQ.
-func RAM(v uint) predicate.Node {
+func RAM(v uint64) predicate.Node {
 	return predicate.Node(sql.FieldEQ(FieldRAM, v))
 }
 
 // Storage applies equality check predicate on the "storage" field. It's identical to StorageEQ.
-func Storage(v uint) predicate.Node {
+func Storage(v uint64) predicate.Node {
 	return predicate.Node(sql.FieldEQ(FieldStorage, v))
 }
 
@@ -381,6 +386,16 @@ func SkyhookVersionHasSuffix(v string) predicate.Node {
 	return predicate.Node(sql.FieldHasSuffix(FieldSkyhookVersion, v))
 }
 
+// SkyhookVersionIsNil applies the IsNil predicate on the "skyhook_version" field.
+func SkyhookVersionIsNil() predicate.Node {
+	return predicate.Node(sql.FieldIsNull(FieldSkyhookVersion))
+}
+
+// SkyhookVersionNotNil applies the NotNil predicate on the "skyhook_version" field.
+func SkyhookVersionNotNil() predicate.Node {
+	return predicate.Node(sql.FieldNotNull(FieldSkyhookVersion))
+}
+
 // SkyhookVersionEqualFold applies the EqualFold predicate on the "skyhook_version" field.
 func SkyhookVersionEqualFold(v string) predicate.Node {
 	return predicate.Node(sql.FieldEqualFold(FieldSkyhookVersion, v))
@@ -389,6 +404,71 @@ func SkyhookVersionEqualFold(v string) predicate.Node {
 // SkyhookVersionContainsFold applies the ContainsFold predicate on the "skyhook_version" field.
 func SkyhookVersionContainsFold(v string) predicate.Node {
 	return predicate.Node(sql.FieldContainsFold(FieldSkyhookVersion, v))
+}
+
+// SkyhookAPIKeyEQ applies the EQ predicate on the "skyhook_api_key" field.
+func SkyhookAPIKeyEQ(v string) predicate.Node {
+	return predicate.Node(sql.FieldEQ(FieldSkyhookAPIKey, v))
+}
+
+// SkyhookAPIKeyNEQ applies the NEQ predicate on the "skyhook_api_key" field.
+func SkyhookAPIKeyNEQ(v string) predicate.Node {
+	return predicate.Node(sql.FieldNEQ(FieldSkyhookAPIKey, v))
+}
+
+// SkyhookAPIKeyIn applies the In predicate on the "skyhook_api_key" field.
+func SkyhookAPIKeyIn(vs ...string) predicate.Node {
+	return predicate.Node(sql.FieldIn(FieldSkyhookAPIKey, vs...))
+}
+
+// SkyhookAPIKeyNotIn applies the NotIn predicate on the "skyhook_api_key" field.
+func SkyhookAPIKeyNotIn(vs ...string) predicate.Node {
+	return predicate.Node(sql.FieldNotIn(FieldSkyhookAPIKey, vs...))
+}
+
+// SkyhookAPIKeyGT applies the GT predicate on the "skyhook_api_key" field.
+func SkyhookAPIKeyGT(v string) predicate.Node {
+	return predicate.Node(sql.FieldGT(FieldSkyhookAPIKey, v))
+}
+
+// SkyhookAPIKeyGTE applies the GTE predicate on the "skyhook_api_key" field.
+func SkyhookAPIKeyGTE(v string) predicate.Node {
+	return predicate.Node(sql.FieldGTE(FieldSkyhookAPIKey, v))
+}
+
+// SkyhookAPIKeyLT applies the LT predicate on the "skyhook_api_key" field.
+func SkyhookAPIKeyLT(v string) predicate.Node {
+	return predicate.Node(sql.FieldLT(FieldSkyhookAPIKey, v))
+}
+
+// SkyhookAPIKeyLTE applies the LTE predicate on the "skyhook_api_key" field.
+func SkyhookAPIKeyLTE(v string) predicate.Node {
+	return predicate.Node(sql.FieldLTE(FieldSkyhookAPIKey, v))
+}
+
+// SkyhookAPIKeyContains applies the Contains predicate on the "skyhook_api_key" field.
+func SkyhookAPIKeyContains(v string) predicate.Node {
+	return predicate.Node(sql.FieldContains(FieldSkyhookAPIKey, v))
+}
+
+// SkyhookAPIKeyHasPrefix applies the HasPrefix predicate on the "skyhook_api_key" field.
+func SkyhookAPIKeyHasPrefix(v string) predicate.Node {
+	return predicate.Node(sql.FieldHasPrefix(FieldSkyhookAPIKey, v))
+}
+
+// SkyhookAPIKeyHasSuffix applies the HasSuffix predicate on the "skyhook_api_key" field.
+func SkyhookAPIKeyHasSuffix(v string) predicate.Node {
+	return predicate.Node(sql.FieldHasSuffix(FieldSkyhookAPIKey, v))
+}
+
+// SkyhookAPIKeyEqualFold applies the EqualFold predicate on the "skyhook_api_key" field.
+func SkyhookAPIKeyEqualFold(v string) predicate.Node {
+	return predicate.Node(sql.FieldEqualFold(FieldSkyhookAPIKey, v))
+}
+
+// SkyhookAPIKeyContainsFold applies the ContainsFold predicate on the "skyhook_api_key" field.
+func SkyhookAPIKeyContainsFold(v string) predicate.Node {
+	return predicate.Node(sql.FieldContainsFold(FieldSkyhookAPIKey, v))
 }
 
 // OsEQ applies the EQ predicate on the "os" field.
@@ -444,6 +524,16 @@ func OsHasPrefix(v string) predicate.Node {
 // OsHasSuffix applies the HasSuffix predicate on the "os" field.
 func OsHasSuffix(v string) predicate.Node {
 	return predicate.Node(sql.FieldHasSuffix(FieldOs, v))
+}
+
+// OsIsNil applies the IsNil predicate on the "os" field.
+func OsIsNil() predicate.Node {
+	return predicate.Node(sql.FieldIsNull(FieldOs))
+}
+
+// OsNotNil applies the NotNil predicate on the "os" field.
+func OsNotNil() predicate.Node {
+	return predicate.Node(sql.FieldNotNull(FieldOs))
 }
 
 // OsEqualFold applies the EqualFold predicate on the "os" field.
@@ -511,6 +601,16 @@ func CPUHasSuffix(v string) predicate.Node {
 	return predicate.Node(sql.FieldHasSuffix(FieldCPU, v))
 }
 
+// CPUIsNil applies the IsNil predicate on the "cpu" field.
+func CPUIsNil() predicate.Node {
+	return predicate.Node(sql.FieldIsNull(FieldCPU))
+}
+
+// CPUNotNil applies the NotNil predicate on the "cpu" field.
+func CPUNotNil() predicate.Node {
+	return predicate.Node(sql.FieldNotNull(FieldCPU))
+}
+
 // CPUEqualFold applies the EqualFold predicate on the "cpu" field.
 func CPUEqualFold(v string) predicate.Node {
 	return predicate.Node(sql.FieldEqualFold(FieldCPU, v))
@@ -561,6 +661,16 @@ func CPUBaseClockLTE(v uint) predicate.Node {
 	return predicate.Node(sql.FieldLTE(FieldCPUBaseClock, v))
 }
 
+// CPUBaseClockIsNil applies the IsNil predicate on the "cpu_base_clock" field.
+func CPUBaseClockIsNil() predicate.Node {
+	return predicate.Node(sql.FieldIsNull(FieldCPUBaseClock))
+}
+
+// CPUBaseClockNotNil applies the NotNil predicate on the "cpu_base_clock" field.
+func CPUBaseClockNotNil() predicate.Node {
+	return predicate.Node(sql.FieldNotNull(FieldCPUBaseClock))
+}
+
 // CoresEQ applies the EQ predicate on the "cores" field.
 func CoresEQ(v uint) predicate.Node {
 	return predicate.Node(sql.FieldEQ(FieldCores, v))
@@ -599,6 +709,16 @@ func CoresLT(v uint) predicate.Node {
 // CoresLTE applies the LTE predicate on the "cores" field.
 func CoresLTE(v uint) predicate.Node {
 	return predicate.Node(sql.FieldLTE(FieldCores, v))
+}
+
+// CoresIsNil applies the IsNil predicate on the "cores" field.
+func CoresIsNil() predicate.Node {
+	return predicate.Node(sql.FieldIsNull(FieldCores))
+}
+
+// CoresNotNil applies the NotNil predicate on the "cores" field.
+func CoresNotNil() predicate.Node {
+	return predicate.Node(sql.FieldNotNull(FieldCores))
 }
 
 // LogicalCoresEQ applies the EQ predicate on the "logical_cores" field.
@@ -641,84 +761,114 @@ func LogicalCoresLTE(v uint) predicate.Node {
 	return predicate.Node(sql.FieldLTE(FieldLogicalCores, v))
 }
 
+// LogicalCoresIsNil applies the IsNil predicate on the "logical_cores" field.
+func LogicalCoresIsNil() predicate.Node {
+	return predicate.Node(sql.FieldIsNull(FieldLogicalCores))
+}
+
+// LogicalCoresNotNil applies the NotNil predicate on the "logical_cores" field.
+func LogicalCoresNotNil() predicate.Node {
+	return predicate.Node(sql.FieldNotNull(FieldLogicalCores))
+}
+
 // RAMEQ applies the EQ predicate on the "ram" field.
-func RAMEQ(v uint) predicate.Node {
+func RAMEQ(v uint64) predicate.Node {
 	return predicate.Node(sql.FieldEQ(FieldRAM, v))
 }
 
 // RAMNEQ applies the NEQ predicate on the "ram" field.
-func RAMNEQ(v uint) predicate.Node {
+func RAMNEQ(v uint64) predicate.Node {
 	return predicate.Node(sql.FieldNEQ(FieldRAM, v))
 }
 
 // RAMIn applies the In predicate on the "ram" field.
-func RAMIn(vs ...uint) predicate.Node {
+func RAMIn(vs ...uint64) predicate.Node {
 	return predicate.Node(sql.FieldIn(FieldRAM, vs...))
 }
 
 // RAMNotIn applies the NotIn predicate on the "ram" field.
-func RAMNotIn(vs ...uint) predicate.Node {
+func RAMNotIn(vs ...uint64) predicate.Node {
 	return predicate.Node(sql.FieldNotIn(FieldRAM, vs...))
 }
 
 // RAMGT applies the GT predicate on the "ram" field.
-func RAMGT(v uint) predicate.Node {
+func RAMGT(v uint64) predicate.Node {
 	return predicate.Node(sql.FieldGT(FieldRAM, v))
 }
 
 // RAMGTE applies the GTE predicate on the "ram" field.
-func RAMGTE(v uint) predicate.Node {
+func RAMGTE(v uint64) predicate.Node {
 	return predicate.Node(sql.FieldGTE(FieldRAM, v))
 }
 
 // RAMLT applies the LT predicate on the "ram" field.
-func RAMLT(v uint) predicate.Node {
+func RAMLT(v uint64) predicate.Node {
 	return predicate.Node(sql.FieldLT(FieldRAM, v))
 }
 
 // RAMLTE applies the LTE predicate on the "ram" field.
-func RAMLTE(v uint) predicate.Node {
+func RAMLTE(v uint64) predicate.Node {
 	return predicate.Node(sql.FieldLTE(FieldRAM, v))
 }
 
+// RAMIsNil applies the IsNil predicate on the "ram" field.
+func RAMIsNil() predicate.Node {
+	return predicate.Node(sql.FieldIsNull(FieldRAM))
+}
+
+// RAMNotNil applies the NotNil predicate on the "ram" field.
+func RAMNotNil() predicate.Node {
+	return predicate.Node(sql.FieldNotNull(FieldRAM))
+}
+
 // StorageEQ applies the EQ predicate on the "storage" field.
-func StorageEQ(v uint) predicate.Node {
+func StorageEQ(v uint64) predicate.Node {
 	return predicate.Node(sql.FieldEQ(FieldStorage, v))
 }
 
 // StorageNEQ applies the NEQ predicate on the "storage" field.
-func StorageNEQ(v uint) predicate.Node {
+func StorageNEQ(v uint64) predicate.Node {
 	return predicate.Node(sql.FieldNEQ(FieldStorage, v))
 }
 
 // StorageIn applies the In predicate on the "storage" field.
-func StorageIn(vs ...uint) predicate.Node {
+func StorageIn(vs ...uint64) predicate.Node {
 	return predicate.Node(sql.FieldIn(FieldStorage, vs...))
 }
 
 // StorageNotIn applies the NotIn predicate on the "storage" field.
-func StorageNotIn(vs ...uint) predicate.Node {
+func StorageNotIn(vs ...uint64) predicate.Node {
 	return predicate.Node(sql.FieldNotIn(FieldStorage, vs...))
 }
 
 // StorageGT applies the GT predicate on the "storage" field.
-func StorageGT(v uint) predicate.Node {
+func StorageGT(v uint64) predicate.Node {
 	return predicate.Node(sql.FieldGT(FieldStorage, v))
 }
 
 // StorageGTE applies the GTE predicate on the "storage" field.
-func StorageGTE(v uint) predicate.Node {
+func StorageGTE(v uint64) predicate.Node {
 	return predicate.Node(sql.FieldGTE(FieldStorage, v))
 }
 
 // StorageLT applies the LT predicate on the "storage" field.
-func StorageLT(v uint) predicate.Node {
+func StorageLT(v uint64) predicate.Node {
 	return predicate.Node(sql.FieldLT(FieldStorage, v))
 }
 
 // StorageLTE applies the LTE predicate on the "storage" field.
-func StorageLTE(v uint) predicate.Node {
+func StorageLTE(v uint64) predicate.Node {
 	return predicate.Node(sql.FieldLTE(FieldStorage, v))
+}
+
+// StorageIsNil applies the IsNil predicate on the "storage" field.
+func StorageIsNil() predicate.Node {
+	return predicate.Node(sql.FieldIsNull(FieldStorage))
+}
+
+// StorageNotNil applies the NotNil predicate on the "storage" field.
+func StorageNotNil() predicate.Node {
+	return predicate.Node(sql.FieldNotNull(FieldStorage))
 }
 
 // HasNodes applies the HasEdge predicate on the "nodes" edge.

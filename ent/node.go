@@ -28,6 +28,8 @@ type Node struct {
 	Fqdn string `json:"fqdn,omitempty"`
 	// SkyhookVersion holds the value of the "skyhook_version" field.
 	SkyhookVersion string `json:"skyhook_version,omitempty"`
+	// SkyhookAPIKey holds the value of the "skyhook_api_key" field.
+	SkyhookAPIKey string `json:"skyhook_api_key,omitempty"`
 	// Os holds the value of the "os" field.
 	Os string `json:"os,omitempty"`
 	// CPU holds the value of the "cpu" field.
@@ -39,9 +41,9 @@ type Node struct {
 	// LogicalCores holds the value of the "logical_cores" field.
 	LogicalCores uint `json:"logical_cores,omitempty"`
 	// RAM holds the value of the "ram" field.
-	RAM uint `json:"ram,omitempty"`
+	RAM uint64 `json:"ram,omitempty"`
 	// Storage holds the value of the "storage" field.
-	Storage uint `json:"storage,omitempty"`
+	Storage uint64 `json:"storage,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the NodeQuery when eager-loading is set.
 	Edges        NodeEdges `json:"edges"`
@@ -73,7 +75,7 @@ func (*Node) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case node.FieldCPUBaseClock, node.FieldCores, node.FieldLogicalCores, node.FieldRAM, node.FieldStorage:
 			values[i] = new(sql.NullInt64)
-		case node.FieldIpv4Address, node.FieldFqdn, node.FieldSkyhookVersion, node.FieldOs, node.FieldCPU:
+		case node.FieldIpv4Address, node.FieldFqdn, node.FieldSkyhookVersion, node.FieldSkyhookAPIKey, node.FieldOs, node.FieldCPU:
 			values[i] = new(sql.NullString)
 		case node.FieldCreatedAt, node.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -130,6 +132,12 @@ func (n *Node) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				n.SkyhookVersion = value.String
 			}
+		case node.FieldSkyhookAPIKey:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field skyhook_api_key", values[i])
+			} else if value.Valid {
+				n.SkyhookAPIKey = value.String
+			}
 		case node.FieldOs:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field os", values[i])
@@ -164,13 +172,13 @@ func (n *Node) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field ram", values[i])
 			} else if value.Valid {
-				n.RAM = uint(value.Int64)
+				n.RAM = uint64(value.Int64)
 			}
 		case node.FieldStorage:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field storage", values[i])
 			} else if value.Valid {
-				n.Storage = uint(value.Int64)
+				n.Storage = uint64(value.Int64)
 			}
 		default:
 			n.selectValues.Set(columns[i], values[i])
@@ -227,6 +235,9 @@ func (n *Node) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("skyhook_version=")
 	builder.WriteString(n.SkyhookVersion)
+	builder.WriteString(", ")
+	builder.WriteString("skyhook_api_key=")
+	builder.WriteString(n.SkyhookAPIKey)
 	builder.WriteString(", ")
 	builder.WriteString("os=")
 	builder.WriteString(n.Os)

@@ -33,9 +33,9 @@ type ModuleInvokeHandler struct {
 }
 
 func (h *ModuleInvokeHandler) ModuleInvoke(command string, args Arguments) (Result, error) {
-	fmt.Printf("command: %v invoked with args %v", command, args)
+	//fmt.Printf("command: %v invoked with args %v", command, args)
 	isFound, mod, _ := h.ModuleStore.HasRegisteredCommand(command)
-	log.Infof("Command info: %v", isFound)
+	//log.Infof("Command info: %v", isFound)
 
 	if !isFound {
 		return nil, ErrCommandNotFound

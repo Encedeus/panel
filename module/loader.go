@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/Encedeus/panel/config"
 	"github.com/filecoin-project/go-jsonrpc"
 	"github.com/google/uuid"
 	"github.com/hashicorp/hcl/v2/hclsimple"
@@ -80,6 +81,7 @@ type Store struct {
 	Modules           []*Module
 	ModulesFolderPath string
 	RPCPort           Port
+	Craters           []*Crater
 }
 
 func NewStore(modulesPath string) *Store {
@@ -116,6 +118,9 @@ func (ms *Store) buildDependencyGraph() {
 
 func (ms *Store) resolveDependencies() []*Module {
 	ms.buildDependencyGraph()
+	if len(ms.Modules) <= 0 {
+		return nil
+	}
 	start := ms.Modules[0]
 	resolved := make([]*Module, 0)
 	unresolved := make([]*Module, 0)
@@ -201,14 +206,16 @@ func (ms *Store) GetAvailablePort() Port {
 	return Port(port)
 }
 
-type Configuration struct {
-	Port     Port
-	HostPort Port
-	Manifest Manifest
+type Config struct {
+	Port       Port
+	HostPort   Port
+	Manifest   Manifest
+	HostConfig config.Configuration
 }
 
 type HandshakeResponse struct {
-	RegisteredCommands []*Command
+	//RegisteredCommands []*Command
+	//RegisteredCraters []*Crater
 }
 
 func (ms *Store) LoadOne(emaPath string, doHandshake bool) (*Module, error) {
@@ -244,6 +251,8 @@ func (ms *Store) LoadOne(emaPath string, doHandshake bool) (*Module, error) {
 	// Backend loading
 	backendPort := ms.GetAvailablePort()
 	rpcPort := ms.GetAvailablePort()
+	fmt.Printf("Backend port: %v\n", backendPort)
+	fmt.Printf("RPC port: %v\n", rpcPort)
 	if len(manifest.Backend.MainFile) != 0 {
 		backendMain, err := os.Open(filepath.Join(unzipLocation, "backend", manifest.Backend.MainFile))
 		if err != nil {
@@ -279,8 +288,6 @@ func (ms *Store) LoadOne(emaPath string, doHandshake bool) (*Module, error) {
 		RPCPort:     rpcPort,
 	}
 
-	//fmt.Printf("Frontend port: %v\n", frontendServer.Port)
-
 	module := new(Module)
 	module.Manifest = *manifest
 	module.Store = ms
@@ -294,13 +301,11 @@ func (ms *Store) LoadOne(emaPath string, doHandshake bool) (*Module, error) {
 			return nil, err
 		}
 	}
-	// fmt.Println("Hadnshake done")
 
 	ms.mu.Lock()
 	defer ms.mu.Unlock()
 
 	ms.Modules = append(ms.Modules, module)
-	log.Infof("Modules: %+v\n", ms.Modules)
 
 	return module, nil
 }
@@ -360,6 +365,10 @@ func (ms *Store) LoadAll() error {
 	wg.Wait()
 
 	loadOrder := ms.resolveDependencies()
+	if len(loadOrder) <= 0 {
+		return nil
+	}
+
 	wg.Add(len(loadOrder))
 	for _, m := range loadOrder {
 		go func(module *Module) {
@@ -391,16 +400,14 @@ type Module struct {
 type Backend struct {
 	BackendPort Port
 	RPCPort     Port
+	Craters     []*Crater
 }
 
 func (m *Module) beginHandshake() error {
 	var client struct {
-		OnHandshake func(config Configuration) HandshakeResponse
+		OnHandshake func(config Config) HandshakeResponse
 	}
-	// fmt.Println("Handshake")
-	// time.Sleep(2 * time.Second)/**/
 
-	//fmt.Printf("Actual RPC port: %v\n", m.Backend.RPCPort)
 	start := time.Now()
 	for {
 		conn, err := net.DialTimeout("tcp", fmt.Sprintf("127.0.0.1:%v", m.Backend.RPCPort), 5*time.Second)
@@ -410,7 +417,7 @@ func (m *Module) beginHandshake() error {
 		}
 		if time.Now().Sub(start) > 5*time.Second {
 			log.Printf("Connection to module %v RPC server at port %v refused: %v", m.ID, m.Backend.RPCPort, err)
-			break
+			return nil
 		}
 	}
 	closer, err := jsonrpc.NewClient(context.Background(), fmt.Sprintf("http://localhost:%v", m.Backend.RPCPort), "HandshakeHandler", &client, nil)
@@ -419,11 +426,14 @@ func (m *Module) beginHandshake() error {
 	}
 	defer closer()
 
-	_ = client.OnHandshake(Configuration{
-		Manifest: m.Manifest,
-		Port:     m.Backend.BackendPort,
-		HostPort: m.Store.RPCPort,
+	_ = client.OnHandshake(Config{
+		Manifest:   m.Manifest,
+		Port:       m.Backend.BackendPort,
+		HostPort:   m.Store.RPCPort,
+		HostConfig: config.Config,
 	})
+	//fmt.Printf("handshake done\n%+v\n", resp)
+	//m.Backend.Craters = resp.RegisteredCraters
 	//fmt.Printf("handshake done\n%+v\n", resp)
 	// m.RegisteredCommands = resp.RegisteredCommands
 
@@ -435,8 +445,9 @@ type Manifest struct {
 	Authors []string `hcl:"authors"`
 	Version string   `hcl:"version"`
 	Backend struct {
-		MainFile           string   `hcl:"main"`
-		RegisteredCommands []string `hcl:"commands"`
+		MainFile           string    `hcl:"main"`
+		RegisteredCommands []string  `hcl:"commands"`
+		Craters            []*Crater `hcl:"crater,block"`
 	} `hcl:"backend,block"`
 	Frontend struct {
 		TabName string `hcl:"tab_name"`
@@ -472,6 +483,7 @@ func NewManifestFromEma(reader *zip.ReadCloser) (*Manifest, error) {
 		log.Errorf("%e", err)
 		return nil, err
 	}
+	fmt.Printf("%+v\n", manifest)
 
 	return manifest, nil
 }

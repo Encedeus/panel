@@ -10,7 +10,6 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/Encedeus/panel/ent/game"
 	"github.com/Encedeus/panel/ent/node"
 	"github.com/Encedeus/panel/ent/server"
 	"github.com/Encedeus/panel/ent/user"
@@ -52,14 +51,20 @@ func (sc *ServerCreate) SetNillableUpdatedAt(t *time.Time) *ServerCreate {
 	return sc
 }
 
+// SetName sets the "name" field.
+func (sc *ServerCreate) SetName(s string) *ServerCreate {
+	sc.mutation.SetName(s)
+	return sc
+}
+
 // SetRAM sets the "ram" field.
-func (sc *ServerCreate) SetRAM(u uint) *ServerCreate {
+func (sc *ServerCreate) SetRAM(u uint64) *ServerCreate {
 	sc.mutation.SetRAM(u)
 	return sc
 }
 
 // SetStorage sets the "storage" field.
-func (sc *ServerCreate) SetStorage(u uint) *ServerCreate {
+func (sc *ServerCreate) SetStorage(u uint64) *ServerCreate {
 	sc.mutation.SetStorage(u)
 	return sc
 }
@@ -73,6 +78,30 @@ func (sc *ServerCreate) SetLogicalCores(u uint) *ServerCreate {
 // SetPort sets the "port" field.
 func (sc *ServerCreate) SetPort(u uint16) *ServerCreate {
 	sc.mutation.SetPort(u)
+	return sc
+}
+
+// SetCraterProvider sets the "crater_provider" field.
+func (sc *ServerCreate) SetCraterProvider(s string) *ServerCreate {
+	sc.mutation.SetCraterProvider(s)
+	return sc
+}
+
+// SetCrater sets the "crater" field.
+func (sc *ServerCreate) SetCrater(s string) *ServerCreate {
+	sc.mutation.SetCrater(s)
+	return sc
+}
+
+// SetCraterVariant sets the "crater_variant" field.
+func (sc *ServerCreate) SetCraterVariant(s string) *ServerCreate {
+	sc.mutation.SetCraterVariant(s)
+	return sc
+}
+
+// SetCraterOptions sets the "crater_options" field.
+func (sc *ServerCreate) SetCraterOptions(a any) *ServerCreate {
+	sc.mutation.SetCraterOptions(a)
 	return sc
 }
 
@@ -126,25 +155,6 @@ func (sc *ServerCreate) SetNillableOwnerID(id *uuid.UUID) *ServerCreate {
 // SetOwner sets the "owner" edge to the User entity.
 func (sc *ServerCreate) SetOwner(u *User) *ServerCreate {
 	return sc.SetOwnerID(u.ID)
-}
-
-// SetGameID sets the "game" edge to the Game entity by ID.
-func (sc *ServerCreate) SetGameID(id uuid.UUID) *ServerCreate {
-	sc.mutation.SetGameID(id)
-	return sc
-}
-
-// SetNillableGameID sets the "game" edge to the Game entity by ID if the given value is not nil.
-func (sc *ServerCreate) SetNillableGameID(id *uuid.UUID) *ServerCreate {
-	if id != nil {
-		sc = sc.SetGameID(*id)
-	}
-	return sc
-}
-
-// SetGame sets the "game" edge to the Game entity.
-func (sc *ServerCreate) SetGame(g *Game) *ServerCreate {
-	return sc.SetGameID(g.ID)
 }
 
 // Mutation returns the ServerMutation object of the builder.
@@ -204,6 +214,9 @@ func (sc *ServerCreate) check() error {
 	if _, ok := sc.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Server.updated_at"`)}
 	}
+	if _, ok := sc.mutation.Name(); !ok {
+		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Server.name"`)}
+	}
 	if _, ok := sc.mutation.RAM(); !ok {
 		return &ValidationError{Name: "ram", err: errors.New(`ent: missing required field "Server.ram"`)}
 	}
@@ -215,6 +228,15 @@ func (sc *ServerCreate) check() error {
 	}
 	if _, ok := sc.mutation.Port(); !ok {
 		return &ValidationError{Name: "port", err: errors.New(`ent: missing required field "Server.port"`)}
+	}
+	if _, ok := sc.mutation.CraterProvider(); !ok {
+		return &ValidationError{Name: "crater_provider", err: errors.New(`ent: missing required field "Server.crater_provider"`)}
+	}
+	if _, ok := sc.mutation.Crater(); !ok {
+		return &ValidationError{Name: "crater", err: errors.New(`ent: missing required field "Server.crater"`)}
+	}
+	if _, ok := sc.mutation.CraterVariant(); !ok {
+		return &ValidationError{Name: "crater_variant", err: errors.New(`ent: missing required field "Server.crater_variant"`)}
 	}
 	return nil
 }
@@ -259,12 +281,16 @@ func (sc *ServerCreate) createSpec() (*Server, *sqlgraph.CreateSpec) {
 		_spec.SetField(server.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
 	}
+	if value, ok := sc.mutation.Name(); ok {
+		_spec.SetField(server.FieldName, field.TypeString, value)
+		_node.Name = value
+	}
 	if value, ok := sc.mutation.RAM(); ok {
-		_spec.SetField(server.FieldRAM, field.TypeUint, value)
+		_spec.SetField(server.FieldRAM, field.TypeUint64, value)
 		_node.RAM = value
 	}
 	if value, ok := sc.mutation.Storage(); ok {
-		_spec.SetField(server.FieldStorage, field.TypeUint, value)
+		_spec.SetField(server.FieldStorage, field.TypeUint64, value)
 		_node.Storage = value
 	}
 	if value, ok := sc.mutation.LogicalCores(); ok {
@@ -274,6 +300,22 @@ func (sc *ServerCreate) createSpec() (*Server, *sqlgraph.CreateSpec) {
 	if value, ok := sc.mutation.Port(); ok {
 		_spec.SetField(server.FieldPort, field.TypeUint16, value)
 		_node.Port = value
+	}
+	if value, ok := sc.mutation.CraterProvider(); ok {
+		_spec.SetField(server.FieldCraterProvider, field.TypeString, value)
+		_node.CraterProvider = value
+	}
+	if value, ok := sc.mutation.Crater(); ok {
+		_spec.SetField(server.FieldCrater, field.TypeString, value)
+		_node.Crater = value
+	}
+	if value, ok := sc.mutation.CraterVariant(); ok {
+		_spec.SetField(server.FieldCraterVariant, field.TypeString, value)
+		_node.CraterVariant = value
+	}
+	if value, ok := sc.mutation.CraterOptions(); ok {
+		_spec.SetField(server.FieldCraterOptions, field.TypeJSON, value)
+		_node.CraterOptions = value
 	}
 	if nodes := sc.mutation.NodeIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -307,23 +349,6 @@ func (sc *ServerCreate) createSpec() (*Server, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.user_owners = &nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := sc.mutation.GameIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   server.GameTable,
-			Columns: []string{server.GameColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(game.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.game_games = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

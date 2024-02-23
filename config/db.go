@@ -35,12 +35,12 @@ func InitDB() *ent.Client {
 
 	// db.Schema.Create(context.Background())
 
-	/*	// update Db schema
-		err = db.Debug().Schema.Create(ctx)
+	// update Db schema
+	/*	err = db.Schema.Create(ctx)
 		if err != nil {
 			log.Fatalf("failed creating schema resources: %v", err)
-		}
-	*/ //keyserver.ubuntu.com:80 --recv-keys D6BC243565B2087BC3F897C9277A7293F59E4889
+		}*/
+	//keyserver.ubuntu.com:80 --recv-keys D6BC243565B2087BC3F897C9277A7293F59E4889
 	// creates an admin user if it does not exist
 	createSuperuserRole(db, ctx)
 	createSuperuser(db, ctx)

@@ -66,13 +66,18 @@ func UpdatedAt(v time.Time) predicate.Server {
 	return predicate.Server(sql.FieldEQ(FieldUpdatedAt, v))
 }
 
+// Name applies equality check predicate on the "name" field. It's identical to NameEQ.
+func Name(v string) predicate.Server {
+	return predicate.Server(sql.FieldEQ(FieldName, v))
+}
+
 // RAM applies equality check predicate on the "ram" field. It's identical to RAMEQ.
-func RAM(v uint) predicate.Server {
+func RAM(v uint64) predicate.Server {
 	return predicate.Server(sql.FieldEQ(FieldRAM, v))
 }
 
 // Storage applies equality check predicate on the "storage" field. It's identical to StorageEQ.
-func Storage(v uint) predicate.Server {
+func Storage(v uint64) predicate.Server {
 	return predicate.Server(sql.FieldEQ(FieldStorage, v))
 }
 
@@ -84,6 +89,21 @@ func LogicalCores(v uint) predicate.Server {
 // Port applies equality check predicate on the "port" field. It's identical to PortEQ.
 func Port(v uint16) predicate.Server {
 	return predicate.Server(sql.FieldEQ(FieldPort, v))
+}
+
+// CraterProvider applies equality check predicate on the "crater_provider" field. It's identical to CraterProviderEQ.
+func CraterProvider(v string) predicate.Server {
+	return predicate.Server(sql.FieldEQ(FieldCraterProvider, v))
+}
+
+// Crater applies equality check predicate on the "crater" field. It's identical to CraterEQ.
+func Crater(v string) predicate.Server {
+	return predicate.Server(sql.FieldEQ(FieldCrater, v))
+}
+
+// CraterVariant applies equality check predicate on the "crater_variant" field. It's identical to CraterVariantEQ.
+func CraterVariant(v string) predicate.Server {
+	return predicate.Server(sql.FieldEQ(FieldCraterVariant, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
@@ -166,83 +186,148 @@ func UpdatedAtLTE(v time.Time) predicate.Server {
 	return predicate.Server(sql.FieldLTE(FieldUpdatedAt, v))
 }
 
+// NameEQ applies the EQ predicate on the "name" field.
+func NameEQ(v string) predicate.Server {
+	return predicate.Server(sql.FieldEQ(FieldName, v))
+}
+
+// NameNEQ applies the NEQ predicate on the "name" field.
+func NameNEQ(v string) predicate.Server {
+	return predicate.Server(sql.FieldNEQ(FieldName, v))
+}
+
+// NameIn applies the In predicate on the "name" field.
+func NameIn(vs ...string) predicate.Server {
+	return predicate.Server(sql.FieldIn(FieldName, vs...))
+}
+
+// NameNotIn applies the NotIn predicate on the "name" field.
+func NameNotIn(vs ...string) predicate.Server {
+	return predicate.Server(sql.FieldNotIn(FieldName, vs...))
+}
+
+// NameGT applies the GT predicate on the "name" field.
+func NameGT(v string) predicate.Server {
+	return predicate.Server(sql.FieldGT(FieldName, v))
+}
+
+// NameGTE applies the GTE predicate on the "name" field.
+func NameGTE(v string) predicate.Server {
+	return predicate.Server(sql.FieldGTE(FieldName, v))
+}
+
+// NameLT applies the LT predicate on the "name" field.
+func NameLT(v string) predicate.Server {
+	return predicate.Server(sql.FieldLT(FieldName, v))
+}
+
+// NameLTE applies the LTE predicate on the "name" field.
+func NameLTE(v string) predicate.Server {
+	return predicate.Server(sql.FieldLTE(FieldName, v))
+}
+
+// NameContains applies the Contains predicate on the "name" field.
+func NameContains(v string) predicate.Server {
+	return predicate.Server(sql.FieldContains(FieldName, v))
+}
+
+// NameHasPrefix applies the HasPrefix predicate on the "name" field.
+func NameHasPrefix(v string) predicate.Server {
+	return predicate.Server(sql.FieldHasPrefix(FieldName, v))
+}
+
+// NameHasSuffix applies the HasSuffix predicate on the "name" field.
+func NameHasSuffix(v string) predicate.Server {
+	return predicate.Server(sql.FieldHasSuffix(FieldName, v))
+}
+
+// NameEqualFold applies the EqualFold predicate on the "name" field.
+func NameEqualFold(v string) predicate.Server {
+	return predicate.Server(sql.FieldEqualFold(FieldName, v))
+}
+
+// NameContainsFold applies the ContainsFold predicate on the "name" field.
+func NameContainsFold(v string) predicate.Server {
+	return predicate.Server(sql.FieldContainsFold(FieldName, v))
+}
+
 // RAMEQ applies the EQ predicate on the "ram" field.
-func RAMEQ(v uint) predicate.Server {
+func RAMEQ(v uint64) predicate.Server {
 	return predicate.Server(sql.FieldEQ(FieldRAM, v))
 }
 
 // RAMNEQ applies the NEQ predicate on the "ram" field.
-func RAMNEQ(v uint) predicate.Server {
+func RAMNEQ(v uint64) predicate.Server {
 	return predicate.Server(sql.FieldNEQ(FieldRAM, v))
 }
 
 // RAMIn applies the In predicate on the "ram" field.
-func RAMIn(vs ...uint) predicate.Server {
+func RAMIn(vs ...uint64) predicate.Server {
 	return predicate.Server(sql.FieldIn(FieldRAM, vs...))
 }
 
 // RAMNotIn applies the NotIn predicate on the "ram" field.
-func RAMNotIn(vs ...uint) predicate.Server {
+func RAMNotIn(vs ...uint64) predicate.Server {
 	return predicate.Server(sql.FieldNotIn(FieldRAM, vs...))
 }
 
 // RAMGT applies the GT predicate on the "ram" field.
-func RAMGT(v uint) predicate.Server {
+func RAMGT(v uint64) predicate.Server {
 	return predicate.Server(sql.FieldGT(FieldRAM, v))
 }
 
 // RAMGTE applies the GTE predicate on the "ram" field.
-func RAMGTE(v uint) predicate.Server {
+func RAMGTE(v uint64) predicate.Server {
 	return predicate.Server(sql.FieldGTE(FieldRAM, v))
 }
 
 // RAMLT applies the LT predicate on the "ram" field.
-func RAMLT(v uint) predicate.Server {
+func RAMLT(v uint64) predicate.Server {
 	return predicate.Server(sql.FieldLT(FieldRAM, v))
 }
 
 // RAMLTE applies the LTE predicate on the "ram" field.
-func RAMLTE(v uint) predicate.Server {
+func RAMLTE(v uint64) predicate.Server {
 	return predicate.Server(sql.FieldLTE(FieldRAM, v))
 }
 
 // StorageEQ applies the EQ predicate on the "storage" field.
-func StorageEQ(v uint) predicate.Server {
+func StorageEQ(v uint64) predicate.Server {
 	return predicate.Server(sql.FieldEQ(FieldStorage, v))
 }
 
 // StorageNEQ applies the NEQ predicate on the "storage" field.
-func StorageNEQ(v uint) predicate.Server {
+func StorageNEQ(v uint64) predicate.Server {
 	return predicate.Server(sql.FieldNEQ(FieldStorage, v))
 }
 
 // StorageIn applies the In predicate on the "storage" field.
-func StorageIn(vs ...uint) predicate.Server {
+func StorageIn(vs ...uint64) predicate.Server {
 	return predicate.Server(sql.FieldIn(FieldStorage, vs...))
 }
 
 // StorageNotIn applies the NotIn predicate on the "storage" field.
-func StorageNotIn(vs ...uint) predicate.Server {
+func StorageNotIn(vs ...uint64) predicate.Server {
 	return predicate.Server(sql.FieldNotIn(FieldStorage, vs...))
 }
 
 // StorageGT applies the GT predicate on the "storage" field.
-func StorageGT(v uint) predicate.Server {
+func StorageGT(v uint64) predicate.Server {
 	return predicate.Server(sql.FieldGT(FieldStorage, v))
 }
 
 // StorageGTE applies the GTE predicate on the "storage" field.
-func StorageGTE(v uint) predicate.Server {
+func StorageGTE(v uint64) predicate.Server {
 	return predicate.Server(sql.FieldGTE(FieldStorage, v))
 }
 
 // StorageLT applies the LT predicate on the "storage" field.
-func StorageLT(v uint) predicate.Server {
+func StorageLT(v uint64) predicate.Server {
 	return predicate.Server(sql.FieldLT(FieldStorage, v))
 }
 
 // StorageLTE applies the LTE predicate on the "storage" field.
-func StorageLTE(v uint) predicate.Server {
+func StorageLTE(v uint64) predicate.Server {
 	return predicate.Server(sql.FieldLTE(FieldStorage, v))
 }
 
@@ -326,6 +411,211 @@ func PortLTE(v uint16) predicate.Server {
 	return predicate.Server(sql.FieldLTE(FieldPort, v))
 }
 
+// CraterProviderEQ applies the EQ predicate on the "crater_provider" field.
+func CraterProviderEQ(v string) predicate.Server {
+	return predicate.Server(sql.FieldEQ(FieldCraterProvider, v))
+}
+
+// CraterProviderNEQ applies the NEQ predicate on the "crater_provider" field.
+func CraterProviderNEQ(v string) predicate.Server {
+	return predicate.Server(sql.FieldNEQ(FieldCraterProvider, v))
+}
+
+// CraterProviderIn applies the In predicate on the "crater_provider" field.
+func CraterProviderIn(vs ...string) predicate.Server {
+	return predicate.Server(sql.FieldIn(FieldCraterProvider, vs...))
+}
+
+// CraterProviderNotIn applies the NotIn predicate on the "crater_provider" field.
+func CraterProviderNotIn(vs ...string) predicate.Server {
+	return predicate.Server(sql.FieldNotIn(FieldCraterProvider, vs...))
+}
+
+// CraterProviderGT applies the GT predicate on the "crater_provider" field.
+func CraterProviderGT(v string) predicate.Server {
+	return predicate.Server(sql.FieldGT(FieldCraterProvider, v))
+}
+
+// CraterProviderGTE applies the GTE predicate on the "crater_provider" field.
+func CraterProviderGTE(v string) predicate.Server {
+	return predicate.Server(sql.FieldGTE(FieldCraterProvider, v))
+}
+
+// CraterProviderLT applies the LT predicate on the "crater_provider" field.
+func CraterProviderLT(v string) predicate.Server {
+	return predicate.Server(sql.FieldLT(FieldCraterProvider, v))
+}
+
+// CraterProviderLTE applies the LTE predicate on the "crater_provider" field.
+func CraterProviderLTE(v string) predicate.Server {
+	return predicate.Server(sql.FieldLTE(FieldCraterProvider, v))
+}
+
+// CraterProviderContains applies the Contains predicate on the "crater_provider" field.
+func CraterProviderContains(v string) predicate.Server {
+	return predicate.Server(sql.FieldContains(FieldCraterProvider, v))
+}
+
+// CraterProviderHasPrefix applies the HasPrefix predicate on the "crater_provider" field.
+func CraterProviderHasPrefix(v string) predicate.Server {
+	return predicate.Server(sql.FieldHasPrefix(FieldCraterProvider, v))
+}
+
+// CraterProviderHasSuffix applies the HasSuffix predicate on the "crater_provider" field.
+func CraterProviderHasSuffix(v string) predicate.Server {
+	return predicate.Server(sql.FieldHasSuffix(FieldCraterProvider, v))
+}
+
+// CraterProviderEqualFold applies the EqualFold predicate on the "crater_provider" field.
+func CraterProviderEqualFold(v string) predicate.Server {
+	return predicate.Server(sql.FieldEqualFold(FieldCraterProvider, v))
+}
+
+// CraterProviderContainsFold applies the ContainsFold predicate on the "crater_provider" field.
+func CraterProviderContainsFold(v string) predicate.Server {
+	return predicate.Server(sql.FieldContainsFold(FieldCraterProvider, v))
+}
+
+// CraterEQ applies the EQ predicate on the "crater" field.
+func CraterEQ(v string) predicate.Server {
+	return predicate.Server(sql.FieldEQ(FieldCrater, v))
+}
+
+// CraterNEQ applies the NEQ predicate on the "crater" field.
+func CraterNEQ(v string) predicate.Server {
+	return predicate.Server(sql.FieldNEQ(FieldCrater, v))
+}
+
+// CraterIn applies the In predicate on the "crater" field.
+func CraterIn(vs ...string) predicate.Server {
+	return predicate.Server(sql.FieldIn(FieldCrater, vs...))
+}
+
+// CraterNotIn applies the NotIn predicate on the "crater" field.
+func CraterNotIn(vs ...string) predicate.Server {
+	return predicate.Server(sql.FieldNotIn(FieldCrater, vs...))
+}
+
+// CraterGT applies the GT predicate on the "crater" field.
+func CraterGT(v string) predicate.Server {
+	return predicate.Server(sql.FieldGT(FieldCrater, v))
+}
+
+// CraterGTE applies the GTE predicate on the "crater" field.
+func CraterGTE(v string) predicate.Server {
+	return predicate.Server(sql.FieldGTE(FieldCrater, v))
+}
+
+// CraterLT applies the LT predicate on the "crater" field.
+func CraterLT(v string) predicate.Server {
+	return predicate.Server(sql.FieldLT(FieldCrater, v))
+}
+
+// CraterLTE applies the LTE predicate on the "crater" field.
+func CraterLTE(v string) predicate.Server {
+	return predicate.Server(sql.FieldLTE(FieldCrater, v))
+}
+
+// CraterContains applies the Contains predicate on the "crater" field.
+func CraterContains(v string) predicate.Server {
+	return predicate.Server(sql.FieldContains(FieldCrater, v))
+}
+
+// CraterHasPrefix applies the HasPrefix predicate on the "crater" field.
+func CraterHasPrefix(v string) predicate.Server {
+	return predicate.Server(sql.FieldHasPrefix(FieldCrater, v))
+}
+
+// CraterHasSuffix applies the HasSuffix predicate on the "crater" field.
+func CraterHasSuffix(v string) predicate.Server {
+	return predicate.Server(sql.FieldHasSuffix(FieldCrater, v))
+}
+
+// CraterEqualFold applies the EqualFold predicate on the "crater" field.
+func CraterEqualFold(v string) predicate.Server {
+	return predicate.Server(sql.FieldEqualFold(FieldCrater, v))
+}
+
+// CraterContainsFold applies the ContainsFold predicate on the "crater" field.
+func CraterContainsFold(v string) predicate.Server {
+	return predicate.Server(sql.FieldContainsFold(FieldCrater, v))
+}
+
+// CraterVariantEQ applies the EQ predicate on the "crater_variant" field.
+func CraterVariantEQ(v string) predicate.Server {
+	return predicate.Server(sql.FieldEQ(FieldCraterVariant, v))
+}
+
+// CraterVariantNEQ applies the NEQ predicate on the "crater_variant" field.
+func CraterVariantNEQ(v string) predicate.Server {
+	return predicate.Server(sql.FieldNEQ(FieldCraterVariant, v))
+}
+
+// CraterVariantIn applies the In predicate on the "crater_variant" field.
+func CraterVariantIn(vs ...string) predicate.Server {
+	return predicate.Server(sql.FieldIn(FieldCraterVariant, vs...))
+}
+
+// CraterVariantNotIn applies the NotIn predicate on the "crater_variant" field.
+func CraterVariantNotIn(vs ...string) predicate.Server {
+	return predicate.Server(sql.FieldNotIn(FieldCraterVariant, vs...))
+}
+
+// CraterVariantGT applies the GT predicate on the "crater_variant" field.
+func CraterVariantGT(v string) predicate.Server {
+	return predicate.Server(sql.FieldGT(FieldCraterVariant, v))
+}
+
+// CraterVariantGTE applies the GTE predicate on the "crater_variant" field.
+func CraterVariantGTE(v string) predicate.Server {
+	return predicate.Server(sql.FieldGTE(FieldCraterVariant, v))
+}
+
+// CraterVariantLT applies the LT predicate on the "crater_variant" field.
+func CraterVariantLT(v string) predicate.Server {
+	return predicate.Server(sql.FieldLT(FieldCraterVariant, v))
+}
+
+// CraterVariantLTE applies the LTE predicate on the "crater_variant" field.
+func CraterVariantLTE(v string) predicate.Server {
+	return predicate.Server(sql.FieldLTE(FieldCraterVariant, v))
+}
+
+// CraterVariantContains applies the Contains predicate on the "crater_variant" field.
+func CraterVariantContains(v string) predicate.Server {
+	return predicate.Server(sql.FieldContains(FieldCraterVariant, v))
+}
+
+// CraterVariantHasPrefix applies the HasPrefix predicate on the "crater_variant" field.
+func CraterVariantHasPrefix(v string) predicate.Server {
+	return predicate.Server(sql.FieldHasPrefix(FieldCraterVariant, v))
+}
+
+// CraterVariantHasSuffix applies the HasSuffix predicate on the "crater_variant" field.
+func CraterVariantHasSuffix(v string) predicate.Server {
+	return predicate.Server(sql.FieldHasSuffix(FieldCraterVariant, v))
+}
+
+// CraterVariantEqualFold applies the EqualFold predicate on the "crater_variant" field.
+func CraterVariantEqualFold(v string) predicate.Server {
+	return predicate.Server(sql.FieldEqualFold(FieldCraterVariant, v))
+}
+
+// CraterVariantContainsFold applies the ContainsFold predicate on the "crater_variant" field.
+func CraterVariantContainsFold(v string) predicate.Server {
+	return predicate.Server(sql.FieldContainsFold(FieldCraterVariant, v))
+}
+
+// CraterOptionsIsNil applies the IsNil predicate on the "crater_options" field.
+func CraterOptionsIsNil() predicate.Server {
+	return predicate.Server(sql.FieldIsNull(FieldCraterOptions))
+}
+
+// CraterOptionsNotNil applies the NotNil predicate on the "crater_options" field.
+func CraterOptionsNotNil() predicate.Server {
+	return predicate.Server(sql.FieldNotNull(FieldCraterOptions))
+}
+
 // HasNode applies the HasEdge predicate on the "node" edge.
 func HasNode() predicate.Server {
 	return predicate.Server(func(s *sql.Selector) {
@@ -364,29 +654,6 @@ func HasOwner() predicate.Server {
 func HasOwnerWith(preds ...predicate.User) predicate.Server {
 	return predicate.Server(func(s *sql.Selector) {
 		step := newOwnerStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasGame applies the HasEdge predicate on the "game" edge.
-func HasGame() predicate.Server {
-	return predicate.Server(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, GameTable, GameColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasGameWith applies the HasEdge predicate on the "game" edge with a given conditions (other predicates).
-func HasGameWith(preds ...predicate.Game) predicate.Server {
-	return predicate.Server(func(s *sql.Selector) {
-		step := newGameStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

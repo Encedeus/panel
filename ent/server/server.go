@@ -19,6 +19,8 @@ const (
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
 	FieldUpdatedAt = "updated_at"
+	// FieldName holds the string denoting the name field in the database.
+	FieldName = "name"
 	// FieldRAM holds the string denoting the ram field in the database.
 	FieldRAM = "ram"
 	// FieldStorage holds the string denoting the storage field in the database.
@@ -27,12 +29,18 @@ const (
 	FieldLogicalCores = "logical_cores"
 	// FieldPort holds the string denoting the port field in the database.
 	FieldPort = "port"
+	// FieldCraterProvider holds the string denoting the crater_provider field in the database.
+	FieldCraterProvider = "crater_provider"
+	// FieldCrater holds the string denoting the crater field in the database.
+	FieldCrater = "crater"
+	// FieldCraterVariant holds the string denoting the crater_variant field in the database.
+	FieldCraterVariant = "crater_variant"
+	// FieldCraterOptions holds the string denoting the crater_options field in the database.
+	FieldCraterOptions = "crater_options"
 	// EdgeNode holds the string denoting the node edge name in mutations.
 	EdgeNode = "node"
 	// EdgeOwner holds the string denoting the owner edge name in mutations.
 	EdgeOwner = "owner"
-	// EdgeGame holds the string denoting the game edge name in mutations.
-	EdgeGame = "game"
 	// Table holds the table name of the server in the database.
 	Table = "servers"
 	// NodeTable is the table that holds the node relation/edge.
@@ -49,13 +57,6 @@ const (
 	OwnerInverseTable = "users"
 	// OwnerColumn is the table column denoting the owner relation/edge.
 	OwnerColumn = "user_owners"
-	// GameTable is the table that holds the game relation/edge.
-	GameTable = "servers"
-	// GameInverseTable is the table name for the Game entity.
-	// It exists in this package in order to avoid circular dependency with the "game" package.
-	GameInverseTable = "games"
-	// GameColumn is the table column denoting the game relation/edge.
-	GameColumn = "game_games"
 )
 
 // Columns holds all SQL columns for server fields.
@@ -63,10 +64,15 @@ var Columns = []string{
 	FieldID,
 	FieldCreatedAt,
 	FieldUpdatedAt,
+	FieldName,
 	FieldRAM,
 	FieldStorage,
 	FieldLogicalCores,
 	FieldPort,
+	FieldCraterProvider,
+	FieldCrater,
+	FieldCraterVariant,
+	FieldCraterOptions,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "servers"
@@ -121,6 +127,11 @@ func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
 }
 
+// ByName orders the results by the name field.
+func ByName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldName, opts...).ToFunc()
+}
+
 // ByRAM orders the results by the ram field.
 func ByRAM(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldRAM, opts...).ToFunc()
@@ -141,6 +152,21 @@ func ByPort(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPort, opts...).ToFunc()
 }
 
+// ByCraterProvider orders the results by the crater_provider field.
+func ByCraterProvider(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCraterProvider, opts...).ToFunc()
+}
+
+// ByCrater orders the results by the crater field.
+func ByCrater(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCrater, opts...).ToFunc()
+}
+
+// ByCraterVariant orders the results by the crater_variant field.
+func ByCraterVariant(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCraterVariant, opts...).ToFunc()
+}
+
 // ByNodeField orders the results by node field.
 func ByNodeField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -152,13 +178,6 @@ func ByNodeField(field string, opts ...sql.OrderTermOption) OrderOption {
 func ByOwnerField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newOwnerStep(), sql.OrderByField(field, opts...))
-	}
-}
-
-// ByGameField orders the results by game field.
-func ByGameField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newGameStep(), sql.OrderByField(field, opts...))
 	}
 }
 func newNodeStep() *sqlgraph.Step {
@@ -173,12 +192,5 @@ func newOwnerStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(OwnerInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, OwnerTable, OwnerColumn),
-	)
-}
-func newGameStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(GameInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, GameTable, GameColumn),
 	)
 }

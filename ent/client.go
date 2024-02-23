@@ -882,22 +882,6 @@ func (c *ServerClient) QueryOwner(s *Server) *UserQuery {
 	return query
 }
 
-// QueryGame queries the game edge of a Server.
-func (c *ServerClient) QueryGame(s *Server) *GameQuery {
-	query := (&GameClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := s.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(server.Table, server.FieldID, id),
-			sqlgraph.To(game.Table, game.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, server.GameTable, server.GameColumn),
-		)
-		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // Hooks returns the client hooks.
 func (c *ServerClient) Hooks() []Hook {
 	return c.hooks.Server

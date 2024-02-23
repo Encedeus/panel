@@ -11,7 +11,6 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/Encedeus/panel/ent/game"
 	"github.com/Encedeus/panel/ent/node"
 	"github.com/Encedeus/panel/ent/predicate"
 	"github.com/Encedeus/panel/ent/server"
@@ -52,28 +51,34 @@ func (su *ServerUpdate) SetUpdatedAt(t time.Time) *ServerUpdate {
 	return su
 }
 
+// SetName sets the "name" field.
+func (su *ServerUpdate) SetName(s string) *ServerUpdate {
+	su.mutation.SetName(s)
+	return su
+}
+
 // SetRAM sets the "ram" field.
-func (su *ServerUpdate) SetRAM(u uint) *ServerUpdate {
+func (su *ServerUpdate) SetRAM(u uint64) *ServerUpdate {
 	su.mutation.ResetRAM()
 	su.mutation.SetRAM(u)
 	return su
 }
 
 // AddRAM adds u to the "ram" field.
-func (su *ServerUpdate) AddRAM(u int) *ServerUpdate {
+func (su *ServerUpdate) AddRAM(u int64) *ServerUpdate {
 	su.mutation.AddRAM(u)
 	return su
 }
 
 // SetStorage sets the "storage" field.
-func (su *ServerUpdate) SetStorage(u uint) *ServerUpdate {
+func (su *ServerUpdate) SetStorage(u uint64) *ServerUpdate {
 	su.mutation.ResetStorage()
 	su.mutation.SetStorage(u)
 	return su
 }
 
 // AddStorage adds u to the "storage" field.
-func (su *ServerUpdate) AddStorage(u int) *ServerUpdate {
+func (su *ServerUpdate) AddStorage(u int64) *ServerUpdate {
 	su.mutation.AddStorage(u)
 	return su
 }
@@ -101,6 +106,36 @@ func (su *ServerUpdate) SetPort(u uint16) *ServerUpdate {
 // AddPort adds u to the "port" field.
 func (su *ServerUpdate) AddPort(u int16) *ServerUpdate {
 	su.mutation.AddPort(u)
+	return su
+}
+
+// SetCraterProvider sets the "crater_provider" field.
+func (su *ServerUpdate) SetCraterProvider(s string) *ServerUpdate {
+	su.mutation.SetCraterProvider(s)
+	return su
+}
+
+// SetCrater sets the "crater" field.
+func (su *ServerUpdate) SetCrater(s string) *ServerUpdate {
+	su.mutation.SetCrater(s)
+	return su
+}
+
+// SetCraterVariant sets the "crater_variant" field.
+func (su *ServerUpdate) SetCraterVariant(s string) *ServerUpdate {
+	su.mutation.SetCraterVariant(s)
+	return su
+}
+
+// SetCraterOptions sets the "crater_options" field.
+func (su *ServerUpdate) SetCraterOptions(a any) *ServerUpdate {
+	su.mutation.SetCraterOptions(a)
+	return su
+}
+
+// ClearCraterOptions clears the value of the "crater_options" field.
+func (su *ServerUpdate) ClearCraterOptions() *ServerUpdate {
+	su.mutation.ClearCraterOptions()
 	return su
 }
 
@@ -142,25 +177,6 @@ func (su *ServerUpdate) SetOwner(u *User) *ServerUpdate {
 	return su.SetOwnerID(u.ID)
 }
 
-// SetGameID sets the "game" edge to the Game entity by ID.
-func (su *ServerUpdate) SetGameID(id uuid.UUID) *ServerUpdate {
-	su.mutation.SetGameID(id)
-	return su
-}
-
-// SetNillableGameID sets the "game" edge to the Game entity by ID if the given value is not nil.
-func (su *ServerUpdate) SetNillableGameID(id *uuid.UUID) *ServerUpdate {
-	if id != nil {
-		su = su.SetGameID(*id)
-	}
-	return su
-}
-
-// SetGame sets the "game" edge to the Game entity.
-func (su *ServerUpdate) SetGame(g *Game) *ServerUpdate {
-	return su.SetGameID(g.ID)
-}
-
 // Mutation returns the ServerMutation object of the builder.
 func (su *ServerUpdate) Mutation() *ServerMutation {
 	return su.mutation
@@ -175,12 +191,6 @@ func (su *ServerUpdate) ClearNode() *ServerUpdate {
 // ClearOwner clears the "owner" edge to the User entity.
 func (su *ServerUpdate) ClearOwner() *ServerUpdate {
 	su.mutation.ClearOwner()
-	return su
-}
-
-// ClearGame clears the "game" edge to the Game entity.
-func (su *ServerUpdate) ClearGame() *ServerUpdate {
-	su.mutation.ClearGame()
 	return su
 }
 
@@ -235,17 +245,20 @@ func (su *ServerUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := su.mutation.UpdatedAt(); ok {
 		_spec.SetField(server.FieldUpdatedAt, field.TypeTime, value)
 	}
+	if value, ok := su.mutation.Name(); ok {
+		_spec.SetField(server.FieldName, field.TypeString, value)
+	}
 	if value, ok := su.mutation.RAM(); ok {
-		_spec.SetField(server.FieldRAM, field.TypeUint, value)
+		_spec.SetField(server.FieldRAM, field.TypeUint64, value)
 	}
 	if value, ok := su.mutation.AddedRAM(); ok {
-		_spec.AddField(server.FieldRAM, field.TypeUint, value)
+		_spec.AddField(server.FieldRAM, field.TypeUint64, value)
 	}
 	if value, ok := su.mutation.Storage(); ok {
-		_spec.SetField(server.FieldStorage, field.TypeUint, value)
+		_spec.SetField(server.FieldStorage, field.TypeUint64, value)
 	}
 	if value, ok := su.mutation.AddedStorage(); ok {
-		_spec.AddField(server.FieldStorage, field.TypeUint, value)
+		_spec.AddField(server.FieldStorage, field.TypeUint64, value)
 	}
 	if value, ok := su.mutation.LogicalCores(); ok {
 		_spec.SetField(server.FieldLogicalCores, field.TypeUint, value)
@@ -258,6 +271,21 @@ func (su *ServerUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := su.mutation.AddedPort(); ok {
 		_spec.AddField(server.FieldPort, field.TypeUint16, value)
+	}
+	if value, ok := su.mutation.CraterProvider(); ok {
+		_spec.SetField(server.FieldCraterProvider, field.TypeString, value)
+	}
+	if value, ok := su.mutation.Crater(); ok {
+		_spec.SetField(server.FieldCrater, field.TypeString, value)
+	}
+	if value, ok := su.mutation.CraterVariant(); ok {
+		_spec.SetField(server.FieldCraterVariant, field.TypeString, value)
+	}
+	if value, ok := su.mutation.CraterOptions(); ok {
+		_spec.SetField(server.FieldCraterOptions, field.TypeJSON, value)
+	}
+	if su.mutation.CraterOptionsCleared() {
+		_spec.ClearField(server.FieldCraterOptions, field.TypeJSON)
 	}
 	if su.mutation.NodeCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -317,35 +345,6 @@ func (su *ServerUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if su.mutation.GameCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   server.GameTable,
-			Columns: []string{server.GameColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(game.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := su.mutation.GameIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   server.GameTable,
-			Columns: []string{server.GameColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(game.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
 	if n, err = sqlgraph.UpdateNodes(ctx, su.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{server.Label}
@@ -386,28 +385,34 @@ func (suo *ServerUpdateOne) SetUpdatedAt(t time.Time) *ServerUpdateOne {
 	return suo
 }
 
+// SetName sets the "name" field.
+func (suo *ServerUpdateOne) SetName(s string) *ServerUpdateOne {
+	suo.mutation.SetName(s)
+	return suo
+}
+
 // SetRAM sets the "ram" field.
-func (suo *ServerUpdateOne) SetRAM(u uint) *ServerUpdateOne {
+func (suo *ServerUpdateOne) SetRAM(u uint64) *ServerUpdateOne {
 	suo.mutation.ResetRAM()
 	suo.mutation.SetRAM(u)
 	return suo
 }
 
 // AddRAM adds u to the "ram" field.
-func (suo *ServerUpdateOne) AddRAM(u int) *ServerUpdateOne {
+func (suo *ServerUpdateOne) AddRAM(u int64) *ServerUpdateOne {
 	suo.mutation.AddRAM(u)
 	return suo
 }
 
 // SetStorage sets the "storage" field.
-func (suo *ServerUpdateOne) SetStorage(u uint) *ServerUpdateOne {
+func (suo *ServerUpdateOne) SetStorage(u uint64) *ServerUpdateOne {
 	suo.mutation.ResetStorage()
 	suo.mutation.SetStorage(u)
 	return suo
 }
 
 // AddStorage adds u to the "storage" field.
-func (suo *ServerUpdateOne) AddStorage(u int) *ServerUpdateOne {
+func (suo *ServerUpdateOne) AddStorage(u int64) *ServerUpdateOne {
 	suo.mutation.AddStorage(u)
 	return suo
 }
@@ -435,6 +440,36 @@ func (suo *ServerUpdateOne) SetPort(u uint16) *ServerUpdateOne {
 // AddPort adds u to the "port" field.
 func (suo *ServerUpdateOne) AddPort(u int16) *ServerUpdateOne {
 	suo.mutation.AddPort(u)
+	return suo
+}
+
+// SetCraterProvider sets the "crater_provider" field.
+func (suo *ServerUpdateOne) SetCraterProvider(s string) *ServerUpdateOne {
+	suo.mutation.SetCraterProvider(s)
+	return suo
+}
+
+// SetCrater sets the "crater" field.
+func (suo *ServerUpdateOne) SetCrater(s string) *ServerUpdateOne {
+	suo.mutation.SetCrater(s)
+	return suo
+}
+
+// SetCraterVariant sets the "crater_variant" field.
+func (suo *ServerUpdateOne) SetCraterVariant(s string) *ServerUpdateOne {
+	suo.mutation.SetCraterVariant(s)
+	return suo
+}
+
+// SetCraterOptions sets the "crater_options" field.
+func (suo *ServerUpdateOne) SetCraterOptions(a any) *ServerUpdateOne {
+	suo.mutation.SetCraterOptions(a)
+	return suo
+}
+
+// ClearCraterOptions clears the value of the "crater_options" field.
+func (suo *ServerUpdateOne) ClearCraterOptions() *ServerUpdateOne {
+	suo.mutation.ClearCraterOptions()
 	return suo
 }
 
@@ -476,25 +511,6 @@ func (suo *ServerUpdateOne) SetOwner(u *User) *ServerUpdateOne {
 	return suo.SetOwnerID(u.ID)
 }
 
-// SetGameID sets the "game" edge to the Game entity by ID.
-func (suo *ServerUpdateOne) SetGameID(id uuid.UUID) *ServerUpdateOne {
-	suo.mutation.SetGameID(id)
-	return suo
-}
-
-// SetNillableGameID sets the "game" edge to the Game entity by ID if the given value is not nil.
-func (suo *ServerUpdateOne) SetNillableGameID(id *uuid.UUID) *ServerUpdateOne {
-	if id != nil {
-		suo = suo.SetGameID(*id)
-	}
-	return suo
-}
-
-// SetGame sets the "game" edge to the Game entity.
-func (suo *ServerUpdateOne) SetGame(g *Game) *ServerUpdateOne {
-	return suo.SetGameID(g.ID)
-}
-
 // Mutation returns the ServerMutation object of the builder.
 func (suo *ServerUpdateOne) Mutation() *ServerMutation {
 	return suo.mutation
@@ -509,12 +525,6 @@ func (suo *ServerUpdateOne) ClearNode() *ServerUpdateOne {
 // ClearOwner clears the "owner" edge to the User entity.
 func (suo *ServerUpdateOne) ClearOwner() *ServerUpdateOne {
 	suo.mutation.ClearOwner()
-	return suo
-}
-
-// ClearGame clears the "game" edge to the Game entity.
-func (suo *ServerUpdateOne) ClearGame() *ServerUpdateOne {
-	suo.mutation.ClearGame()
 	return suo
 }
 
@@ -599,17 +609,20 @@ func (suo *ServerUpdateOne) sqlSave(ctx context.Context) (_node *Server, err err
 	if value, ok := suo.mutation.UpdatedAt(); ok {
 		_spec.SetField(server.FieldUpdatedAt, field.TypeTime, value)
 	}
+	if value, ok := suo.mutation.Name(); ok {
+		_spec.SetField(server.FieldName, field.TypeString, value)
+	}
 	if value, ok := suo.mutation.RAM(); ok {
-		_spec.SetField(server.FieldRAM, field.TypeUint, value)
+		_spec.SetField(server.FieldRAM, field.TypeUint64, value)
 	}
 	if value, ok := suo.mutation.AddedRAM(); ok {
-		_spec.AddField(server.FieldRAM, field.TypeUint, value)
+		_spec.AddField(server.FieldRAM, field.TypeUint64, value)
 	}
 	if value, ok := suo.mutation.Storage(); ok {
-		_spec.SetField(server.FieldStorage, field.TypeUint, value)
+		_spec.SetField(server.FieldStorage, field.TypeUint64, value)
 	}
 	if value, ok := suo.mutation.AddedStorage(); ok {
-		_spec.AddField(server.FieldStorage, field.TypeUint, value)
+		_spec.AddField(server.FieldStorage, field.TypeUint64, value)
 	}
 	if value, ok := suo.mutation.LogicalCores(); ok {
 		_spec.SetField(server.FieldLogicalCores, field.TypeUint, value)
@@ -622,6 +635,21 @@ func (suo *ServerUpdateOne) sqlSave(ctx context.Context) (_node *Server, err err
 	}
 	if value, ok := suo.mutation.AddedPort(); ok {
 		_spec.AddField(server.FieldPort, field.TypeUint16, value)
+	}
+	if value, ok := suo.mutation.CraterProvider(); ok {
+		_spec.SetField(server.FieldCraterProvider, field.TypeString, value)
+	}
+	if value, ok := suo.mutation.Crater(); ok {
+		_spec.SetField(server.FieldCrater, field.TypeString, value)
+	}
+	if value, ok := suo.mutation.CraterVariant(); ok {
+		_spec.SetField(server.FieldCraterVariant, field.TypeString, value)
+	}
+	if value, ok := suo.mutation.CraterOptions(); ok {
+		_spec.SetField(server.FieldCraterOptions, field.TypeJSON, value)
+	}
+	if suo.mutation.CraterOptionsCleared() {
+		_spec.ClearField(server.FieldCraterOptions, field.TypeJSON)
 	}
 	if suo.mutation.NodeCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -674,35 +702,6 @@ func (suo *ServerUpdateOne) sqlSave(ctx context.Context) (_node *Server, err err
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if suo.mutation.GameCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   server.GameTable,
-			Columns: []string{server.GameColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(game.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := suo.mutation.GameIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   server.GameTable,
-			Columns: []string{server.GameColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(game.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

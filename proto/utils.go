@@ -1,6 +1,7 @@
 package proto
 
 import (
+	"context"
 	"github.com/Encedeus/panel/ent"
 	"github.com/Encedeus/panel/module"
 	protoapi "github.com/Encedeus/panel/proto/go"
@@ -9,6 +10,7 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
+	"io"
 	"net/http"
 )
 
@@ -159,4 +161,61 @@ func ModuleToProtoModule(m module.Module) *protoapi.Module {
 	}
 
 	return pm
+}
+
+func EntNodeToProtoNode(n ent.Node) *protoapi.Node {
+	pn := &protoapi.Node{
+		Id:             UUIDToProtoUUID(n.ID),
+		CreatedAt:      timestamppb.New(n.CreatedAt),
+		UpdatedAt:      timestamppb.New(n.UpdatedAt),
+		Ipv4Address:    n.Ipv4Address,
+		Fqdn:           n.Fqdn,
+		SkyhookVersion: n.Fqdn,
+		Os:             n.Os,
+		Cpu:            n.CPU,
+		CpuBaseClock:   uint32(n.CPUBaseClock),
+		Cores:          uint32(n.Cores),
+		LogicalCores:   uint32(n.LogicalCores),
+		Ram:            uint64(n.RAM),
+		Storage:        uint64(n.Storage),
+	}
+
+	return pn
+}
+
+func EntServerToProtoServer(s ent.Server) *protoapi.Server {
+	ps := &protoapi.Server{
+		Id:        UUIDToProtoUUID(s.ID),
+		CreatedAt: timestamppb.New(s.CreatedAt),
+		UpdatedAt: timestamppb.New(s.UpdatedAt),
+		//Crater: s
+		//CraterVariant
+		Owner:        EntUserEntityToProtoUser(s.QueryOwner().FirstX(context.Background())),
+		Node:         EntNodeToProtoNode(*s.QueryNode().FirstX(context.Background())),
+		Ram:          s.RAM,
+		Storage:      s.Storage,
+		LogicalCores: uint32(s.LogicalCores),
+		Port: &protoapi.Port{
+			Value: uint32(s.Port),
+		},
+	}
+
+	return ps
+}
+
+func UnmarshalProtoBody(c echo.Context, req proto.Message) error {
+	b, err := io.ReadAll(c.Request().Body)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"message": "bad request",
+		})
+	}
+	err = protojson.Unmarshal(b, req)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"message": "bad request",
+		})
+	}
+
+	return nil
 }

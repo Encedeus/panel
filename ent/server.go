@@ -3,13 +3,13 @@
 package ent
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/Encedeus/panel/ent/game"
 	"github.com/Encedeus/panel/ent/node"
 	"github.com/Encedeus/panel/ent/server"
 	"github.com/Encedeus/panel/ent/user"
@@ -25,14 +25,24 @@ type Server struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// Name holds the value of the "name" field.
+	Name string `json:"name,omitempty"`
 	// RAM holds the value of the "ram" field.
-	RAM uint `json:"ram,omitempty"`
+	RAM uint64 `json:"ram,omitempty"`
 	// Storage holds the value of the "storage" field.
-	Storage uint `json:"storage,omitempty"`
+	Storage uint64 `json:"storage,omitempty"`
 	// LogicalCores holds the value of the "logical_cores" field.
 	LogicalCores uint `json:"logical_cores,omitempty"`
 	// Port holds the value of the "port" field.
 	Port uint16 `json:"port,omitempty"`
+	// CraterProvider holds the value of the "crater_provider" field.
+	CraterProvider string `json:"crater_provider,omitempty"`
+	// Crater holds the value of the "crater" field.
+	Crater string `json:"crater,omitempty"`
+	// CraterVariant holds the value of the "crater_variant" field.
+	CraterVariant string `json:"crater_variant,omitempty"`
+	// CraterOptions holds the value of the "crater_options" field.
+	CraterOptions any `json:"crater_options,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ServerQuery when eager-loading is set.
 	Edges        ServerEdges `json:"edges"`
@@ -48,11 +58,9 @@ type ServerEdges struct {
 	Node *Node `json:"node,omitempty"`
 	// Owner holds the value of the owner edge.
 	Owner *User `json:"owner,omitempty"`
-	// Game holds the value of the game edge.
-	Game *Game `json:"game,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [3]bool
+	loadedTypes [2]bool
 }
 
 // NodeOrErr returns the Node value or an error if the edge
@@ -81,26 +89,17 @@ func (e ServerEdges) OwnerOrErr() (*User, error) {
 	return nil, &NotLoadedError{edge: "owner"}
 }
 
-// GameOrErr returns the Game value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e ServerEdges) GameOrErr() (*Game, error) {
-	if e.loadedTypes[2] {
-		if e.Game == nil {
-			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: game.Label}
-		}
-		return e.Game, nil
-	}
-	return nil, &NotLoadedError{edge: "game"}
-}
-
 // scanValues returns the types for scanning values from sql.Rows.
 func (*Server) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case server.FieldCraterOptions:
+			values[i] = new([]byte)
 		case server.FieldRAM, server.FieldStorage, server.FieldLogicalCores, server.FieldPort:
 			values[i] = new(sql.NullInt64)
+		case server.FieldName, server.FieldCraterProvider, server.FieldCrater, server.FieldCraterVariant:
+			values[i] = new(sql.NullString)
 		case server.FieldCreatedAt, server.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
 		case server.FieldID:
@@ -144,17 +143,23 @@ func (s *Server) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				s.UpdatedAt = value.Time
 			}
+		case server.FieldName:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field name", values[i])
+			} else if value.Valid {
+				s.Name = value.String
+			}
 		case server.FieldRAM:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field ram", values[i])
 			} else if value.Valid {
-				s.RAM = uint(value.Int64)
+				s.RAM = uint64(value.Int64)
 			}
 		case server.FieldStorage:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field storage", values[i])
 			} else if value.Valid {
-				s.Storage = uint(value.Int64)
+				s.Storage = uint64(value.Int64)
 			}
 		case server.FieldLogicalCores:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -167,6 +172,32 @@ func (s *Server) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field port", values[i])
 			} else if value.Valid {
 				s.Port = uint16(value.Int64)
+			}
+		case server.FieldCraterProvider:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field crater_provider", values[i])
+			} else if value.Valid {
+				s.CraterProvider = value.String
+			}
+		case server.FieldCrater:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field crater", values[i])
+			} else if value.Valid {
+				s.Crater = value.String
+			}
+		case server.FieldCraterVariant:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field crater_variant", values[i])
+			} else if value.Valid {
+				s.CraterVariant = value.String
+			}
+		case server.FieldCraterOptions:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field crater_options", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &s.CraterOptions); err != nil {
+					return fmt.Errorf("unmarshal field crater_options: %w", err)
+				}
 			}
 		case server.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
@@ -212,11 +243,6 @@ func (s *Server) QueryOwner() *UserQuery {
 	return NewServerClient(s.config).QueryOwner(s)
 }
 
-// QueryGame queries the "game" edge of the Server entity.
-func (s *Server) QueryGame() *GameQuery {
-	return NewServerClient(s.config).QueryGame(s)
-}
-
 // Update returns a builder for updating this Server.
 // Note that you need to call Server.Unwrap() before calling this method if this Server
 // was returned from a transaction, and the transaction was committed or rolled back.
@@ -246,6 +272,9 @@ func (s *Server) String() string {
 	builder.WriteString("updated_at=")
 	builder.WriteString(s.UpdatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
+	builder.WriteString("name=")
+	builder.WriteString(s.Name)
+	builder.WriteString(", ")
 	builder.WriteString("ram=")
 	builder.WriteString(fmt.Sprintf("%v", s.RAM))
 	builder.WriteString(", ")
@@ -257,6 +286,18 @@ func (s *Server) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("port=")
 	builder.WriteString(fmt.Sprintf("%v", s.Port))
+	builder.WriteString(", ")
+	builder.WriteString("crater_provider=")
+	builder.WriteString(s.CraterProvider)
+	builder.WriteString(", ")
+	builder.WriteString("crater=")
+	builder.WriteString(s.Crater)
+	builder.WriteString(", ")
+	builder.WriteString("crater_variant=")
+	builder.WriteString(s.CraterVariant)
+	builder.WriteString(", ")
+	builder.WriteString("crater_options=")
+	builder.WriteString(fmt.Sprintf("%v", s.CraterOptions))
 	builder.WriteByte(')')
 	return builder.String()
 }

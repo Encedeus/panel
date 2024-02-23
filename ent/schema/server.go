@@ -20,11 +20,16 @@ func (Server) Fields() []ent.Field {
 		field.Time("created_at").Default(time.Now),
 		field.Time("updated_at").UpdateDefault(time.Now).Default(time.Now),
 		// In KB
-		field.Uint("ram"),
+		field.String("name"),
+		field.Uint64("ram"),
 		// In KB
-		field.Uint("storage"),
+		field.Uint64("storage"),
 		field.Uint("logical_cores"),
 		field.Uint16("port"),
+		field.String("crater_provider"),
+		field.String("crater"),
+		field.String("crater_variant"),
+		field.Any("crater_options").Optional(),
 	}
 }
 
@@ -36,9 +41,6 @@ func (Server) Edges() []ent.Edge {
 			Unique(),
 		edge.From("owner", User.Type).
 			Ref("owners").
-			Unique(),
-		edge.From("game", Game.Type).
-			Ref("games").
 			Unique(),
 	}
 }

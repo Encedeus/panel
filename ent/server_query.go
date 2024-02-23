@@ -10,7 +10,6 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/Encedeus/panel/ent/game"
 	"github.com/Encedeus/panel/ent/node"
 	"github.com/Encedeus/panel/ent/predicate"
 	"github.com/Encedeus/panel/ent/server"
@@ -27,7 +26,6 @@ type ServerQuery struct {
 	predicates []predicate.Server
 	withNode   *NodeQuery
 	withOwner  *UserQuery
-	withGame   *GameQuery
 	withFKs    bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -102,28 +100,6 @@ func (sq *ServerQuery) QueryOwner() *UserQuery {
 			sqlgraph.From(server.Table, server.FieldID, selector),
 			sqlgraph.To(user.Table, user.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, server.OwnerTable, server.OwnerColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryGame chains the current query on the "game" edge.
-func (sq *ServerQuery) QueryGame() *GameQuery {
-	query := (&GameClient{config: sq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := sq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := sq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(server.Table, server.FieldID, selector),
-			sqlgraph.To(game.Table, game.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, server.GameTable, server.GameColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
 		return fromU, nil
@@ -325,7 +301,6 @@ func (sq *ServerQuery) Clone() *ServerQuery {
 		predicates: append([]predicate.Server{}, sq.predicates...),
 		withNode:   sq.withNode.Clone(),
 		withOwner:  sq.withOwner.Clone(),
-		withGame:   sq.withGame.Clone(),
 		// clone intermediate query.
 		sql:  sq.sql.Clone(),
 		path: sq.path,
@@ -351,17 +326,6 @@ func (sq *ServerQuery) WithOwner(opts ...func(*UserQuery)) *ServerQuery {
 		opt(query)
 	}
 	sq.withOwner = query
-	return sq
-}
-
-// WithGame tells the query-builder to eager-load the nodes that are connected to
-// the "game" edge. The optional arguments are used to configure the query builder of the edge.
-func (sq *ServerQuery) WithGame(opts ...func(*GameQuery)) *ServerQuery {
-	query := (&GameClient{config: sq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	sq.withGame = query
 	return sq
 }
 
@@ -444,13 +408,12 @@ func (sq *ServerQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Serve
 		nodes       = []*Server{}
 		withFKs     = sq.withFKs
 		_spec       = sq.querySpec()
-		loadedTypes = [3]bool{
+		loadedTypes = [2]bool{
 			sq.withNode != nil,
 			sq.withOwner != nil,
-			sq.withGame != nil,
 		}
 	)
-	if sq.withNode != nil || sq.withOwner != nil || sq.withGame != nil {
+	if sq.withNode != nil || sq.withOwner != nil {
 		withFKs = true
 	}
 	if withFKs {
@@ -483,12 +446,6 @@ func (sq *ServerQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Serve
 	if query := sq.withOwner; query != nil {
 		if err := sq.loadOwner(ctx, query, nodes, nil,
 			func(n *Server, e *User) { n.Edges.Owner = e }); err != nil {
-			return nil, err
-		}
-	}
-	if query := sq.withGame; query != nil {
-		if err := sq.loadGame(ctx, query, nodes, nil,
-			func(n *Server, e *Game) { n.Edges.Game = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -552,38 +509,6 @@ func (sq *ServerQuery) loadOwner(ctx context.Context, query *UserQuery, nodes []
 		nodes, ok := nodeids[n.ID]
 		if !ok {
 			return fmt.Errorf(`unexpected foreign-key "user_owners" returned %v`, n.ID)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
-}
-func (sq *ServerQuery) loadGame(ctx context.Context, query *GameQuery, nodes []*Server, init func(*Server), assign func(*Server, *Game)) error {
-	ids := make([]uuid.UUID, 0, len(nodes))
-	nodeids := make(map[uuid.UUID][]*Server)
-	for i := range nodes {
-		if nodes[i].game_games == nil {
-			continue
-		}
-		fk := *nodes[i].game_games
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(game.IDIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "game_games" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)

@@ -25,6 +25,8 @@ const (
 	FieldFqdn = "fqdn"
 	// FieldSkyhookVersion holds the string denoting the skyhook_version field in the database.
 	FieldSkyhookVersion = "skyhook_version"
+	// FieldSkyhookAPIKey holds the string denoting the skyhook_api_key field in the database.
+	FieldSkyhookAPIKey = "skyhook_api_key"
 	// FieldOs holds the string denoting the os field in the database.
 	FieldOs = "os"
 	// FieldCPU holds the string denoting the cpu field in the database.
@@ -60,6 +62,7 @@ var Columns = []string{
 	FieldIpv4Address,
 	FieldFqdn,
 	FieldSkyhookVersion,
+	FieldSkyhookAPIKey,
 	FieldOs,
 	FieldCPU,
 	FieldCPUBaseClock,
@@ -121,6 +124,11 @@ func ByFqdn(opts ...sql.OrderTermOption) OrderOption {
 // BySkyhookVersion orders the results by the skyhook_version field.
 func BySkyhookVersion(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldSkyhookVersion, opts...).ToFunc()
+}
+
+// BySkyhookAPIKey orders the results by the skyhook_api_key field.
+func BySkyhookAPIKey(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSkyhookAPIKey, opts...).ToFunc()
 }
 
 // ByOs orders the results by the os field.

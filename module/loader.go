@@ -116,6 +116,11 @@ func (ms *Store) buildDependencyGraph() {
 
 func (ms *Store) resolveDependencies() []*Module {
 	ms.buildDependencyGraph()
+
+	if len(ms.Modules) == 0 {
+		return make([]*Module, 0)
+	}
+
 	start := ms.Modules[0]
 	resolved := make([]*Module, 0)
 	unresolved := make([]*Module, 0)

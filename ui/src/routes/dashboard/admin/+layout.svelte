@@ -7,6 +7,8 @@
     import ComputerDesktop from "$lib/components/heroicons/ComputerDesktopIcon.svelte";
     import ServerStackIcon from "$lib/components/heroicons/ServerStackIcon.svelte";
     import DatabaseIcon from "$lib/components/heroicons/DatabaseIcon.svelte";
+    import TagIcon from "$lib/components/heroicons/TagIcon.svelte";
+    import ModuleIcon from "$lib/components/heroicons/ModuleIcon.svelte";
 </script>
 
 
@@ -18,10 +20,16 @@
                 Nodes
             </SideBarTabLabel>
         </SideBarTab>
-        <SideBarTab link="/dashboard/admin/databases">
-            <DatabaseIcon width="32" height="32" slot="icon"/>
+        <SideBarTab link="/dashboard/admin/roles">
+            <TagIcon width="32" height="32" slot="icon"/>
             <SideBarTabLabel slot="label">
-                Databases
+                Roles
+            </SideBarTabLabel>
+        </SideBarTab>
+        <SideBarTab link="/dashboard/admin/modules">
+            <ModuleIcon width="32" height="32" slot="icon"/>
+            <SideBarTabLabel slot="label">
+                Modules
             </SideBarTabLabel>
         </SideBarTab>
         <SideBarTab link="/dashboard/admin/servers">

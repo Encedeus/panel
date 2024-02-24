@@ -3,6 +3,7 @@
   export let color: "indigo" | "red" = "indigo";
   export let type: "button" | "submit" = "button";
   export let className = "";
+  export let isDisabled = false;
 
   const sizes = new Map<string, string>([
       ["sm", "w-24 h-8"],
@@ -15,8 +16,10 @@
       ["indigo", "bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 "],
       ["red", "bg-red-600 hover:bg-red-700 active:bg-red-800"],
   ]);
+
+  $: disabled = isDisabled ? "disabled" : "";
 </script>
 
-<button on:click {type} class="text-white font-bold text-sm rounded-full {colors.get(color)} {sizes.get(size)} hover:shadow-xl active:shadow-xl transition-all {className}">
+<button on:click {type} {disabled} class="text-white font-bold text-sm rounded-full {colors.get(color)} {sizes.get(size)} hover:shadow-xl active:shadow-xl transition-all disabled:bg-indigo-500 {className}">
   <slot/>
 </button>

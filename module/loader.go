@@ -93,6 +93,35 @@ func NewStore(modulesPath string) *Store {
 	return store
 }
 
+func (ms *Store) FindCraterByName(id string) *Crater {
+	for _, m := range ms.Modules {
+		for _, c := range m.Manifest.Backend.Craters {
+			if c.Id == id || c.Name == id {
+				return c
+			}
+		}
+	}
+	/*	fmt.Printf("Craters 1: %+v\n", ms.Craters)
+		fmt.Printf("Craters 2: %+v\n", ms.Modules[0].Backend.Craters)*/
+	/*	for _, c := range ms.Craters {
+		if c.Id == id || c.Name == id {
+			return c
+		}
+	}*/
+
+	return nil
+}
+
+func (ms *Store) FindCraterVariantByName(id string, c *Crater) *Variant {
+	for _, v := range c.Variants {
+		if v.Id == id || v.Name == id {
+			return v
+		}
+	}
+
+	return nil
+}
+
 func (ms *Store) FindModuleByName(name string) (bool, *Module) {
 	for _, m := range ms.Modules {
 		if m.Manifest.Name == name {
@@ -117,10 +146,10 @@ func (ms *Store) buildDependencyGraph() {
 }
 
 func (ms *Store) resolveDependencies() []*Module {
-	ms.buildDependencyGraph()
 	if len(ms.Modules) <= 0 {
 		return nil
 	}
+	ms.buildDependencyGraph()
 	start := ms.Modules[0]
 	resolved := make([]*Module, 0)
 	unresolved := make([]*Module, 0)
@@ -154,7 +183,7 @@ func (ms *Store) GetAvailablePort() Port {
 	/*	maxPort := math.MaxUint16
 		minPort := 1024
 
-		isAvailable := func(port Port) func(m *Module) bool {
+		isAvailable := func(port AddPort) func(m *Module) bool {
 			return func(m *Module) bool {
 				if m != nil {
 					if m.Backend.RPCPort == port {
@@ -173,9 +202,9 @@ func (ms *Store) GetAvailablePort() Port {
 			}
 		}
 
-		var port = Port(rand.Intn(maxPort-minPort) + minPort)
+		var port = AddPort(rand.Intn(maxPort-minPort) + minPort)
 		for slices.ContainsFunc(ms.Modules, isAvailable(port)) {
-			port = Port(rand.Intn(maxPort-minPort) + minPort)
+			port = AddPort(rand.Intn(maxPort-minPort) + minPort)
 		}
 		fmt.Printf("Available port: %v\n", port)*/
 
@@ -391,7 +420,7 @@ type Module struct {
 	Manifest Manifest
 	Backend  *Backend
 	/*	BackendPort    Port
-		RPCPort        Port*/
+		RPCPort        AddPort*/
 	FrontendServer *FrontendServer
 	Dependencies   []*Module
 	// RegisteredCommands []*Command

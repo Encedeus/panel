@@ -76,7 +76,7 @@ func (sc *ServerCreate) SetLogicalCores(u uint) *ServerCreate {
 }
 
 // SetPort sets the "port" field.
-func (sc *ServerCreate) SetPort(u uint16) *ServerCreate {
+func (sc *ServerCreate) SetPort(u uint) *ServerCreate {
 	sc.mutation.SetPort(u)
 	return sc
 }
@@ -102,6 +102,12 @@ func (sc *ServerCreate) SetCraterVariant(s string) *ServerCreate {
 // SetCraterOptions sets the "crater_options" field.
 func (sc *ServerCreate) SetCraterOptions(a any) *ServerCreate {
 	sc.mutation.SetCraterOptions(a)
+	return sc
+}
+
+// SetContainerId sets the "containerId" field.
+func (sc *ServerCreate) SetContainerId(s string) *ServerCreate {
+	sc.mutation.SetContainerId(s)
 	return sc
 }
 
@@ -238,6 +244,9 @@ func (sc *ServerCreate) check() error {
 	if _, ok := sc.mutation.CraterVariant(); !ok {
 		return &ValidationError{Name: "crater_variant", err: errors.New(`ent: missing required field "Server.crater_variant"`)}
 	}
+	if _, ok := sc.mutation.ContainerId(); !ok {
+		return &ValidationError{Name: "containerId", err: errors.New(`ent: missing required field "Server.containerId"`)}
+	}
 	return nil
 }
 
@@ -298,7 +307,7 @@ func (sc *ServerCreate) createSpec() (*Server, *sqlgraph.CreateSpec) {
 		_node.LogicalCores = value
 	}
 	if value, ok := sc.mutation.Port(); ok {
-		_spec.SetField(server.FieldPort, field.TypeUint16, value)
+		_spec.SetField(server.FieldPort, field.TypeUint, value)
 		_node.Port = value
 	}
 	if value, ok := sc.mutation.CraterProvider(); ok {
@@ -316,6 +325,10 @@ func (sc *ServerCreate) createSpec() (*Server, *sqlgraph.CreateSpec) {
 	if value, ok := sc.mutation.CraterOptions(); ok {
 		_spec.SetField(server.FieldCraterOptions, field.TypeJSON, value)
 		_node.CraterOptions = value
+	}
+	if value, ok := sc.mutation.ContainerId(); ok {
+		_spec.SetField(server.FieldContainerId, field.TypeString, value)
+		_node.ContainerId = value
 	}
 	if nodes := sc.mutation.NodeIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

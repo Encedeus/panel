@@ -3360,12 +3360,13 @@ type ServerMutation struct {
 	addstorage       *int64
 	logical_cores    *uint
 	addlogical_cores *int
-	port             *uint16
-	addport          *int16
+	port             *uint
+	addport          *int
 	crater_provider  *string
 	crater           *string
 	crater_variant   *string
 	crater_options   *any
+	containerId      *string
 	clearedFields    map[string]struct{}
 	node             *uuid.UUID
 	clearednode      bool
@@ -3757,13 +3758,13 @@ func (m *ServerMutation) ResetLogicalCores() {
 }
 
 // SetPort sets the "port" field.
-func (m *ServerMutation) SetPort(u uint16) {
+func (m *ServerMutation) SetPort(u uint) {
 	m.port = &u
 	m.addport = nil
 }
 
 // Port returns the value of the "port" field in the mutation.
-func (m *ServerMutation) Port() (r uint16, exists bool) {
+func (m *ServerMutation) Port() (r uint, exists bool) {
 	v := m.port
 	if v == nil {
 		return
@@ -3774,7 +3775,7 @@ func (m *ServerMutation) Port() (r uint16, exists bool) {
 // OldPort returns the old "port" field's value of the Server entity.
 // If the Server object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ServerMutation) OldPort(ctx context.Context) (v uint16, err error) {
+func (m *ServerMutation) OldPort(ctx context.Context) (v uint, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldPort is only allowed on UpdateOne operations")
 	}
@@ -3789,7 +3790,7 @@ func (m *ServerMutation) OldPort(ctx context.Context) (v uint16, err error) {
 }
 
 // AddPort adds u to the "port" field.
-func (m *ServerMutation) AddPort(u int16) {
+func (m *ServerMutation) AddPort(u int) {
 	if m.addport != nil {
 		*m.addport += u
 	} else {
@@ -3798,7 +3799,7 @@ func (m *ServerMutation) AddPort(u int16) {
 }
 
 // AddedPort returns the value that was added to the "port" field in this mutation.
-func (m *ServerMutation) AddedPort() (r int16, exists bool) {
+func (m *ServerMutation) AddedPort() (r int, exists bool) {
 	v := m.addport
 	if v == nil {
 		return
@@ -3969,6 +3970,42 @@ func (m *ServerMutation) ResetCraterOptions() {
 	delete(m.clearedFields, server.FieldCraterOptions)
 }
 
+// SetContainerId sets the "containerId" field.
+func (m *ServerMutation) SetContainerId(s string) {
+	m.containerId = &s
+}
+
+// ContainerId returns the value of the "containerId" field in the mutation.
+func (m *ServerMutation) ContainerId() (r string, exists bool) {
+	v := m.containerId
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldContainerId returns the old "containerId" field's value of the Server entity.
+// If the Server object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ServerMutation) OldContainerId(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldContainerId is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldContainerId requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldContainerId: %w", err)
+	}
+	return oldValue.ContainerId, nil
+}
+
+// ResetContainerId resets all changes to the "containerId" field.
+func (m *ServerMutation) ResetContainerId() {
+	m.containerId = nil
+}
+
 // SetNodeID sets the "node" edge to the Node entity by id.
 func (m *ServerMutation) SetNodeID(id uuid.UUID) {
 	m.node = &id
@@ -4081,7 +4118,7 @@ func (m *ServerMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ServerMutation) Fields() []string {
-	fields := make([]string, 0, 11)
+	fields := make([]string, 0, 12)
 	if m.created_at != nil {
 		fields = append(fields, server.FieldCreatedAt)
 	}
@@ -4115,6 +4152,9 @@ func (m *ServerMutation) Fields() []string {
 	if m.crater_options != nil {
 		fields = append(fields, server.FieldCraterOptions)
 	}
+	if m.containerId != nil {
+		fields = append(fields, server.FieldContainerId)
+	}
 	return fields
 }
 
@@ -4145,6 +4185,8 @@ func (m *ServerMutation) Field(name string) (ent.Value, bool) {
 		return m.CraterVariant()
 	case server.FieldCraterOptions:
 		return m.CraterOptions()
+	case server.FieldContainerId:
+		return m.ContainerId()
 	}
 	return nil, false
 }
@@ -4176,6 +4218,8 @@ func (m *ServerMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldCraterVariant(ctx)
 	case server.FieldCraterOptions:
 		return m.OldCraterOptions(ctx)
+	case server.FieldContainerId:
+		return m.OldContainerId(ctx)
 	}
 	return nil, fmt.Errorf("unknown Server field %s", name)
 }
@@ -4228,7 +4272,7 @@ func (m *ServerMutation) SetField(name string, value ent.Value) error {
 		m.SetLogicalCores(v)
 		return nil
 	case server.FieldPort:
-		v, ok := value.(uint16)
+		v, ok := value.(uint)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -4261,6 +4305,13 @@ func (m *ServerMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetCraterOptions(v)
+		return nil
+	case server.FieldContainerId:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetContainerId(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Server field %s", name)
@@ -4329,7 +4380,7 @@ func (m *ServerMutation) AddField(name string, value ent.Value) error {
 		m.AddLogicalCores(v)
 		return nil
 	case server.FieldPort:
-		v, ok := value.(int16)
+		v, ok := value.(int)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -4403,6 +4454,9 @@ func (m *ServerMutation) ResetField(name string) error {
 		return nil
 	case server.FieldCraterOptions:
 		m.ResetCraterOptions()
+		return nil
+	case server.FieldContainerId:
+		m.ResetContainerId()
 		return nil
 	}
 	return fmt.Errorf("unknown Server field %s", name)

@@ -183,13 +183,17 @@ func EntNodeToProtoNode(n ent.Node) *protoapi.Node {
 	return pn
 }
 
-func EntServerToProtoServer(s ent.Server) *protoapi.Server {
+func EntServerToProtoServer(s ent.Server, st *module.Store) *protoapi.Server {
+	crater := st.FindCraterByName(s.Crater)
+	if crater == nil {
+		return nil
+	}
+	variant := st.FindCraterVariantByName(s.CraterVariant, crater)
+
 	ps := &protoapi.Server{
-		Id:        UUIDToProtoUUID(s.ID),
-		CreatedAt: timestamppb.New(s.CreatedAt),
-		UpdatedAt: timestamppb.New(s.UpdatedAt),
-		//Crater: s
-		//CraterVariant
+		Id:           UUIDToProtoUUID(s.ID),
+		CreatedAt:    timestamppb.New(s.CreatedAt),
+		UpdatedAt:    timestamppb.New(s.UpdatedAt),
 		Owner:        EntUserEntityToProtoUser(s.QueryOwner().FirstX(context.Background())),
 		Node:         EntNodeToProtoNode(*s.QueryNode().FirstX(context.Background())),
 		Ram:          s.RAM,
@@ -198,6 +202,15 @@ func EntServerToProtoServer(s ent.Server) *protoapi.Server {
 		Port: &protoapi.Port{
 			Value: uint32(s.Port),
 		},
+		Crater: &protoapi.Crater{
+			Name:        crater.Name,
+			Description: crater.Description,
+		},
+		Variant: &protoapi.CraterVariant{
+			Name:        variant.Name,
+			Description: variant.Description,
+		},
+		ContainerId: s.ContainerId,
 	}
 
 	return ps

@@ -87,7 +87,7 @@ func LogicalCores(v uint) predicate.Server {
 }
 
 // Port applies equality check predicate on the "port" field. It's identical to PortEQ.
-func Port(v uint16) predicate.Server {
+func Port(v uint) predicate.Server {
 	return predicate.Server(sql.FieldEQ(FieldPort, v))
 }
 
@@ -104,6 +104,11 @@ func Crater(v string) predicate.Server {
 // CraterVariant applies equality check predicate on the "crater_variant" field. It's identical to CraterVariantEQ.
 func CraterVariant(v string) predicate.Server {
 	return predicate.Server(sql.FieldEQ(FieldCraterVariant, v))
+}
+
+// ContainerId applies equality check predicate on the "containerId" field. It's identical to ContainerIdEQ.
+func ContainerId(v string) predicate.Server {
+	return predicate.Server(sql.FieldEQ(FieldContainerId, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
@@ -372,42 +377,42 @@ func LogicalCoresLTE(v uint) predicate.Server {
 }
 
 // PortEQ applies the EQ predicate on the "port" field.
-func PortEQ(v uint16) predicate.Server {
+func PortEQ(v uint) predicate.Server {
 	return predicate.Server(sql.FieldEQ(FieldPort, v))
 }
 
 // PortNEQ applies the NEQ predicate on the "port" field.
-func PortNEQ(v uint16) predicate.Server {
+func PortNEQ(v uint) predicate.Server {
 	return predicate.Server(sql.FieldNEQ(FieldPort, v))
 }
 
 // PortIn applies the In predicate on the "port" field.
-func PortIn(vs ...uint16) predicate.Server {
+func PortIn(vs ...uint) predicate.Server {
 	return predicate.Server(sql.FieldIn(FieldPort, vs...))
 }
 
 // PortNotIn applies the NotIn predicate on the "port" field.
-func PortNotIn(vs ...uint16) predicate.Server {
+func PortNotIn(vs ...uint) predicate.Server {
 	return predicate.Server(sql.FieldNotIn(FieldPort, vs...))
 }
 
 // PortGT applies the GT predicate on the "port" field.
-func PortGT(v uint16) predicate.Server {
+func PortGT(v uint) predicate.Server {
 	return predicate.Server(sql.FieldGT(FieldPort, v))
 }
 
 // PortGTE applies the GTE predicate on the "port" field.
-func PortGTE(v uint16) predicate.Server {
+func PortGTE(v uint) predicate.Server {
 	return predicate.Server(sql.FieldGTE(FieldPort, v))
 }
 
 // PortLT applies the LT predicate on the "port" field.
-func PortLT(v uint16) predicate.Server {
+func PortLT(v uint) predicate.Server {
 	return predicate.Server(sql.FieldLT(FieldPort, v))
 }
 
 // PortLTE applies the LTE predicate on the "port" field.
-func PortLTE(v uint16) predicate.Server {
+func PortLTE(v uint) predicate.Server {
 	return predicate.Server(sql.FieldLTE(FieldPort, v))
 }
 
@@ -614,6 +619,71 @@ func CraterOptionsIsNil() predicate.Server {
 // CraterOptionsNotNil applies the NotNil predicate on the "crater_options" field.
 func CraterOptionsNotNil() predicate.Server {
 	return predicate.Server(sql.FieldNotNull(FieldCraterOptions))
+}
+
+// ContainerIdEQ applies the EQ predicate on the "containerId" field.
+func ContainerIdEQ(v string) predicate.Server {
+	return predicate.Server(sql.FieldEQ(FieldContainerId, v))
+}
+
+// ContainerIdNEQ applies the NEQ predicate on the "containerId" field.
+func ContainerIdNEQ(v string) predicate.Server {
+	return predicate.Server(sql.FieldNEQ(FieldContainerId, v))
+}
+
+// ContainerIdIn applies the In predicate on the "containerId" field.
+func ContainerIdIn(vs ...string) predicate.Server {
+	return predicate.Server(sql.FieldIn(FieldContainerId, vs...))
+}
+
+// ContainerIdNotIn applies the NotIn predicate on the "containerId" field.
+func ContainerIdNotIn(vs ...string) predicate.Server {
+	return predicate.Server(sql.FieldNotIn(FieldContainerId, vs...))
+}
+
+// ContainerIdGT applies the GT predicate on the "containerId" field.
+func ContainerIdGT(v string) predicate.Server {
+	return predicate.Server(sql.FieldGT(FieldContainerId, v))
+}
+
+// ContainerIdGTE applies the GTE predicate on the "containerId" field.
+func ContainerIdGTE(v string) predicate.Server {
+	return predicate.Server(sql.FieldGTE(FieldContainerId, v))
+}
+
+// ContainerIdLT applies the LT predicate on the "containerId" field.
+func ContainerIdLT(v string) predicate.Server {
+	return predicate.Server(sql.FieldLT(FieldContainerId, v))
+}
+
+// ContainerIdLTE applies the LTE predicate on the "containerId" field.
+func ContainerIdLTE(v string) predicate.Server {
+	return predicate.Server(sql.FieldLTE(FieldContainerId, v))
+}
+
+// ContainerIdContains applies the Contains predicate on the "containerId" field.
+func ContainerIdContains(v string) predicate.Server {
+	return predicate.Server(sql.FieldContains(FieldContainerId, v))
+}
+
+// ContainerIdHasPrefix applies the HasPrefix predicate on the "containerId" field.
+func ContainerIdHasPrefix(v string) predicate.Server {
+	return predicate.Server(sql.FieldHasPrefix(FieldContainerId, v))
+}
+
+// ContainerIdHasSuffix applies the HasSuffix predicate on the "containerId" field.
+func ContainerIdHasSuffix(v string) predicate.Server {
+	return predicate.Server(sql.FieldHasSuffix(FieldContainerId, v))
+}
+
+// ContainerIdEqualFold applies the EqualFold predicate on the "containerId" field.
+func ContainerIdEqualFold(v string) predicate.Server {
+	return predicate.Server(sql.FieldEqualFold(FieldContainerId, v))
+}
+
+// ContainerIdContainsFold applies the ContainsFold predicate on the "containerId" field.
+func ContainerIdContainsFold(v string) predicate.Server {
+	return predicate.Server(sql.FieldContainsFold(FieldContainerId, v))
 }
 
 // HasNode applies the HasEdge predicate on the "node" edge.

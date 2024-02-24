@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v3.12.4
-// source: skyhook/info_api.proto
+// source: info_api.proto
 
 package protoapi
 
@@ -23,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type NodeInfoClient interface {
 	GetNodeHardwareInfo(ctx context.Context, in *HardwareInfoRequest, opts ...grpc.CallOption) (*HardwareInfoResponse, error)
+	GetFreePort(ctx context.Context, in *GetFreePortRequest, opts ...grpc.CallOption) (*GetFreePortResponse, error)
 }
 
 type nodeInfoClient struct {
@@ -42,11 +43,21 @@ func (c *nodeInfoClient) GetNodeHardwareInfo(ctx context.Context, in *HardwareIn
 	return out, nil
 }
 
+func (c *nodeInfoClient) GetFreePort(ctx context.Context, in *GetFreePortRequest, opts ...grpc.CallOption) (*GetFreePortResponse, error) {
+	out := new(GetFreePortResponse)
+	err := c.cc.Invoke(ctx, "/NodeInfo/GetFreePort", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // NodeInfoServer is the server API for NodeInfo service.
 // All implementations must embed UnimplementedNodeInfoServer
 // for forward compatibility
 type NodeInfoServer interface {
 	GetNodeHardwareInfo(context.Context, *HardwareInfoRequest) (*HardwareInfoResponse, error)
+	GetFreePort(context.Context, *GetFreePortRequest) (*GetFreePortResponse, error)
 	mustEmbedUnimplementedNodeInfoServer()
 }
 
@@ -56,6 +67,9 @@ type UnimplementedNodeInfoServer struct {
 
 func (UnimplementedNodeInfoServer) GetNodeHardwareInfo(context.Context, *HardwareInfoRequest) (*HardwareInfoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetNodeHardwareInfo not implemented")
+}
+func (UnimplementedNodeInfoServer) GetFreePort(context.Context, *GetFreePortRequest) (*GetFreePortResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFreePort not implemented")
 }
 func (UnimplementedNodeInfoServer) mustEmbedUnimplementedNodeInfoServer() {}
 
@@ -88,6 +102,24 @@ func _NodeInfo_GetNodeHardwareInfo_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _NodeInfo_GetFreePort_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetFreePortRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodeInfoServer).GetFreePort(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/NodeInfo/GetFreePort",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodeInfoServer).GetFreePort(ctx, req.(*GetFreePortRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // NodeInfo_ServiceDesc is the grpc.ServiceDesc for NodeInfo service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -99,7 +131,11 @@ var NodeInfo_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "GetNodeHardwareInfo",
 			Handler:    _NodeInfo_GetNodeHardwareInfo_Handler,
 		},
+		{
+			MethodName: "GetFreePort",
+			Handler:    _NodeInfo_GetFreePort_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "skyhook/info_api.proto",
+	Metadata: "info_api.proto",
 }

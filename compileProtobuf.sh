@@ -1,4 +1,5 @@
 #!/bin/bash
 
 rm -rf ./proto/go
-protoc -I=../protobuf/panel --go_out=./proto ../protobuf/panel/*
+mkdir -p ./proto/go
+protoc --go_out=./proto/go --go_opt=paths=source_relative --go-grpc_out=./proto/go --go-grpc_opt=paths=source_relative -I=../protobuf/panel ../protobuf/panel/*

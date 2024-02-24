@@ -9,7 +9,6 @@ import (
 	"github.com/Encedeus/panel/module"
 	"github.com/Encedeus/panel/proto"
 	protoapi "github.com/Encedeus/panel/proto/go"
-	skyhook "github.com/Encedeus/panel/proto/go/skyhook"
 	"github.com/Encedeus/panel/validate"
 	"golang.org/x/crypto/ssh"
 	"google.golang.org/grpc"
@@ -72,8 +71,8 @@ func CreateNode(ctx context.Context, db *ent.Client, req *protoapi.NodesCreateRe
 	timeoutCtx, cancel = context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	hp := skyhook.NewNodeInfoClient(conn)
-	hwInfo, err := hp.GetNodeHardwareInfo(timeoutCtx, &skyhook.HardwareInfoRequest{})
+	hp := protoapi.NewNodeInfoClient(conn)
+	hwInfo, err := hp.GetNodeHardwareInfo(timeoutCtx, &protoapi.HardwareInfoRequest{})
 	if err != nil {
 		return nil, ErrFailedGettingHardwareInfo
 	}

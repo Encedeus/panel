@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v3.12.4
-// source: skyhook/container_api.proto
+// source: container_api.proto
 
 package protoapi
 
@@ -209,5 +209,5 @@ var Container_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "skyhook/container_api.proto",
+	Metadata: "container_api.proto",
 }

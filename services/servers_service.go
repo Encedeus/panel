@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/Encedeus/panel/config"
 	"github.com/Encedeus/panel/ent"
@@ -10,9 +11,12 @@ import (
 	"github.com/Encedeus/panel/ent/user"
 	"github.com/Encedeus/panel/module"
 	"github.com/Encedeus/panel/proto"
-	protoapi "github.com/Encedeus/panel/proto/go"
+	"github.com/Encedeus/panel/proto/go"
+	"github.com/docker/docker/api/types/container"
+	docker "github.com/docker/docker/client"
 	"github.com/filecoin-project/go-jsonrpc"
 	"github.com/google/uuid"
+	"io"
 	"log"
 	"math"
 )
@@ -28,10 +32,10 @@ func CreateServer(ctx context.Context, db *ent.Client, store *module.Store, req 
 		return nil, ErrServerAlreadyExists
 	}
 
-	_, err = db.Node.Query().Where(node.IDEQ(proto.ProtoUUIDToUUID(req.Node))).First(ctx)
-	if err != nil {
-		return nil, ErrNodeNotFound
-	}
+	/*	_, err = db.Node.Query().Where(node.IDEQ(proto.ProtoUUIDToUUID(req.Node))).First(ctx)
+		if err != nil {
+			return nil, ErrNodeNotFound
+		}*/
 
 	n, err := FindOptimalNode(ctx, db, req)
 	if err != nil {
@@ -68,8 +72,9 @@ func CreateServer(ctx context.Context, db *ent.Client, store *module.Store, req 
 		SetRAM(req.Ram).
 		SetStorage(req.Storage).
 		SetLogicalCores(uint(req.LogicalCores)).
-		SetPort(uint16(req.Port.Value)).
 		SetNode(n).
+		SetContainerId(resp.Servers[0].ContainerId).
+		SetPort(uint(uint16(resp.Servers[0].Port.Value))).
 		Save(ctx)
 	if err != nil {
 		return nil, err
@@ -149,30 +154,34 @@ func GetAllocatedNodeResources(ctx context.Context, db *ent.Client, n *ent.Node)
 func GetFreeNodeResources(ctx context.Context, db *ent.Client, n *ent.Node) (*NodeResources, error) {
 	//var allocatedRam int
 
-	count, err := db.Server.Query().Count(ctx)
+	count, err := db.Server.Query().Where(server.HasNodeWith(node.IDEQ(n.ID))).Count(ctx)
+	fmt.Printf("Count error: %v\n", err)
 	if err != nil {
 		return nil, err
 	}
 	if count == 0 {
 		return &NodeResources{
-			n.RAM,
-			n.Storage,
-			uint32(n.LogicalCores),
+			n.RAM - config.Config.Skyhook.MinFreeRAM,
+			n.Storage - config.Config.Skyhook.MinFreeDisk,
+			uint32(n.LogicalCores) - config.Config.Skyhook.MinFreeLogicalCores,
 		}, nil
 	}
 
 	allocatedRam, err := db.Server.Query().Where(server.HasNodeWith(node.IDEQ(n.ID))).Aggregate(ent.Sum(server.FieldRAM)).Int(ctx)
 	if err != nil {
+		log.Printf("Failed getting allocated RAM: %v\n", err)
 		return nil, err
 	}
 
 	allocatedStorage, err := db.Server.Query().Where(server.HasNodeWith(node.IDEQ(n.ID))).Aggregate(ent.Sum(server.FieldStorage)).Int(ctx)
 	if err != nil {
+		log.Printf("Failed getting allocated storage: %v\n", err)
 		return nil, err
 	}
 
 	allocatedLogicalCores, err := db.Server.Query().Where(server.HasNodeWith(node.IDEQ(n.ID))).Aggregate(ent.Sum(server.FieldLogicalCores)).Int(ctx)
 	if err != nil {
+		log.Printf("Failed getting allocated cores: %v\n", err)
 		return nil, err
 	}
 
@@ -187,8 +196,11 @@ func GetFreeNodeResources(ctx context.Context, db *ent.Client, n *ent.Node) (*No
 
 func HasEnoughFreeResources(ctx context.Context, db *ent.Client, n *ent.Node, requiredRes NodeResources) (bool, *NodeResources) {
 	free, err := GetFreeNodeResources(ctx, db, n)
+	fmt.Printf("Free: %+v\n", free)
+	fmt.Printf("Required: %+v\n", requiredRes)
 	if err != nil {
 		log.Printf("Failed calculating node's free resources: %v", err)
+		return false, nil
 	}
 	if free.Memory < requiredRes.Memory {
 		return false, nil
@@ -252,4 +264,162 @@ func FindOptimalNode(ctx context.Context, db *ent.Client, opts *protoapi.Servers
 	}
 
 	return optimal, nil
+}
+
+func FindServerByID(ctx context.Context, db *ent.Client, serverId uuid.UUID) (*ent.Server, error) {
+	srv, err := db.Server.Query().Where(server.IDEQ(serverId)).First(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, ErrServerNotFound
+		}
+
+		return nil, err
+	}
+
+	return srv, nil
+}
+
+func StartServer(ctx context.Context, store *module.Store, db *ent.Client, serverId uuid.UUID) error {
+	srv, err := FindServerByID(ctx, db, serverId)
+	fmt.Printf("%v\n", srv)
+	if err != nil {
+		return err
+	}
+
+	var client struct {
+		StartServer func(srv protoapi.Server) error
+	}
+
+	variant := FindStoreCraterVariant(store, srv.Crater, srv.CraterVariant)
+	if variant == nil {
+		return ErrUnsupportedVariant
+	}
+
+	closer, err := jsonrpc.NewClient(context.Background(), fmt.Sprintf("http://localhost:%v", variant.Crater.Provider.Backend.RPCPort), "CratersHandler", &client, nil)
+	if err != nil {
+		return err
+	}
+	defer closer()
+
+	err = client.StartServer(*proto.EntServerToProtoServer(*srv, store))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func StopServer(ctx context.Context, store *module.Store, db *ent.Client, serverId uuid.UUID) error {
+	srv, err := FindServerByID(ctx, db, serverId)
+	if err != nil {
+		return err
+	}
+
+	var client struct {
+		StopServer func(srv protoapi.Server) error
+	}
+
+	variant := FindStoreCraterVariant(store, srv.Crater, srv.CraterVariant)
+	if variant == nil {
+		return ErrUnsupportedVariant
+	}
+
+	closer, err := jsonrpc.NewClient(context.Background(), fmt.Sprintf("http://localhost:%v", variant.Crater.Provider.Backend.RPCPort), "CratersHandler", &client, nil)
+	if err != nil {
+		return err
+	}
+	defer closer()
+
+	err = client.StopServer(*proto.EntServerToProtoServer(*srv, store))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func RestartServer(ctx context.Context, store *module.Store, db *ent.Client, serverId uuid.UUID) error {
+	srv, err := FindServerByID(ctx, db, serverId)
+	if err != nil {
+		return err
+	}
+
+	var client struct {
+		RestartServer func(srv protoapi.Server) error
+	}
+
+	variant := FindStoreCraterVariant(store, srv.Crater, srv.CraterVariant)
+	if variant == nil {
+		return ErrUnsupportedVariant
+	}
+
+	closer, err := jsonrpc.NewClient(context.Background(), fmt.Sprintf("http://localhost:%v", variant.Crater.Provider.Backend.RPCPort), "CratersHandler", &client, nil)
+	if err != nil {
+		return err
+	}
+	defer closer()
+
+	err = client.RestartServer(*proto.EntServerToProtoServer(*srv, store))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func FindAllServers(ctx context.Context, db *ent.Client, _ *protoapi.ServersFindAllRequest) ([]*ent.Server, error) {
+	srvs, err := db.Server.Query().All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return srvs, nil
+}
+
+func FindOneServer(ctx context.Context, db *ent.Client, req *protoapi.ServersFindOneRequest) (*ent.Server, error) {
+	srv, err := db.Server.Query().Where(server.IDEQ(proto.ProtoUUIDToUUID(req.Id))).First(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, ErrServerNotFound
+		}
+
+		return nil, err
+	}
+
+	return srv, nil
+}
+
+func DeleteOneServer(ctx context.Context, db *ent.Client, req *protoapi.ServersDeleteRequest) error {
+	srvId := proto.ProtoUUIDToUUID(req.Id)
+
+	srv, err := FindServerByID(ctx, db, srvId)
+	if err != nil {
+		return err
+	}
+	nd, err := srv.QueryNode().First(ctx)
+	if err != nil {
+		return err
+	}
+
+	host := fmt.Sprintf("tcp://%s:2375", nd.Ipv4Address)
+	cli, err := docker.NewClientWithOpts(docker.WithHost(host), docker.WithAPIVersionNegotiation())
+	if err != nil {
+		return err
+	}
+
+	err = cli.ContainerRemove(ctx, srv.ContainerId, container.RemoveOptions{RemoveVolumes: true, Force: true})
+	if err != nil && !errors.Is(err, io.EOF) {
+		return err
+	}
+
+	err = db.Server.DeleteOneID(proto.ProtoUUIDToUUID(req.Id)).Exec(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return ErrServerNotFound
+		}
+
+		return err
+	}
+
+	return nil
 }

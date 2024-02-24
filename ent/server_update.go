@@ -97,14 +97,14 @@ func (su *ServerUpdate) AddLogicalCores(u int) *ServerUpdate {
 }
 
 // SetPort sets the "port" field.
-func (su *ServerUpdate) SetPort(u uint16) *ServerUpdate {
+func (su *ServerUpdate) SetPort(u uint) *ServerUpdate {
 	su.mutation.ResetPort()
 	su.mutation.SetPort(u)
 	return su
 }
 
 // AddPort adds u to the "port" field.
-func (su *ServerUpdate) AddPort(u int16) *ServerUpdate {
+func (su *ServerUpdate) AddPort(u int) *ServerUpdate {
 	su.mutation.AddPort(u)
 	return su
 }
@@ -136,6 +136,12 @@ func (su *ServerUpdate) SetCraterOptions(a any) *ServerUpdate {
 // ClearCraterOptions clears the value of the "crater_options" field.
 func (su *ServerUpdate) ClearCraterOptions() *ServerUpdate {
 	su.mutation.ClearCraterOptions()
+	return su
+}
+
+// SetContainerId sets the "containerId" field.
+func (su *ServerUpdate) SetContainerId(s string) *ServerUpdate {
+	su.mutation.SetContainerId(s)
 	return su
 }
 
@@ -267,10 +273,10 @@ func (su *ServerUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		_spec.AddField(server.FieldLogicalCores, field.TypeUint, value)
 	}
 	if value, ok := su.mutation.Port(); ok {
-		_spec.SetField(server.FieldPort, field.TypeUint16, value)
+		_spec.SetField(server.FieldPort, field.TypeUint, value)
 	}
 	if value, ok := su.mutation.AddedPort(); ok {
-		_spec.AddField(server.FieldPort, field.TypeUint16, value)
+		_spec.AddField(server.FieldPort, field.TypeUint, value)
 	}
 	if value, ok := su.mutation.CraterProvider(); ok {
 		_spec.SetField(server.FieldCraterProvider, field.TypeString, value)
@@ -286,6 +292,9 @@ func (su *ServerUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if su.mutation.CraterOptionsCleared() {
 		_spec.ClearField(server.FieldCraterOptions, field.TypeJSON)
+	}
+	if value, ok := su.mutation.ContainerId(); ok {
+		_spec.SetField(server.FieldContainerId, field.TypeString, value)
 	}
 	if su.mutation.NodeCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -431,14 +440,14 @@ func (suo *ServerUpdateOne) AddLogicalCores(u int) *ServerUpdateOne {
 }
 
 // SetPort sets the "port" field.
-func (suo *ServerUpdateOne) SetPort(u uint16) *ServerUpdateOne {
+func (suo *ServerUpdateOne) SetPort(u uint) *ServerUpdateOne {
 	suo.mutation.ResetPort()
 	suo.mutation.SetPort(u)
 	return suo
 }
 
 // AddPort adds u to the "port" field.
-func (suo *ServerUpdateOne) AddPort(u int16) *ServerUpdateOne {
+func (suo *ServerUpdateOne) AddPort(u int) *ServerUpdateOne {
 	suo.mutation.AddPort(u)
 	return suo
 }
@@ -470,6 +479,12 @@ func (suo *ServerUpdateOne) SetCraterOptions(a any) *ServerUpdateOne {
 // ClearCraterOptions clears the value of the "crater_options" field.
 func (suo *ServerUpdateOne) ClearCraterOptions() *ServerUpdateOne {
 	suo.mutation.ClearCraterOptions()
+	return suo
+}
+
+// SetContainerId sets the "containerId" field.
+func (suo *ServerUpdateOne) SetContainerId(s string) *ServerUpdateOne {
+	suo.mutation.SetContainerId(s)
 	return suo
 }
 
@@ -631,10 +646,10 @@ func (suo *ServerUpdateOne) sqlSave(ctx context.Context) (_node *Server, err err
 		_spec.AddField(server.FieldLogicalCores, field.TypeUint, value)
 	}
 	if value, ok := suo.mutation.Port(); ok {
-		_spec.SetField(server.FieldPort, field.TypeUint16, value)
+		_spec.SetField(server.FieldPort, field.TypeUint, value)
 	}
 	if value, ok := suo.mutation.AddedPort(); ok {
-		_spec.AddField(server.FieldPort, field.TypeUint16, value)
+		_spec.AddField(server.FieldPort, field.TypeUint, value)
 	}
 	if value, ok := suo.mutation.CraterProvider(); ok {
 		_spec.SetField(server.FieldCraterProvider, field.TypeString, value)
@@ -650,6 +665,9 @@ func (suo *ServerUpdateOne) sqlSave(ctx context.Context) (_node *Server, err err
 	}
 	if suo.mutation.CraterOptionsCleared() {
 		_spec.ClearField(server.FieldCraterOptions, field.TypeJSON)
+	}
+	if value, ok := suo.mutation.ContainerId(); ok {
+		_spec.SetField(server.FieldContainerId, field.TypeString, value)
 	}
 	if suo.mutation.NodeCleared() {
 		edge := &sqlgraph.EdgeSpec{

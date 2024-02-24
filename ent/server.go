@@ -34,7 +34,7 @@ type Server struct {
 	// LogicalCores holds the value of the "logical_cores" field.
 	LogicalCores uint `json:"logical_cores,omitempty"`
 	// Port holds the value of the "port" field.
-	Port uint16 `json:"port,omitempty"`
+	Port uint `json:"port,omitempty"`
 	// CraterProvider holds the value of the "crater_provider" field.
 	CraterProvider string `json:"crater_provider,omitempty"`
 	// Crater holds the value of the "crater" field.
@@ -43,6 +43,8 @@ type Server struct {
 	CraterVariant string `json:"crater_variant,omitempty"`
 	// CraterOptions holds the value of the "crater_options" field.
 	CraterOptions any `json:"crater_options,omitempty"`
+	// ContainerId holds the value of the "containerId" field.
+	ContainerId string `json:"containerId,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ServerQuery when eager-loading is set.
 	Edges        ServerEdges `json:"edges"`
@@ -98,7 +100,7 @@ func (*Server) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case server.FieldRAM, server.FieldStorage, server.FieldLogicalCores, server.FieldPort:
 			values[i] = new(sql.NullInt64)
-		case server.FieldName, server.FieldCraterProvider, server.FieldCrater, server.FieldCraterVariant:
+		case server.FieldName, server.FieldCraterProvider, server.FieldCrater, server.FieldCraterVariant, server.FieldContainerId:
 			values[i] = new(sql.NullString)
 		case server.FieldCreatedAt, server.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -171,7 +173,7 @@ func (s *Server) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field port", values[i])
 			} else if value.Valid {
-				s.Port = uint16(value.Int64)
+				s.Port = uint(value.Int64)
 			}
 		case server.FieldCraterProvider:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -198,6 +200,12 @@ func (s *Server) assignValues(columns []string, values []any) error {
 				if err := json.Unmarshal(*value, &s.CraterOptions); err != nil {
 					return fmt.Errorf("unmarshal field crater_options: %w", err)
 				}
+			}
+		case server.FieldContainerId:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field containerId", values[i])
+			} else if value.Valid {
+				s.ContainerId = value.String
 			}
 		case server.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
@@ -298,6 +306,9 @@ func (s *Server) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("crater_options=")
 	builder.WriteString(fmt.Sprintf("%v", s.CraterOptions))
+	builder.WriteString(", ")
+	builder.WriteString("containerId=")
+	builder.WriteString(s.ContainerId)
 	builder.WriteByte(')')
 	return builder.String()
 }

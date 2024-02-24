@@ -25,11 +25,12 @@ func (Server) Fields() []ent.Field {
 		// In KB
 		field.Uint64("storage"),
 		field.Uint("logical_cores"),
-		field.Uint16("port"),
+		field.Uint("port"),
 		field.String("crater_provider"),
 		field.String("crater"),
 		field.String("crater_variant"),
 		field.Any("crater_options").Optional(),
+		field.String("containerId").Unique(),
 	}
 }
 

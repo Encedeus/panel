@@ -37,6 +37,8 @@ const (
 	FieldCraterVariant = "crater_variant"
 	// FieldCraterOptions holds the string denoting the crater_options field in the database.
 	FieldCraterOptions = "crater_options"
+	// FieldContainerId holds the string denoting the containerid field in the database.
+	FieldContainerId = "container_id"
 	// EdgeNode holds the string denoting the node edge name in mutations.
 	EdgeNode = "node"
 	// EdgeOwner holds the string denoting the owner edge name in mutations.
@@ -73,6 +75,7 @@ var Columns = []string{
 	FieldCrater,
 	FieldCraterVariant,
 	FieldCraterOptions,
+	FieldContainerId,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "servers"
@@ -165,6 +168,11 @@ func ByCrater(opts ...sql.OrderTermOption) OrderOption {
 // ByCraterVariant orders the results by the crater_variant field.
 func ByCraterVariant(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCraterVariant, opts...).ToFunc()
+}
+
+// ByContainerId orders the results by the containerId field.
+func ByContainerId(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldContainerId, opts...).ToFunc()
 }
 
 // ByNodeField orders the results by node field.

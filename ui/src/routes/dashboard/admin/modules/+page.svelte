@@ -41,7 +41,7 @@
         <ModuleIcon slot="icon"/>
 
         <div slot="content" class="flex flex-row justify-center">
-            <div id="pluginList" class="w-3/6 border-r-2 border-black pb-9">
+            <div id="pluginList" class="w-3/6 border-r-2 border-black pb-9 h-full">
                 {#if plugins}
                     {#each plugins as plugin}
                         <ModuleRow on:onInstall={onInstallClick} on:moduleClick={onModuleClick} plugin={plugin}/>

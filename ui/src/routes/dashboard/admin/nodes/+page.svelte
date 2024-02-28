@@ -1,13 +1,17 @@
-<script>
-    import NodeCardList from "$lib/components/internal/nodes/NodeCardList.svelte";
+<script lang="ts">
     import CardHeader from "$lib/components/generic/CardHeader.svelte";
     import Card from "$lib/components/generic/Card.svelte";
     import ComputerDesktopIcon from "$lib/components/heroicons/ComputerDesktopIcon.svelte";
-    import HeartIcon from "$lib/components/heroicons/HeartIcon.svelte";
-    import LockIcon from "$lib/components/heroicons/LockIcon.svelte";
     import Button from "$lib/components/generic/Button.svelte";
     import PlusIcon from "$lib/components/heroicons/PlusIcon.svelte";
     import NodeRow from "$lib/components/internal/nodes/NodeRow.svelte";
+    import NodeCreateModal from "$lib/components/internal/nodes/NodeCreateModal.svelte";
+
+    let isShowingModal = false;
+
+    function displayCreateModal() {
+        isShowingModal = true;
+    }
 </script>
 
 <!--<div class="absolute bg-slate-900 w-screen h-screen top-0 -z-10"></div>-->
@@ -24,7 +28,7 @@
             <ComputerDesktopIcon/>
         </span>
         <span slot="end">
-            <Button className="rounded-xl w-72 px-4">
+            <Button className="rounded-xl w-72 px-4" on:click={displayCreateModal}>
                 <span class="flex flex-row gap-2 items-center">
                     <PlusIcon/>
                     Create New
@@ -35,7 +39,7 @@
             <table class="border-collapse">
                 <thead>
                     <tr class="text-xs">
-                        <th scope="col"></th>
+                        <th scope="col">Health status</th>
                         <th scope="col">Name</th>
                         <th scope="col">Location</th>
                         <th scope="col">Memory</th>
@@ -51,6 +55,8 @@
             </table>
         </div>
     </Card>
+
+    <NodeCreateModal open={isShowingModal} on:close={() => {isShowingModal = false;}}/>
 <!--    <NodeCardList/>-->
 </main>
 

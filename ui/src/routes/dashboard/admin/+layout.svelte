@@ -6,6 +6,9 @@
     import { page } from "$app/stores";
     import ComputerDesktop from "$lib/components/heroicons/ComputerDesktopIcon.svelte";
     import ServerStackIcon from "$lib/components/heroicons/ServerStackIcon.svelte";
+    import DatabaseIcon from "$lib/components/heroicons/DatabaseIcon.svelte";
+    import TagIcon from "$lib/components/heroicons/TagIcon.svelte";
+    import ModuleIcon from "$lib/components/heroicons/ModuleIcon.svelte";
 </script>
 
 
@@ -15,6 +18,18 @@
             <ComputerDesktop width="32" height="32" slot="icon"/>
             <SideBarTabLabel slot="label">
                 Nodes
+            </SideBarTabLabel>
+        </SideBarTab>
+        <SideBarTab link="/dashboard/admin/roles">
+            <TagIcon width="32" height="32" slot="icon"/>
+            <SideBarTabLabel slot="label">
+                Roles
+            </SideBarTabLabel>
+        </SideBarTab>
+        <SideBarTab link="/dashboard/admin/modules">
+            <ModuleIcon width="32" height="32" slot="icon"/>
+            <SideBarTabLabel slot="label">
+                Modules
             </SideBarTabLabel>
         </SideBarTab>
         <SideBarTab link="/dashboard/admin/servers">

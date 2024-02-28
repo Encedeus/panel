@@ -28,9 +28,9 @@ func (sc ServersController) registerRoutes(srv *Server) {
 		serversEndpoint.GET("/:id", func(c echo.Context) error {
 			return sc.handleFindOneServer(c, srv.DB, srv.ModuleStore)
 		})
-		serversEndpoint.GET("/:id/status", func(c echo.Context) error {
-			return sc.handleGetServerStatus(c, srv.DB, srv.ModuleStore)
-		})
+		/*		serversEndpoint.GET("/:id/status", func(c echo.Context) error {
+				return sc.handleGetServerStatus(c, srv.DB, srv.ModuleStore)
+			})*/
 		serversEndpoint.DELETE("/:id", func(c echo.Context) error {
 			return sc.handleDeleteServer(c, srv.DB)
 		})
@@ -248,6 +248,6 @@ func (ServersController) handleStopServer(c echo.Context, db *ent.Client, store 
 	return c.NoContent(http.StatusNoContent)
 }
 
-func (ServersController) handleGetServerStatus(c echo.Context, db *ent.Client) error {
+/*func (ServersController) handleGetServerStatus(c echo.Context, db *ent.Client) error {
 
-}
+}*/

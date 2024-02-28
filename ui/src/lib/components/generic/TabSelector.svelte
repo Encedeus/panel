@@ -27,7 +27,7 @@
         border-bottom: 2px solid transparent;
         border-top: 2px  transparent;
         /*display: block;*/
-        padding: .25rem 1rem;
+        padding: .35rem 1rem;
         padding-inline: 15px;
         cursor: pointer;
         border-color: black;

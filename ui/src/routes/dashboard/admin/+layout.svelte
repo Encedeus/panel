@@ -39,7 +39,7 @@
             </SideBarTabLabel>
         </SideBarTab>
     </div>
-    <div slot="content" class="w-full h-full">
+    <div slot="content" class="w-full">
         <slot/>
     </div>
 </TabEnvironment>

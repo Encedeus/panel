@@ -12,6 +12,7 @@ import (
 	"github.com/Encedeus/panel/module"
 	"github.com/Encedeus/panel/proto"
 	"github.com/Encedeus/panel/proto/go"
+	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	docker "github.com/docker/docker/client"
 	"github.com/filecoin-project/go-jsonrpc"
@@ -44,7 +45,7 @@ func CreateServer(ctx context.Context, db *ent.Client, store *module.Store, req 
 	req.Node = proto.UUIDToProtoUUID(n.ID)
 
 	var client struct {
-		CreateServer func(req *protoapi.ServersCreateRequest) (*protoapi.ServersCreateResponse, error)
+		CreateServer func(req *protoapi.ServersCreateRequest, id string) (*protoapi.ServersCreateResponse, error)
 	}
 
 	variant := FindStoreCraterVariant(store, req.Crater, req.CraterVariant)
@@ -58,12 +59,15 @@ func CreateServer(ctx context.Context, db *ent.Client, store *module.Store, req 
 	}
 	defer closer()
 
-	resp, err := client.CreateServer(req)
+	serverId := uuid.New()
+
+	resp, err := client.CreateServer(req, serverId.String())
 	if err != nil {
 		return nil, err
 	}
 
 	_, err = db.Server.Create().
+		SetID(serverId).
 		SetName(req.Name).
 		SetCraterProvider(variant.Crater.Provider.Manifest.Name).
 		SetCrater(req.Crater).
@@ -155,7 +159,6 @@ func GetFreeNodeResources(ctx context.Context, db *ent.Client, n *ent.Node) (*No
 	//var allocatedRam int
 
 	count, err := db.Server.Query().Where(server.HasNodeWith(node.IDEQ(n.ID))).Count(ctx)
-	fmt.Printf("Count error: %v\n", err)
 	if err != nil {
 		return nil, err
 	}
@@ -196,8 +199,6 @@ func GetFreeNodeResources(ctx context.Context, db *ent.Client, n *ent.Node) (*No
 
 func HasEnoughFreeResources(ctx context.Context, db *ent.Client, n *ent.Node, requiredRes NodeResources) (bool, *NodeResources) {
 	free, err := GetFreeNodeResources(ctx, db, n)
-	fmt.Printf("Free: %+v\n", free)
-	fmt.Printf("Required: %+v\n", requiredRes)
 	if err != nil {
 		log.Printf("Failed calculating node's free resources: %v", err)
 		return false, nil
@@ -389,20 +390,53 @@ func FindOneServer(ctx context.Context, db *ent.Client, req *protoapi.ServersFin
 	return srv, nil
 }
 
-func DeleteOneServer(ctx context.Context, db *ent.Client, req *protoapi.ServersDeleteRequest) error {
-	srvId := proto.ProtoUUIDToUUID(req.Id)
+func CreateNodeDockerClient(ctx context.Context, db *ent.Client, serverId *protoapi.UUID) (*docker.Client, error) {
+	srvId := proto.ProtoUUIDToUUID(serverId)
 
 	srv, err := FindServerByID(ctx, db, srvId)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	nd, err := srv.QueryNode().First(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	host := fmt.Sprintf("tcp://%s:2375", nd.Ipv4Address)
 	cli, err := docker.NewClientWithOpts(docker.WithHost(host), docker.WithAPIVersionNegotiation())
+	if err != nil {
+		return nil, err
+	}
+
+	return cli, nil
+}
+
+func DeleteOneServer(ctx context.Context, db *ent.Client, req *protoapi.ServersDeleteRequest) error {
+	/*	srvId := proto.ProtoUUIDToUUID(req.Id)
+
+		srv, err := FindServerByID(ctx, db, srvId)
+		if err != nil {
+			return err
+		}
+		nd, err := srv.QueryNode().First(ctx)
+		if err != nil {
+			return err
+		}
+
+		host := fmt.Sprintf("tcp://%s:2375", nd.Ipv4Address)
+		cli, err := docker.NewClientWithOpts(docker.WithHost(host), docker.WithAPIVersionNegotiation())
+		if err != nil {
+			return err
+		}*/
+	cli, err := CreateNodeDockerClient(ctx, db, req.Id)
+	if err != nil {
+		return err
+	}
+	defer cli.Close()
+
+	srvId := proto.ProtoUUIDToUUID(req.Id)
+
+	srv, err := FindServerByID(ctx, db, srvId)
 	if err != nil {
 		return err
 	}
@@ -422,4 +456,24 @@ func DeleteOneServer(ctx context.Context, db *ent.Client, req *protoapi.ServersD
 	}
 
 	return nil
+}
+
+func InspectServerContainer(ctx context.Context, db *ent.Client, id *protoapi.UUID) (*types.ContainerJSON, error) {
+	cli, err := CreateNodeDockerClient(ctx, db, id)
+	if err != nil {
+		return nil, err
+	}
+	defer cli.Close()
+
+	srv, err := FindServerByID(ctx, db, proto.ProtoUUIDToUUID(id))
+	if err != nil {
+		return nil, err
+	}
+
+	info, err := cli.ContainerInspect(ctx, srv.ContainerId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &info, nil
 }

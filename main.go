@@ -5,17 +5,17 @@ import (
 	"github.com/Encedeus/panel/controllers"
 	"github.com/Encedeus/panel/module"
 	"github.com/labstack/gommon/log"
+	"path/filepath"
 )
 
 func main() {
 	config.InitConfig()
 	db := config.InitDB()
 
-	s := module.NewStore("/home/optimuseprime/Projects/Encedeus/test/panel/modules")
-	// go s.InitRPCServer()
+	s := module.NewStore(filepath.Join(config.Config.StorageLocationPath, config.Config.Modules.ModulesDirectory))
 	err := s.LoadAll()
 	if err != nil {
-		log.Fatalf("Load all error: %e", err)
+		log.Fatalf("Load all error: %v", err)
 	}
 
 	controllers.StartDefaultServer(db, s)

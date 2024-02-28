@@ -1,3 +1,5 @@
+storage_location = "/home/optimuseprime/Projects/Encedeus/test/panel"
+
 server {
   host = "localhost"
   port = 8080
@@ -21,11 +23,12 @@ cdn {
 }
 
 modules {
-  modules_dir                 = "./modules"
+  modules_dir                 = "modules"
   compiler_optimization_level = 2
 }
 
 skyhook {
+  storage_location = "/etc/skyhook"
   default_port = 8000
   min_free_ram = 0
   min_free_logical_cores = 0

@@ -2,9 +2,15 @@ package services
 
 import (
 	"context"
+	"fmt"
+	"github.com/Encedeus/panel/config"
 	"github.com/Encedeus/panel/module"
 	"github.com/Encedeus/panel/proto"
 	protoapi "github.com/Encedeus/panel/proto/go"
+	"io"
+	"net/http"
+	"os"
+	"path/filepath"
 )
 
 func FindAllModules(_ context.Context, store *module.Store, req *protoapi.ModulesFindAllRequest) *protoapi.ModulesFindAllResponse {
@@ -50,4 +56,32 @@ func FindOneModule(_ context.Context, store *module.Store, req *protoapi.Modules
 			mod,
 		},
 	}, nil
+}
+
+func InstallModule(fileName string, uri string) error {
+
+	path := fmt.Sprintf("%s/%s.ema",
+		filepath.Join(config.Config.StorageLocationPath, config.Config.Modules.ModulesDirectory),
+		fileName,
+	)
+
+	out, err := os.Create(path)
+	defer out.Close()
+
+	if err != nil {
+		return err
+	}
+
+	resp, err := http.Get(uri)
+	defer resp.Body.Close()
+
+	if err != nil {
+		return err
+	}
+
+	_, err = io.Copy(out, resp.Body)
+	if err != nil {
+		return err
+	}
+	return nil
 }

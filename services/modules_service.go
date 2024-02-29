@@ -58,6 +58,7 @@ func FindOneModule(_ context.Context, store *module.Store, req *protoapi.Modules
 	}, nil
 }
 
+// todo: unstupid after friday
 func InstallModule(fileName string, uri string) error {
 
 	path := fmt.Sprintf("%s/%s.ema",

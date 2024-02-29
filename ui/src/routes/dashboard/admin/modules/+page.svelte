@@ -4,6 +4,7 @@
     import CardHeader from "$lib/components/generic/CardHeader.svelte";
     import ModuleIcon from "$lib/components/heroicons/ModuleIcon.svelte";
     import {Plugin, PluginSearchByNameRequest} from "@encedeus/registry-js-api";
+    import {} from "@encedeus/registry-js-api";
     import ModuleRow from "$lib/components/internal/modules/ModuleRow.svelte";
     import {getApi} from "$lib/api/api";
     import ModuleInfo from "$lib/components/internal/modules/ModuleInfo.svelte";
@@ -24,7 +25,7 @@
 
     function onInstallClick(e) {
         console.log("insatll", e.detail.plugin.name);
-        // todo implement install
+
     }
 
     function onModuleClick(e) {

@@ -72,6 +72,8 @@ func (mc ModulesController) handleFindOneModule(c echo.Context) error {
 
 	return proto.MarshalControllerProtoResponseToJSON(&c, http.StatusOK, resp)
 }
+
+// todo: unstupid after friday
 func (mc ModulesController) handleInstall(c echo.Context) error {
 	installReq := new(protoapi.ModuleInstallRequest)
 	err := c.Bind(installReq)

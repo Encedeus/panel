@@ -30,7 +30,7 @@
             return;
         }
 
-        readme = <string>marked(response.response?.readme);
+        readme = <string>marked(response.response.readme);
         console.log(readme);
     }
 

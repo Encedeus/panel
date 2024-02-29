@@ -12,6 +12,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"io"
 	"net/http"
+	"strconv"
 )
 
 func ProtoUUIDToUUID(id *protoapi.UUID) uuid.UUID {
@@ -176,8 +177,8 @@ func EntNodeToProtoNode(n ent.Node) *protoapi.Node {
 		CpuBaseClock:   uint32(n.CPUBaseClock),
 		Cores:          uint32(n.Cores),
 		LogicalCores:   uint32(n.LogicalCores),
-		Ram:            uint64(n.RAM),
-		Storage:        uint64(n.Storage),
+		Ram:            strconv.FormatUint(uint64(n.RAM), 10),
+		Storage:        strconv.FormatUint(uint64(n.Storage), 10),
 	}
 
 	return pn
@@ -196,8 +197,8 @@ func EntServerToProtoServer(s ent.Server, st *module.Store) *protoapi.Server {
 		UpdatedAt:    timestamppb.New(s.UpdatedAt),
 		Owner:        EntUserEntityToProtoUser(s.QueryOwner().FirstX(context.Background())),
 		Node:         EntNodeToProtoNode(*s.QueryNode().FirstX(context.Background())),
-		Ram:          s.RAM,
-		Storage:      s.Storage,
+		Ram:          strconv.FormatUint(s.RAM, 10),
+		Storage:      strconv.FormatUint(s.Storage, 10),
 		LogicalCores: uint32(s.LogicalCores),
 		Port: &protoapi.Port{
 			Value: uint32(s.Port),

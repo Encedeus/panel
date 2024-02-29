@@ -109,8 +109,8 @@ func CreateNode(ctx context.Context, db *ent.Client, req *protoapi.NodesCreateRe
 				CpuBaseClock:   uint32(n.CPUBaseClock),
 				Cores:          uint32(n.Cores),
 				LogicalCores:   uint32(n.LogicalCores),
-				Ram:            n.RAM,
-				Storage:        n.Storage,
+				Ram:            strconv.FormatUint(n.RAM, 10),
+				Storage:        strconv.FormatUint(n.Storage, 10),
 			},
 		},
 	}

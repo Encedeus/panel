@@ -99,6 +99,7 @@ var (
 		{Name: "crater_variant", Type: field.TypeString},
 		{Name: "crater_options", Type: field.TypeJSON, Nullable: true},
 		{Name: "container_id", Type: field.TypeString, Unique: true},
+		{Name: "sftp_password", Type: field.TypeString, Unique: true},
 		{Name: "game_games", Type: field.TypeUUID, Nullable: true},
 		{Name: "node_nodes", Type: field.TypeUUID, Nullable: true},
 		{Name: "user_owners", Type: field.TypeUUID, Nullable: true},
@@ -111,19 +112,19 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "servers_games_games",
-				Columns:    []*schema.Column{ServersColumns[13]},
+				Columns:    []*schema.Column{ServersColumns[14]},
 				RefColumns: []*schema.Column{GamesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "servers_nodes_nodes",
-				Columns:    []*schema.Column{ServersColumns[14]},
+				Columns:    []*schema.Column{ServersColumns[15]},
 				RefColumns: []*schema.Column{NodesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "servers_users_owners",
-				Columns:    []*schema.Column{ServersColumns[15]},
+				Columns:    []*schema.Column{ServersColumns[16]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

@@ -111,6 +111,12 @@ func (sc *ServerCreate) SetContainerId(s string) *ServerCreate {
 	return sc
 }
 
+// SetSftpPassword sets the "sftp_password" field.
+func (sc *ServerCreate) SetSftpPassword(s string) *ServerCreate {
+	sc.mutation.SetSftpPassword(s)
+	return sc
+}
+
 // SetID sets the "id" field.
 func (sc *ServerCreate) SetID(u uuid.UUID) *ServerCreate {
 	sc.mutation.SetID(u)
@@ -247,6 +253,9 @@ func (sc *ServerCreate) check() error {
 	if _, ok := sc.mutation.ContainerId(); !ok {
 		return &ValidationError{Name: "containerId", err: errors.New(`ent: missing required field "Server.containerId"`)}
 	}
+	if _, ok := sc.mutation.SftpPassword(); !ok {
+		return &ValidationError{Name: "sftp_password", err: errors.New(`ent: missing required field "Server.sftp_password"`)}
+	}
 	return nil
 }
 
@@ -329,6 +338,10 @@ func (sc *ServerCreate) createSpec() (*Server, *sqlgraph.CreateSpec) {
 	if value, ok := sc.mutation.ContainerId(); ok {
 		_spec.SetField(server.FieldContainerId, field.TypeString, value)
 		_node.ContainerId = value
+	}
+	if value, ok := sc.mutation.SftpPassword(); ok {
+		_spec.SetField(server.FieldSftpPassword, field.TypeString, value)
+		_node.SftpPassword = value
 	}
 	if nodes := sc.mutation.NodeIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

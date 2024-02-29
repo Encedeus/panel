@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/Encedeus/panel/module"
 	"github.com/Encedeus/panel/proto"
 	protoapi "github.com/Encedeus/panel/proto/go"
@@ -41,6 +42,7 @@ func (mc ModulesController) handleFindAllModules(c echo.Context) error {
 			"message": "invalid query parameters",
 		})
 	}
+	fmt.Printf("Backendonly param: %v\n", backendOnly)
 
 	req := &protoapi.ModulesFindAllRequest{
 		BackendOnly:  backendOnly,

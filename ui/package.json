@@ -15,6 +15,7 @@
 		"@sveltejs/adapter-auto": "^2.0.0",
 		"@sveltejs/kit": "^1.21.0",
 		"@sveltejs/vite-plugin-svelte": "^2.4.2",
+		"@types/ssh2-sftp-client": "^9.0.3",
 		"@typescript-eslint/eslint-plugin": "^5.61.0",
 		"autoprefixer": "^10.4.14",
 		"eslint": "^8.44.0",
@@ -29,13 +30,14 @@
 		"vite": "^4.3.9"
 	},
 	"dependencies": {
-		"@encedeus/js-api": "^0.0.87",
+		"@encedeus/js-api": "^0.0.101",
 		"@encedeus/registry-js-api": "^0.0.35",
 		"axios": "^1.6.3",
 		"dotenv": "^16.3.1",
 		"is-ip": "^5.0.1",
 		"jose": "^4.14.4",
-		"protobufjs": "^7.2.6"
+		"protobufjs": "^7.2.6",
+		"ssh2-sftp-client": "^10.0.3"
 	},
 	"type": "module"
 }

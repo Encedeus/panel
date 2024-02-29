@@ -45,6 +45,8 @@ type Server struct {
 	CraterOptions any `json:"crater_options,omitempty"`
 	// ContainerId holds the value of the "containerId" field.
 	ContainerId string `json:"containerId,omitempty"`
+	// SftpPassword holds the value of the "sftp_password" field.
+	SftpPassword string `json:"sftp_password,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ServerQuery when eager-loading is set.
 	Edges        ServerEdges `json:"edges"`
@@ -100,7 +102,7 @@ func (*Server) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case server.FieldRAM, server.FieldStorage, server.FieldLogicalCores, server.FieldPort:
 			values[i] = new(sql.NullInt64)
-		case server.FieldName, server.FieldCraterProvider, server.FieldCrater, server.FieldCraterVariant, server.FieldContainerId:
+		case server.FieldName, server.FieldCraterProvider, server.FieldCrater, server.FieldCraterVariant, server.FieldContainerId, server.FieldSftpPassword:
 			values[i] = new(sql.NullString)
 		case server.FieldCreatedAt, server.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -207,6 +209,12 @@ func (s *Server) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				s.ContainerId = value.String
 			}
+		case server.FieldSftpPassword:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field sftp_password", values[i])
+			} else if value.Valid {
+				s.SftpPassword = value.String
+			}
 		case server.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field game_games", values[i])
@@ -309,6 +317,9 @@ func (s *Server) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("containerId=")
 	builder.WriteString(s.ContainerId)
+	builder.WriteString(", ")
+	builder.WriteString("sftp_password=")
+	builder.WriteString(s.SftpPassword)
 	builder.WriteByte(')')
 	return builder.String()
 }

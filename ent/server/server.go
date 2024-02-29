@@ -39,6 +39,8 @@ const (
 	FieldCraterOptions = "crater_options"
 	// FieldContainerId holds the string denoting the containerid field in the database.
 	FieldContainerId = "container_id"
+	// FieldSftpPassword holds the string denoting the sftp_password field in the database.
+	FieldSftpPassword = "sftp_password"
 	// EdgeNode holds the string denoting the node edge name in mutations.
 	EdgeNode = "node"
 	// EdgeOwner holds the string denoting the owner edge name in mutations.
@@ -76,6 +78,7 @@ var Columns = []string{
 	FieldCraterVariant,
 	FieldCraterOptions,
 	FieldContainerId,
+	FieldSftpPassword,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "servers"
@@ -173,6 +176,11 @@ func ByCraterVariant(opts ...sql.OrderTermOption) OrderOption {
 // ByContainerId orders the results by the containerId field.
 func ByContainerId(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldContainerId, opts...).ToFunc()
+}
+
+// BySftpPassword orders the results by the sftp_password field.
+func BySftpPassword(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSftpPassword, opts...).ToFunc()
 }
 
 // ByNodeField orders the results by node field.

@@ -298,7 +298,7 @@ func (ms *Store) LoadOne(emaPath string, doHandshake bool) (*Module, error) {
 		}
 	}
 
-	var frontendServer *FrontendServer
+	frontendServer := &FrontendServer{}
 	// Frontend loading
 	if len(manifest.Frontend.TabName) != 0 {
 		port := ms.GetAvailablePort()

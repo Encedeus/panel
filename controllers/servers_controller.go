@@ -342,11 +342,6 @@ func (ServersController) handleUpgradeConsole(c echo.Context, db *ent.Client) er
 			case <-cl:
 				break
 			default:
-				fmt.Println("going")
-				//logs := make([]byte, 0, resp.Reader.Size())
-				//_, err := io.ReadAtLeast(resp.R, logs)
-				//io.ReadFull(resp.Reader, logs)
-				//logs, err := io.ReadAll(resp.Reader)
 				for {
 					r, err := resp.Reader.ReadString('\n')
 					if err != nil {
@@ -364,23 +359,6 @@ func (ServersController) handleUpgradeConsole(c echo.Context, db *ent.Client) er
 						break
 					}
 				}
-				/*				if err != nil {
-									_ = ws.WriteJSON(echo.Map{
-										"message": "internal error",
-									})
-								}
-
-								if len(logs) > 0 {
-									err = ws.WriteJSON(echo.Map{
-										"logs": base64.StdEncoding.EncodeToString(logs),
-									})
-									if err != nil {
-										c.Logger().Error(err)
-										cl <- struct{}{}
-										close(cl)
-										break
-									}
-								}*/
 			}
 		}
 	}(ws)
@@ -409,15 +387,6 @@ func (ServersController) handleUpgradeConsole(c echo.Context, db *ent.Client) er
 			}
 		}
 	}(ws)
-
-	/*	for {
-		_, _, err := ws.UnderlyingConn()
-		if errors.Is(err, &websocket.CloseError{}) {
-			cl <- struct{}{}
-			close(cl)
-			return c.NoContent(http.StatusNoContent)
-		}
-	}*/
 
 	for {
 		select {

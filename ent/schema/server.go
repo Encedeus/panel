@@ -31,6 +31,7 @@ func (Server) Fields() []ent.Field {
 		field.String("crater_variant"),
 		field.Any("crater_options").Optional(),
 		field.String("containerId").Unique(),
+		field.String("sftp_password").Unique(),
 	}
 }
 

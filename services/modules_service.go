@@ -5,26 +5,22 @@ import (
 	"github.com/Encedeus/panel/module"
 	"github.com/Encedeus/panel/proto"
 	protoapi "github.com/Encedeus/panel/proto/go"
+	"strings"
 )
 
 func FindAllModules(_ context.Context, store *module.Store, req *protoapi.ModulesFindAllRequest) *protoapi.ModulesFindAllResponse {
-	modules := make([]*protoapi.Module, len(store.Modules))
+	modules := make([]*protoapi.Module, 0)
 
-	for i, m := range store.Modules {
-		if req.FrontendOnly {
-			if len(m.Manifest.Frontend.Platform) != 0 {
-				modules[i] = proto.ModuleToProtoModule(*m)
-				continue
-			}
+	for _, m := range store.Modules {
+		if req.FrontendOnly && len(strings.TrimSpace(m.Manifest.Frontend.Platform)) > 0 {
+			modules = append(modules, proto.ModuleToProtoModule(*m))
+			continue
 		}
-		if req.BackendOnly {
-			if len(m.Manifest.Backend.MainFile) != 0 {
-				modules[i] = proto.ModuleToProtoModule(*m)
-				continue
-			}
+		if req.BackendOnly && len(strings.TrimSpace(m.Manifest.Backend.MainFile)) > 0 {
+			modules = append(modules, proto.ModuleToProtoModule(*m))
+			continue
 		}
-
-		modules[i] = proto.ModuleToProtoModule(*m)
+		//modules[i] = proto.ModuleToProtoModule(*m)
 	}
 
 	return &protoapi.ModulesFindAllResponse{

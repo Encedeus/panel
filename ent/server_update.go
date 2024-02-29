@@ -145,6 +145,12 @@ func (su *ServerUpdate) SetContainerId(s string) *ServerUpdate {
 	return su
 }
 
+// SetSftpPassword sets the "sftp_password" field.
+func (su *ServerUpdate) SetSftpPassword(s string) *ServerUpdate {
+	su.mutation.SetSftpPassword(s)
+	return su
+}
+
 // SetNodeID sets the "node" edge to the Node entity by ID.
 func (su *ServerUpdate) SetNodeID(id uuid.UUID) *ServerUpdate {
 	su.mutation.SetNodeID(id)
@@ -295,6 +301,9 @@ func (su *ServerUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := su.mutation.ContainerId(); ok {
 		_spec.SetField(server.FieldContainerId, field.TypeString, value)
+	}
+	if value, ok := su.mutation.SftpPassword(); ok {
+		_spec.SetField(server.FieldSftpPassword, field.TypeString, value)
 	}
 	if su.mutation.NodeCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -488,6 +497,12 @@ func (suo *ServerUpdateOne) SetContainerId(s string) *ServerUpdateOne {
 	return suo
 }
 
+// SetSftpPassword sets the "sftp_password" field.
+func (suo *ServerUpdateOne) SetSftpPassword(s string) *ServerUpdateOne {
+	suo.mutation.SetSftpPassword(s)
+	return suo
+}
+
 // SetNodeID sets the "node" edge to the Node entity by ID.
 func (suo *ServerUpdateOne) SetNodeID(id uuid.UUID) *ServerUpdateOne {
 	suo.mutation.SetNodeID(id)
@@ -668,6 +683,9 @@ func (suo *ServerUpdateOne) sqlSave(ctx context.Context) (_node *Server, err err
 	}
 	if value, ok := suo.mutation.ContainerId(); ok {
 		_spec.SetField(server.FieldContainerId, field.TypeString, value)
+	}
+	if value, ok := suo.mutation.SftpPassword(); ok {
+		_spec.SetField(server.FieldSftpPassword, field.TypeString, value)
 	}
 	if suo.mutation.NodeCleared() {
 		edge := &sqlgraph.EdgeSpec{

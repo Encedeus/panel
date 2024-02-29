@@ -4,7 +4,7 @@ import { ModulesFindAllRequest } from "@encedeus/js-api";
 
 export const load: LayoutServerLoad = async () => {
     const resp = await api.modulesService.findAllModules(ModulesFindAllRequest.create({
-        backendOnly: true,
+        backendOnly: false,
         frontendOnly: true,
     }));
 

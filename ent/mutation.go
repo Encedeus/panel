@@ -3367,6 +3367,7 @@ type ServerMutation struct {
 	crater_variant   *string
 	crater_options   *any
 	containerId      *string
+	sftp_password    *string
 	clearedFields    map[string]struct{}
 	node             *uuid.UUID
 	clearednode      bool
@@ -4006,6 +4007,42 @@ func (m *ServerMutation) ResetContainerId() {
 	m.containerId = nil
 }
 
+// SetSftpPassword sets the "sftp_password" field.
+func (m *ServerMutation) SetSftpPassword(s string) {
+	m.sftp_password = &s
+}
+
+// SftpPassword returns the value of the "sftp_password" field in the mutation.
+func (m *ServerMutation) SftpPassword() (r string, exists bool) {
+	v := m.sftp_password
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSftpPassword returns the old "sftp_password" field's value of the Server entity.
+// If the Server object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ServerMutation) OldSftpPassword(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSftpPassword is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSftpPassword requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSftpPassword: %w", err)
+	}
+	return oldValue.SftpPassword, nil
+}
+
+// ResetSftpPassword resets all changes to the "sftp_password" field.
+func (m *ServerMutation) ResetSftpPassword() {
+	m.sftp_password = nil
+}
+
 // SetNodeID sets the "node" edge to the Node entity by id.
 func (m *ServerMutation) SetNodeID(id uuid.UUID) {
 	m.node = &id
@@ -4118,7 +4155,7 @@ func (m *ServerMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ServerMutation) Fields() []string {
-	fields := make([]string, 0, 12)
+	fields := make([]string, 0, 13)
 	if m.created_at != nil {
 		fields = append(fields, server.FieldCreatedAt)
 	}
@@ -4155,6 +4192,9 @@ func (m *ServerMutation) Fields() []string {
 	if m.containerId != nil {
 		fields = append(fields, server.FieldContainerId)
 	}
+	if m.sftp_password != nil {
+		fields = append(fields, server.FieldSftpPassword)
+	}
 	return fields
 }
 
@@ -4187,6 +4227,8 @@ func (m *ServerMutation) Field(name string) (ent.Value, bool) {
 		return m.CraterOptions()
 	case server.FieldContainerId:
 		return m.ContainerId()
+	case server.FieldSftpPassword:
+		return m.SftpPassword()
 	}
 	return nil, false
 }
@@ -4220,6 +4262,8 @@ func (m *ServerMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldCraterOptions(ctx)
 	case server.FieldContainerId:
 		return m.OldContainerId(ctx)
+	case server.FieldSftpPassword:
+		return m.OldSftpPassword(ctx)
 	}
 	return nil, fmt.Errorf("unknown Server field %s", name)
 }
@@ -4312,6 +4356,13 @@ func (m *ServerMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetContainerId(v)
+		return nil
+	case server.FieldSftpPassword:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSftpPassword(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Server field %s", name)
@@ -4457,6 +4508,9 @@ func (m *ServerMutation) ResetField(name string) error {
 		return nil
 	case server.FieldContainerId:
 		m.ResetContainerId()
+		return nil
+	case server.FieldSftpPassword:
+		m.ResetSftpPassword()
 		return nil
 	}
 	return fmt.Errorf("unknown Server field %s", name)

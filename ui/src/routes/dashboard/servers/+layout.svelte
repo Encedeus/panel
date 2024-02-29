@@ -5,6 +5,7 @@
     import { page } from "$app/stores";
     import type { LayoutServerData } from "./$types";
     import ConsoleIcon from "$lib/components/heroicons/ConsoleIcon.svelte";
+    import FolderIcon from "$lib/components/heroicons/FolderIcon.svelte";
 
     export let data: LayoutServerData;
     $: serverId = $page.params.id;
@@ -80,6 +81,12 @@
             <ConsoleIcon slot="icon"/>
             <SideBarTabLabel slot="label">
                 Console
+            </SideBarTabLabel>
+        </SideBarTab>
+        <SideBarTab link="/dashboard/servers/{serverId}/files">
+            <FolderIcon slot="icon"/>
+            <SideBarTabLabel slot="label">
+                File Manager
             </SideBarTabLabel>
         </SideBarTab>
     </div>

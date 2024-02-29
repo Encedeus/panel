@@ -111,6 +111,11 @@ func ContainerId(v string) predicate.Server {
 	return predicate.Server(sql.FieldEQ(FieldContainerId, v))
 }
 
+// SftpPassword applies equality check predicate on the "sftp_password" field. It's identical to SftpPasswordEQ.
+func SftpPassword(v string) predicate.Server {
+	return predicate.Server(sql.FieldEQ(FieldSftpPassword, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.Server {
 	return predicate.Server(sql.FieldEQ(FieldCreatedAt, v))
@@ -684,6 +689,71 @@ func ContainerIdEqualFold(v string) predicate.Server {
 // ContainerIdContainsFold applies the ContainsFold predicate on the "containerId" field.
 func ContainerIdContainsFold(v string) predicate.Server {
 	return predicate.Server(sql.FieldContainsFold(FieldContainerId, v))
+}
+
+// SftpPasswordEQ applies the EQ predicate on the "sftp_password" field.
+func SftpPasswordEQ(v string) predicate.Server {
+	return predicate.Server(sql.FieldEQ(FieldSftpPassword, v))
+}
+
+// SftpPasswordNEQ applies the NEQ predicate on the "sftp_password" field.
+func SftpPasswordNEQ(v string) predicate.Server {
+	return predicate.Server(sql.FieldNEQ(FieldSftpPassword, v))
+}
+
+// SftpPasswordIn applies the In predicate on the "sftp_password" field.
+func SftpPasswordIn(vs ...string) predicate.Server {
+	return predicate.Server(sql.FieldIn(FieldSftpPassword, vs...))
+}
+
+// SftpPasswordNotIn applies the NotIn predicate on the "sftp_password" field.
+func SftpPasswordNotIn(vs ...string) predicate.Server {
+	return predicate.Server(sql.FieldNotIn(FieldSftpPassword, vs...))
+}
+
+// SftpPasswordGT applies the GT predicate on the "sftp_password" field.
+func SftpPasswordGT(v string) predicate.Server {
+	return predicate.Server(sql.FieldGT(FieldSftpPassword, v))
+}
+
+// SftpPasswordGTE applies the GTE predicate on the "sftp_password" field.
+func SftpPasswordGTE(v string) predicate.Server {
+	return predicate.Server(sql.FieldGTE(FieldSftpPassword, v))
+}
+
+// SftpPasswordLT applies the LT predicate on the "sftp_password" field.
+func SftpPasswordLT(v string) predicate.Server {
+	return predicate.Server(sql.FieldLT(FieldSftpPassword, v))
+}
+
+// SftpPasswordLTE applies the LTE predicate on the "sftp_password" field.
+func SftpPasswordLTE(v string) predicate.Server {
+	return predicate.Server(sql.FieldLTE(FieldSftpPassword, v))
+}
+
+// SftpPasswordContains applies the Contains predicate on the "sftp_password" field.
+func SftpPasswordContains(v string) predicate.Server {
+	return predicate.Server(sql.FieldContains(FieldSftpPassword, v))
+}
+
+// SftpPasswordHasPrefix applies the HasPrefix predicate on the "sftp_password" field.
+func SftpPasswordHasPrefix(v string) predicate.Server {
+	return predicate.Server(sql.FieldHasPrefix(FieldSftpPassword, v))
+}
+
+// SftpPasswordHasSuffix applies the HasSuffix predicate on the "sftp_password" field.
+func SftpPasswordHasSuffix(v string) predicate.Server {
+	return predicate.Server(sql.FieldHasSuffix(FieldSftpPassword, v))
+}
+
+// SftpPasswordEqualFold applies the EqualFold predicate on the "sftp_password" field.
+func SftpPasswordEqualFold(v string) predicate.Server {
+	return predicate.Server(sql.FieldEqualFold(FieldSftpPassword, v))
+}
+
+// SftpPasswordContainsFold applies the ContainsFold predicate on the "sftp_password" field.
+func SftpPasswordContainsFold(v string) predicate.Server {
+	return predicate.Server(sql.FieldContainsFold(FieldSftpPassword, v))
 }
 
 // HasNode applies the HasEdge predicate on the "node" edge.

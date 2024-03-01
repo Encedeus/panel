@@ -12,6 +12,8 @@ export const load: LayoutServerLoad = async ({ locals, route }) => {
         throw redirect(307, "/dashboard/servers");
     }
 
+
+
     return {
         user: (await api.usersService.findUserById(UserFindOneRequest.create({
             userId: UUID.create({

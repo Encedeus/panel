@@ -9,12 +9,30 @@
     import TagIcon from "$lib/components/heroicons/TagIcon.svelte";
     import RoleRow from "$lib/components/internal/roles/RoleRow.svelte";
     import RoleCreateModal from "$lib/components/internal/roles/RoleCreateModal.svelte";
+    import type {RoleListData} from "$lib/interfaces/roleListData";
+    import {Role, User} from "@encedeus/js-api";
+    import {onMount} from "svelte";
 
+
+    export let data: RoleListData;
     let isShowingModal = false;
+    let rolesData: Array<{ role: Role, userList: string[] }>;
+
 
     function displayCreateModal() {
         isShowingModal = true;
     }
+
+    function loadData() {
+        console.log(data);
+        rolesData = data.rolesData;
+    }
+
+    $: data && loadData();
+
+    onMount(loadData);
+
+
 </script>
 
 <!--<div class="absolute bg-slate-900 w-screen h-screen top-0 -z-10"></div>-->
@@ -50,9 +68,19 @@
                 </tr>
                 </thead>
                 <tbody>
-                <RoleRow name="role1" description="lorem ipsum1" permissions={["1", "2", "3"]} userList={["testus", "mestus"]}/>
-                <RoleRow name="role2" description="lorem ipsum2" permissions={["1", "2", "3", "4"]} userList={["testus", "mestus", "pestus"]}/>
-                <RoleRow name="role1" description="lorem ipsum3" permissions={["1", "2", ]} userList={["testus", "mestus", "pestus", "destus"]}/>
+
+                {#each rolesData as roleData}
+                    <RoleRow name={roleData.role.name} description={roleData.role.permissions}
+                             userList={roleData.userList}/>
+                {/each}
+
+
+                <RoleRow name="role1" description="lorem ipsum1" permissions={["1", "2", "3"]}
+                         userList={["testus", "mestus"]}/>
+                <RoleRow name="role2" description="lorem ipsum2" permissions={["1", "2", "3", "4"]}
+                         userList={["testus", "mestus", "pestus"]}/>
+                <RoleRow name="role1" description="lorem ipsum3" permissions={["1", "2", ]}
+                         userList={["testus", "mestus", "pestus", "destus"]}/>
                 </tbody>
             </table>
         </div>

@@ -16,7 +16,7 @@ import (
 func FindAllModules(_ context.Context, store *module.Store, req *protoapi.ModulesFindAllRequest) *protoapi.ModulesFindAllResponse {
 	modules := make([]*protoapi.Module, 0)
 
-	for i, m := range store.Modules {
+	for _, m := range store.Modules {
 		if req.FrontendOnly && len(m.Manifest.Frontend.Platform) > 0 {
 			modules = append(modules, proto.ModuleToProtoModule(*m))
 		}

@@ -154,7 +154,7 @@ func DeleteUser(ctx context.Context, db *ent.Client, req *protoapi.UserDeleteReq
 
 func FindOneUser(ctx context.Context, db *ent.Client, req *protoapi.UserFindOneRequest) (*protoapi.UserFindOneResponse, error) {
 	userData, err := db.User.Query().
-		Where(user.Or(user.IDEQ(proto.ProtoUUIDToUUID(req.UserId)), user.NameEQ(req.UserId.Value))).
+		Where(user.IDEQ(proto.ProtoUUIDToUUID(req.UserId))).
 		Select("id", "name", "created_at", "updated_at", "deleted_at", "email", "role_id").
 		First(ctx)
 	if err != nil {
@@ -167,6 +167,22 @@ func FindOneUser(ctx context.Context, db *ent.Client, req *protoapi.UserFindOneR
 
 	resp := &protoapi.UserFindOneResponse{
 		User: proto.EntUserEntityToProtoUser(userData),
+	}
+
+	return resp, err
+}
+func FindUsersWithRole(ctx context.Context, db *ent.Client, roleId uuid.UUID) (*protoapi.UserFindWithRoleResponse, error) {
+	users, err := db.User.Query().
+		Where(user.RoleID(roleId)).
+		Select("id", "name", "created_at", "updated_at", "deleted_at", "email", "role_id").
+		All(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	resp := &protoapi.UserFindWithRoleResponse{
+		Users: proto.EntUsersEntityToProtoUser(users),
 	}
 
 	return resp, err

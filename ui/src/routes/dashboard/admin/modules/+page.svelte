@@ -36,9 +36,15 @@
     loadData();
 </script>
 
-<main class="m-5">
-    <CardHeader>Modules</CardHeader>
-    <Card height="lg">
+<main class="flex flex-col p-8 gap-3">
+    <CardHeader size="lg">
+        Modules
+    </CardHeader>
+
+    <Card height="lg" fixedHeight={true} className="overflow-x-hidden overflow-y-auto">
+        <span slot="title" class="flex flex-row items-center">
+            Module List
+        </span>
         <ModuleIcon slot="icon"/>
 
         <div slot="content" class="flex flex-row justify-center h-full ">

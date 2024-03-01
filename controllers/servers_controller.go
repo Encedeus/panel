@@ -344,6 +344,11 @@ func (ServersController) handleUpgradeConsole(c echo.Context, db *ent.Client) er
 			case <-cl:
 				break
 			default:
+				fmt.Println("going")
+				//logs := make([]byte, 0, resp.Reader.Size())
+				//_, err := io.ReadAtLeast(resp.R, logs)
+				//io.ReadFull(resp.Reader, logs)
+				//logs, err := io.ReadAll(resp.Reader)
 				for {
 					r, err := resp.Reader.ReadString('\n')
 					if err != nil {

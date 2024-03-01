@@ -37,6 +37,14 @@ func EntUserEntityToProtoUser(user *ent.User) *protoapi.User {
 		UpdatedAt: timestamppb.New(user.UpdatedAt),
 	}
 }
+func EntUsersEntityToProtoUser(users []*ent.User) []*protoapi.User {
+	var protoUsers []*protoapi.User
+
+	for _, user := range users {
+		protoUsers = append(protoUsers, EntUserEntityToProtoUser(user))
+	}
+	return protoUsers
+}
 
 func ProtoUserToEntUserEntity(user *protoapi.User) *ent.User {
 	return &ent.User{
@@ -60,6 +68,14 @@ func EntRoleEntityToProtoRole(role *ent.Role) *protoapi.Role {
 		DeletedAt:   timestamppb.New(role.DeletedAt),
 		Permissions: role.Permissions,
 	}
+}
+func EntRoleEntityToProtoRoles(roles []*ent.Role) []*protoapi.Role {
+	var protoRoles []*protoapi.Role
+
+	for _, role := range roles {
+		protoRoles = append(protoRoles, EntRoleEntityToProtoRole(role))
+	}
+	return protoRoles
 }
 
 func ProtoRoleToEntRoleEntity(role *protoapi.Role) *ent.Role {

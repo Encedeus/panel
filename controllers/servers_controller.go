@@ -279,9 +279,11 @@ func (ServersController) handleGetServerStatus(c echo.Context, db *ent.Client) e
 		})
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"status": state.State.Status,
-	})
+	return proto.MarshalControllerProtoResponseToJSON(&c, 200,
+		&protoapi.ServersGetStatusResponse{
+			Status: state.State.Status,
+		},
+	)
 }
 
 func (ServersController) handleUpgradeConsole(c echo.Context, db *ent.Client) error {

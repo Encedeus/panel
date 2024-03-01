@@ -66,4 +66,6 @@ var (
 	ErrUnsupportedVariant            = NewValidationError("unsupported crater variant")
 	ErrNoFreeNodesFound              = NewValidationError("no free nodes satisfying the requirements exist")
 	ErrFailedRemovingContainer       = errors.New("failed removing Docker container")
+	ErrApiFailure                    = errors.New("API failed")
+	ErrModuleHasNoReleases           = errors.New("module has no files to download")
 )

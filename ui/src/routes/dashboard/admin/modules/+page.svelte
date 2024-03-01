@@ -4,6 +4,7 @@
     import CardHeader from "$lib/components/generic/CardHeader.svelte";
     import ModuleIcon from "$lib/components/heroicons/ModuleIcon.svelte";
     import {Plugin, PluginSearchByNameRequest} from "@encedeus/registry-js-api";
+    import {} from "@encedeus/registry-js-api";
     import ModuleRow from "$lib/components/internal/modules/ModuleRow.svelte";
     import {getApi} from "$lib/api/api";
     import ModuleInfo from "$lib/components/internal/modules/ModuleInfo.svelte";
@@ -24,7 +25,7 @@
 
     function onInstallClick(e) {
         console.log("insatll", e.detail.plugin.name);
-        // todo implement install
+
     }
 
     function onModuleClick(e) {
@@ -37,11 +38,11 @@
 
 <main class="m-5">
     <CardHeader>Modules</CardHeader>
-    <Card>
+    <Card height="lg">
         <ModuleIcon slot="icon"/>
 
-        <div slot="content" class="flex flex-row justify-center">
-            <div id="pluginList" class="w-3/6 border-r-2 border-black pb-9 h-full">
+        <div slot="content" class="flex flex-row justify-center h-full ">
+            <div id="pluginList" class="w-3/6 border-r-2 border-black pb-9 h-full min-h-[36rem]">
                 {#if plugins}
                     {#each plugins as plugin}
                         <ModuleRow on:onInstall={onInstallClick} on:moduleClick={onModuleClick} plugin={plugin}/>

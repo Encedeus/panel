@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"encoding/base64"
 	"errors"
 	"fmt"
 	"github.com/Encedeus/panel/config"
@@ -13,7 +12,6 @@ import (
 	"github.com/Encedeus/panel/module"
 	"github.com/Encedeus/panel/proto"
 	"github.com/Encedeus/panel/proto/go"
-	"github.com/Encedeus/panel/security"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	docker "github.com/docker/docker/client"
@@ -68,10 +66,6 @@ func CreateServer(ctx context.Context, db *ent.Client, store *module.Store, req 
 		return nil, err
 	}
 
-	sftpPassword := security.RandomBytes(32)
-	encodedPass := base64.StdEncoding.EncodeToString(sftpPassword)
-	//hashedPass := security.HashPassword(security.DefaultArgon2Params(), string(sftpPassword))
-
 	_, err = db.Server.Create().
 		SetID(serverId).
 		SetName(req.Name).
@@ -85,7 +79,6 @@ func CreateServer(ctx context.Context, db *ent.Client, store *module.Store, req 
 		SetNode(n).
 		SetContainerId(resp.Servers[0].ContainerId).
 		SetPort(uint(uint16(resp.Servers[0].Port.Value))).
-		SetSftpPassword(encodedPass).
 		Save(ctx)
 	if err != nil {
 		return nil, err

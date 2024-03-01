@@ -1,4 +1,4 @@
-storage_location = "/home/optimuseprime/Projects/Encedeus/test/panel"
+storage_location = "../test/panel"
 
 server {
   host = "localhost"

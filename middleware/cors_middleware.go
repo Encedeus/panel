@@ -13,6 +13,7 @@ func CORSMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 		c.Response().Header().Set("Access-Control-Allow-Origin", origin)
 		c.Response().Header().Set("Access-Control-Allow-Credentials", "true")
 		c.Response().Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type, Accept")
+		c.Response().Header().Set("Access-Control-Allow-Methods", "GET,HEAD,POST, PUT, DELETE, PATCH")
 
 		if c.Request().Method == "OPTIONS" {
 			return c.NoContent(200)

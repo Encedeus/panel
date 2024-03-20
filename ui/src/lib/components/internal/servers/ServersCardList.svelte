@@ -13,9 +13,11 @@
         <span slot="title">Servers</span>
         <ServerStackIcon slot="icon"/>
         <div slot="content" class="flex flex-col items-stretch gap-3 p-6">
-            {#each serverList as server}
-                <ServerCard server={server}/>
-            {/each}
+            {#if serverList}
+                {#each serverList as server}
+                    <ServerCard server={server}/>
+                {/each}
+            {/if}
         </div>
     </Card>
 </div>

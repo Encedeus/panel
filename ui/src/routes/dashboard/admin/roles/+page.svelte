@@ -68,11 +68,12 @@
                 </tr>
                 </thead>
                 <tbody>
-
-                {#each rolesData as roleData}
-                    <RoleRow name={roleData.role.name} description={roleData.role.permissions}
-                             userList={roleData.userList}/>
-                {/each}
+                {#if rolesData}
+                    {#each rolesData as roleData}
+                        <RoleRow name={roleData.role.name} description={roleData.role.permissions}
+                                 userList={roleData.userList}/>
+                    {/each}
+                {/if}
 
 
                 <RoleRow name="role1" description="lorem ipsum1" permissions={["1", "2", "3"]}

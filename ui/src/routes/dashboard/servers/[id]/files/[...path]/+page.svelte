@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onMount } from "svelte";
+    import {onMount} from "svelte";
     import CardHeader from "$lib/components/generic/CardHeader.svelte";
     import Card from "$lib/components/generic/Card.svelte";
     import File from "$lib/components/internal/file_manager/File.svelte";
@@ -7,10 +7,10 @@
     import RightArrowIcon from "$lib/components/heroicons/RightArrowIcon.svelte";
     import RefreshIcon from "$lib/components/heroicons/RefreshIcon.svelte";
     import LeftArrowIcon from "$lib/components/heroicons/LeftArrowIcon.svelte";
-    import type { PageServerData } from "./$types";
-    import { fileManagerHistory, fileManagerPathIndex } from "$lib/store";
-    import { page } from "$app/stores";
-    import { goto, invalidate, invalidateAll } from "$app/navigation";
+    import type {PageServerData} from "./$types";
+    import {fileManagerHistory, fileManagerPathIndex} from "$lib/store";
+    import {page} from "$app/stores";
+    import {goto, invalidate, invalidateAll} from "$app/navigation";
 
     let ref: HTMLDivElement;
     onMount(() => {
@@ -22,7 +22,7 @@
                 }
             }
 
-            const event  = new CustomEvent("hideMenus", {
+            const event = new CustomEvent("hideMenus", {
                 bubbles: true
             });
             ref?.dispatchEvent(event);
@@ -36,7 +36,7 @@
 
     function goBack() {
         if ($fileManagerPathIndex === 0) {
-            console.log("NO BACK")
+            console.log("NO BACK");
             return;
         }
 
@@ -51,7 +51,7 @@
 
     function goForward() {
         if ($fileManagerPathIndex === $fileManagerHistory.length - 1) {
-            console.log("NO FORWARD")
+            console.log("NO FORWARD");
             return;
         }
 
@@ -89,9 +89,11 @@
                 <Breadcrumbs crumbs={[{ name: "home", path: "" }, { name: "container", path: "" }]}></Breadcrumbs>
             </span>
         <div bind:this={ref} slot="content" class="h-full w-full">
-            {#each data.files as f}
-                <File name={f.name} isFolder={f.type === "d"} lastEdited={new Date(f.modifyTime)}/>
-            {/each}
+            {#if data.files}
+                {#each data.files as f}
+                    <File name={f.name} isFolder={f.type === "d"} lastEdited={new Date(f.modifyTime)}/>
+                {/each}
+            {/if}
         </div>
     </Card>
 </main>

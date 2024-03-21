@@ -7,11 +7,13 @@
 </script>
 
 <ul class="{className}">
-    {#each items as item}
-        <li class={activeTabValue === item.value ? 'active' : ''}>
-            <span on:click={handleClick(item.value)}>{item.label}</span>
-        </li>
-    {/each}
+    {#if items}
+        {#each items as item}
+            <li class={activeTabValue === item.value ? 'active' : ''}>
+                <span on:click={handleClick(item.value)}>{item.label}</span>
+            </li>
+        {/each}
+    {/if}
 </ul>
 
 <style lang="postcss">
@@ -25,7 +27,7 @@
 
     span {
         border-bottom: 2px solid transparent;
-        border-top: 2px  transparent;
+        border-top: 2px transparent;
         /*display: block;*/
         padding: .35rem 1rem;
         padding-inline: 15px;
